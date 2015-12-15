@@ -8,7 +8,53 @@
 #ifndef FLOWFILTER_IMAGE_H_
 #define FLOWFILTER_IMAGE_H_
 
+/**
+ * \brief The namespace of this library.
+ */
 namespace flowfilter {
+
+/**
+ * \brief Image type
+ *
+ * This type encapsulates the relevant attributes of
+ * an image buffer to enable its manipulation within
+ * the library.
+ *
+ */
+typedef struct {
+
+    /** Image height in pixels */
+    int height;
+
+    /** Image width in pixels */
+    int width;
+
+    /** Row pitch in bytes */
+    size_t pitch;
+
+    /** Memory buffer pointer */
+    void* data;
+
+} image_t;
+
+
+/**
+ * \brief Creates a new image. Allocates memory for storing pixel data.
+ *
+ * \param[in] height image height in pixels.
+ * \param[in] width image width in pixels.
+ * \param[in] pixelSize pixel size in bytes.
+ */
+image_t createImage(const int height, const int width, const size_t pixelSize);
+
+/**
+ * \brief Destroys an image. Deallocates image memory buffer.
+ *
+ * Releases the memory allocated to store the buffer
+ * containing image data. image.data is set to std::nullptr
+ * after deallocation.
+ */
+void destroyImage(image_t& image);
 
 
 }; // namespace flowfilter
