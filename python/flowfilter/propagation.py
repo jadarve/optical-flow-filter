@@ -12,7 +12,8 @@ import numpy as np
 import scipy.ndimage as nd
 
 
-__all__ = ['dominantFlow_x', 'dominantFlow_y']
+__all__ = ['dominantFlow_x', 'dominantFlow_y',
+    'propagate', 'propagation_step']
 
 
 ###########################################################
@@ -58,16 +59,27 @@ def dominantFlow_x(flow_x):
 
     Parameters
     ----------
-    flow_x : ndarray.
+    flow_x : ndarray
         Optical X flow component.
 
     Returns
     -------
-    flow_x_dom : ndarray.
+    flow_x_dom : ndarray
         Dominant flow in X (column) direction
+
+    Raises
+    ------
+    ValueError : if flow_x.ndim != 2
+
+    See Also
+    --------
+    dominantFlow_y : Computes dominant flow in Y (row) direction
     """
+
+    if flow_x.ndim != 2:
+        raise ValueError('flow_x should be a 2D ndarray')
     
-    flow_x_dom = np.copy(flow_x)
+    flow_x_dom = np.zeros_like(flow_x)
 
     # central difference of absolute value of flow
     flow_x_abs = nd.convolve(np.abs(flow_x), _dxc_k)
@@ -86,16 +98,27 @@ def dominantFlow_y(flow_y):
 
     Parameters
     ----------
-    flow_y : ndarray.
+    flow_y : ndarray
         Optical flow Y component.
 
     Returns
     -------
-    flow_y_dom : ndarray.
+    flow_y_dom : ndarray
         Dominant flow in Y (row) directions.
+
+    Raises
+    ------
+    ValueError : if flow_y.ndim != 2
+
+    See Also
+    --------
+    dominantFlow_x : Computes dominant flow in X (column) direction.
     """
+
+    if flow_y.ndim != 2:
+        raise ValueError('flow_y should be a 2D ndarray')
     
-    flow_y_dom = np.copy(flow_y)
+    flow_y_dom = np.zeros_like(flow_y)
 
     # central difference of absolute value of flow
     flow_y_abs = nd.convolve(np.abs(flow_y), _dyc_k)
@@ -110,13 +133,60 @@ def dominantFlow_y(flow_y):
     return flow_y_dom
 
 
-def propagate(flow, iterations=1, dx=1.0, border=3):
-    pass
+def propagate(flow, iterations=1, dx=1.0, border=3, payload=None):
+    """Propagate an optical flow field and attached payloads
 
+    Parameters
+    ----------
+    flow : ndarray
+        Optical flow field. Each pixel (i, j) contains the (u, v)
+        components of optical flow.
 
-def propagateWithPayload(flow, iterations=1, dx=1.0, border=3, payload=None):
-    pass
-   
+    iterations : integer, optional
+        Number of iterations the numerical scheme is run.
+        Defaults to 1
+
+    dx : float, optional
+        Pixel size. Defaults to 1.0.
+
+    border: integer, optional
+        Border width in which the propagation does not take place.
+        The returned propagated flow with have the same values as
+        the input in the border regions. Defaults to 3.
+
+    payload : list, optional
+        List of scalar fields to be propagated alongside the
+        flow. Each element of the list must be a 2D ndarray.
+        Defautls to None
+
+    Returns
+    -------
+    flowPropagated : ndarray
+        Propagated flow field.
+
+    payloadPropagated: list
+        Propagated payloads or None if payload parameters is None
+
+    Raises
+    ------
+    ValueError : if iterations <= 0
+
+    See Also
+    --------
+    propagation_step : Performs one iteration of the propagation numerical scheme.
+    """
+
+    if iterations <= 0: raise ValueError('iterations must be greater than zero')
+
+    # time step
+    dt = 1.0 / float(iterations)
+
+    #  run the numerical scheme
+    for _ in range(iterations):
+        flow, payload = propagation_step(flow, dx, dt, border, payload)
+
+    # return the propagated flow and payload
+    return flow, payload
 
 def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
     """Performs one iteration of the propagation numerical scheme.
@@ -127,10 +197,10 @@ def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
         Optical flow field. Each pixel (i, j) contains the (u, v)
         components of optical flow.
 
-    dx : float, optional.
+    dx : float, optional
         Pixel size. Defaults to 1.0.
 
-    dt : float, optional.
+    dt : float, optional
         Time step. Defaults to 1.0.
 
     border: integer, optional
@@ -138,21 +208,36 @@ def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
         The returned propagated flow with have the same values as
         the input in the border regions. Defaults to 3.
 
+    payload : list, optional
+        List of scalar fields to be propagated alongside the
+        optical flow. Each element of the list must be a 2D ndarray.
+        Defautls to None
+
     Returns
     -------
-    flowPropagated : 3D ndarray.
+    flowPropagated : ndarray
         Propagated flow field.
 
-    payloadPropagated: list.
+    payloadPropagated: list
         Propagated payloads or None if payload parameters is None
 
     Raises
     ------
     ValueError : if flow.ndim != 3
+    ValueError : if border < 0
+    ValueError : if dx <= 0.0
+    ValueError : if dt <= 0.0
+
+    See Also
+    --------
+    propagate : Propagate an optical flow field and attached payloads
     """
 
-    if flow.ndim != 3:
-        raise ValueError('flow field must be a 3D ndarray')
+    # Parameters check
+    if flow.ndim != 3: raise ValueError('flow field must be a 3D ndarray')
+    if border < 0: raise ValueError('border should be greater or equal zero')
+    if dx <= 0.0: raise ValueError('dx should be greater than zero')
+    if dt <= 0.0: raise ValueError('dt should be greater than zero')
     
     # U V flow components
     U = np.copy(flow[:,:,0])
@@ -169,17 +254,16 @@ def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
     # Vh = V - R*U*dx(V)
     #############################################
 
-    # dominant flow
     Ud = dominantFlow_x(U)
     
-    # sign of Ud
+    # sign of dominant flow
     Up = Ud >= 0
     Um = Ud < 0
 
     Uh = np.copy(U)
     Vh = np.copy(V)
     
-    # propagation with upwind kernels
+    # propagation with upwind difference operators
     Uh[Up] -= R*(Ud*nd.convolve(U, _dxm_k))[Up]
     Uh[Um] -= R*(Ud*nd.convolve(U, _dxp_k))[Um]
     
@@ -208,13 +292,14 @@ def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
 
     Vd = dominantFlow_y(Vh)
     
-    # sign of Vd
+    # sign of dominant flow
     Vp = Vd >= 0
     Vm = Vd < 0
     
     U1 = np.copy(Uh)
     V1 = np.copy(Vh)
 
+    # propagation with upwind difference operators
     U1[Vp] -= R*(Vd*nd.convolve(Uh, _dym_k))[Vp]
     U1[Vm] -= R*(Vd*nd.convolve(Uh, _dyp_k))[Vm]
     
@@ -241,11 +326,16 @@ def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
     ##############################################
     # PACK THE PROPAGATED FLOW WITH BORDER REMOVAL
     ##############################################
-    flowPropagated = np.copy(flow)
 
-    # assign the propagated flow to the interior region of the field
-    flowPropagated[border:-border, border:-border, 0] = U1[border:-border, border:-border]
-    flowPropagated[border:-border, border:-border, 1] = V1[border:-border, border:-border]
+    if border == 0:
+        flowPropagated = np.concatenate([p[...,np.newaxis] for p in [U1, V1]], axis=2)
+
+    else:
+        flowPropagated = np.copy(flow)
+
+        # assign the propagated flow to the interior region of the field
+        flowPropagated[border:-border, border:-border, 0] = U1[border:-border, border:-border]
+        flowPropagated[border:-border, border:-border, 1] = V1[border:-border, border:-border]
     
     # sanity check
     if np.isnan(flowPropagated).any() or np.isinf(flowPropagated).any():
