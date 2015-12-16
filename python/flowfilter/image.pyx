@@ -10,9 +10,7 @@ from image cimport image_t_cpp
 
 
 cdef class Image:
-    """
-    Image wrapper class
-    """
+    """Image wrapper class"""
 
     def __cinit__(self):
         pass
