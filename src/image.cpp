@@ -5,15 +5,17 @@
  * \license 3-clause BSD, see LICENSE for more details
  */
 
+#include <exception>
+
 #include "flowfilter/image.h"
 
 namespace flowfilter {
 
-image_t createImage(const int height, const int width, const size_t pixelSize) {
+image_t createImage(const int height, const int width, const std::size_t pixelSize) {
 
-    if(height <= 0) throw Exception();
-    if(width <= 0) throw Exception();
-    if(pixelSize <= 0) throw Exception();
+    if(height <= 0) throw std::exception();
+    if(width <= 0) throw std::exception();
+    if(pixelSize <= 0) throw std::exception();
 
     // row pitch
     size_t pitch = width*pixelSize;
@@ -34,9 +36,9 @@ image_t createImage(const int height, const int width, const size_t pixelSize) {
 
 void destroyImage(image_t& image) {
 
-    if(image.data != std::nullptr) {
+    if(image.data != nullptr) {
         delete image.data;
-        image.data = std::nullptr;
+        image.data = nullptr;
     }
 }
 

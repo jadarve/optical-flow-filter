@@ -8,6 +8,8 @@
 #ifndef FLOWFILTER_IMAGE_H_
 #define FLOWFILTER_IMAGE_H_
 
+ #include <cstddef>
+
 /**
  * \brief The namespace of this library.
  */
@@ -30,10 +32,10 @@ typedef struct {
     int width;
 
     /** Row pitch in bytes */
-    size_t pitch;
+    std::size_t pitch;
 
     /** Memory buffer pointer */
-    void* data;
+    unsigned char* data;
 
 } image_t;
 

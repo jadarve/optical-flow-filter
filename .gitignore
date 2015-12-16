@@ -44,3 +44,4 @@ imageTest
 # Sublime text
 #######################################
 *.sublime-workspace
+*.sublime-project
