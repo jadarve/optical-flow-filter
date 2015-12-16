@@ -1,6 +1,6 @@
 """
     flowfilter.propagation
-    ----------------
+    ----------------------
 
     Module containing propagation methods.
 
@@ -187,6 +187,7 @@ def propagate(flow, iterations=1, dx=1.0, border=3, payload=None):
 
     # return the propagated flow and payload
     return flow, payload
+
 
 def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
     """Performs one iteration of the propagation numerical scheme.
