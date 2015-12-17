@@ -133,7 +133,7 @@ def dominantFlowY(flow_y):
     return flow_y_dom
 
 
-def propagate(flow, iterations=1, dx=1.0, border=3, payload=None):
+def propagate(flow, iterations=1, dx=1.0, payload=None, border=3):
     """Propagate an optical flow field and attached payloads
 
     Parameters
@@ -149,15 +149,15 @@ def propagate(flow, iterations=1, dx=1.0, border=3, payload=None):
     dx : float, optional
         Pixel size. Defaults to 1.0.
 
-    border: integer, optional
-        Border width in which the propagation does not take place.
-        The returned propagated flow with have the same values as
-        the input in the border regions. Defaults to 3.
-
     payload : list, optional
         List of scalar fields to be propagated alongside the
         flow. Each element of the list must be a 2D ndarray.
         Defautls to None
+
+    border: integer, optional
+        Border width in which the propagation does not take place.
+        The returned propagated flow with have the same values as
+        the input in the border regions. Defaults to 3.
 
     Returns
     -------
@@ -189,7 +189,7 @@ def propagate(flow, iterations=1, dx=1.0, border=3, payload=None):
     return flow, payload
 
 
-def propagationStep(flow, dx=1.0, dt=1.0, border=3, payload=None):
+def propagationStep(flow, dt=1.0, dx=1.0, payload=None, border=3):
     """Performs one iteration of the propagation numerical scheme.
 
     Parameters
@@ -198,21 +198,21 @@ def propagationStep(flow, dx=1.0, dt=1.0, border=3, payload=None):
         Optical flow field. Each pixel (i, j) contains the (u, v)
         components of optical flow.
 
-    dx : float, optional
-        Pixel size. Defaults to 1.0.
-
     dt : float, optional
         Time step. Defaults to 1.0.
 
-    border: integer, optional
-        Border width in which the propagation does not take place.
-        The returned propagated flow with have the same values as
-        the input in the border regions. Defaults to 3.
+    dx : float, optional
+        Pixel size. Defaults to 1.0.
 
     payload : list, optional
         List of scalar fields to be propagated alongside the
         optical flow. Each element of the list must be a 2D ndarray.
         Defautls to None
+
+    border: integer, optional
+        Border width in which the propagation does not take place.
+        The returned propagated flow with have the same values as
+        the input in the border regions. Defaults to 3.
 
     Returns
     -------
