@@ -51,7 +51,7 @@ extensions = list()
 #################################################
 # PURE PYTHON PACKAGES
 #################################################
-py_packages = ['flowfilter']
+py_packages = ['flowfilter', 'flowfilter.rsc']
 
 #################################################
 # CYTHON EXTENSIONS
@@ -75,4 +75,5 @@ setup(name='flowfilter',
     description='A real time optical flow library.',
     license='3-clause BSD',
     packages=py_packages,
-    ext_modules=extensions)
+    ext_modules=extensions,
+    package_data={'flowfilter': ['rsc/colorWheel.png']})
