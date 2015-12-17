@@ -1,6 +1,6 @@
 """
     flowfilter.update
-    ----------------
+    -----------------
 
     Module containing Python implementationso of the filter
     image model and update methods.
@@ -24,7 +24,8 @@ def brightnessModel(img, support=5):
     Parameters
     ----------
     img : ndarray
-        Input image in gray scale.
+        Input image in gray scale. If img.dtype is different than
+        float32, it is automatically converted.
 
     support : integer, optional
         Window support used for computing brightness parameters.
@@ -50,6 +51,9 @@ def brightnessModel(img, support=5):
     if support < 3 or support % 2 != 1:
         raise ValueError('support should be an odd number greater or equal 3')
 
+    # input image dtype check
+    if img.dtype != np.float32:
+        img = img.astype(np.float32)
 
     # creates convolution masks
     if support == 3:
