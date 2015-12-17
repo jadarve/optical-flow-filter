@@ -48,9 +48,13 @@ def createExtension(name, sources):
 # list of extension modules
 extensions = list()
 
+#################################################
+# PURE PYTHON PACKAGES
+#################################################
+py_packages = ['flowfilter']
 
 #################################################
-# GPU PACKAGE
+# CYTHON EXTENSIONS
 #################################################
 GPUmodulesTable = [('flowfilter.image', ['flowfilter/image.pyx'])
                 ]
@@ -61,4 +65,14 @@ for mod in GPUmodulesTable:
 
 
 # call distutils setup
-setup(ext_modules=extensions)
+setup(name='flowfilter',
+    version='0.1',
+    author='Juan David Adarve',
+    author_email='juanda0718@gmail.com',
+    maintainer='Juan David Adarve',
+    maintainer_email='juanda0718@gmail',
+    url='https://github.com/jadarve/optical-flow-filter',
+    description='A real time optical flow library.',
+    license='3-clause BSD',
+    packages=py_packages,
+    ext_modules=extensions)

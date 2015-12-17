@@ -82,12 +82,50 @@ def brightnessModel(img, support=5):
     return A0, Ax, Ay
 
 
-def update(img, imgOld, flowOld, support=3, gamma=1.0, mode='reflect'):
+def update(img, imgOld, flowPredicted, support=5, gamma=1.0):
+    """Update the optical flow field provided new image data.
+
+    Parameters
+    ----------
+    img : ndarray
+        New brightness image.
+
+    imgOld : ndarray
+        Old brightness image. This corresponds to the old
+
+    flowPredicted : ndarray
+        Predicted estimation of optical flow. 
+
+    support : integer, optional
+        Window support used for computing brightness parameters.
+        The value should be an odd number greater or equal 3.
+        Defaults to 5.
+
+    gamma : float, optional
+        temporal regularization gain controlling the relevance
+        of the predicted flow in the update. Value should be
+        greater than 0.0. Defaults to 1.0.
+
+    Returns
+    -------
+    flowUpdated : ndarray
+        Updated optical flow field.
+
+    A0 : ndarray
+        Constant brightness model parameter computed from
+        img.
+
+    Raises
+    ------
+    ValueError : if gamma <= 0.0
+    """
+
+    if gamma <= 0.0: raise ValueError('gamma should be greater than zero')
     
     # compute the image model parameters
-    A0, Ax, Ay = imageModel(img, support, mode=mode)
+    A0, Ax, Ay = imageModel(img, support)
     
-    # temporal derivative term
+    # temporal derivative
     Yt = imgOld - A0
     
     # adjunct matrix N elements for each pixel
@@ -100,19 +138,17 @@ def update(img, imgOld, flowOld, support=3, gamma=1.0, mode='reflect'):
     detM = (gamma*(gamma + (Ax*Ax + Ay*Ay)))
     
     # q components for each pixel
-    qx = gamma*flowOld[:,:,0] + Ax*Yt
-    qy = gamma*flowOld[:,:,1] + Ay*Yt
+    qx = gamma*flowPredicted[:,:,0] + Ax*Yt
+    qy = gamma*flowPredicted[:,:,1] + Ay*Yt
     
     # compute the updated optic-flow
     flowX = (N00*qx + N01*qy) / detM
     flowY = (N10*qx + N11*qy) / detM
     
     # pack the results
-    flowUpd = np.zeros(flowOld.shape, dtype=np.float32)
-    flowUpd[:,:,0] = flowX[:,:]
-    flowUpd[:,:,1] = flowY[:,:]
+    flowUpdated = np.concatenate([p[...,np.newaxis] for p in [flowX, flowY]], axis=2)
     
-    return flowUpd, A0, Yt
+    return flowUpdated, A0
 
 
 
@@ -120,6 +156,8 @@ def updatePyramid(imgPyr, imgOldPyr, flowOldPyr, levels,
                   iterationList, support=3, border=3, gamma=1.0,
                   smoothIterations=1, maxflow=1, mode='reflect',
                   propagate=True, dd=None):
+    """Update optical flow
+    """
     
     # computes optical deltaFlow at the top level
     A0Top = imgOldPyr[levels -1]
@@ -157,6 +195,7 @@ def updatePyramid(imgPyr, imgOldPyr, flowOldPyr, levels,
         N = iterationList[h]
         dx = math.pow(2, h)
         
+        # FIXME: revise sanity checks
         # flow field before propagation at this level
         flowLevel = misc.flowUp(flowTop) + deltaFlow
         flowLevel[flowLevel > 20] = 20
@@ -165,6 +204,7 @@ def updatePyramid(imgPyr, imgOldPyr, flowOldPyr, levels,
         # transport deltaFlow field and A0 of this level by flowLevel
         payload = [np.copy(deltaFlow[:,:,0]), np.copy(deltaFlow[:,:,1]), A0]
         
+        # FIXME: remove propagate flag
         if not propagate:
             _, payloadProp = flowLevel, payload
         else:
