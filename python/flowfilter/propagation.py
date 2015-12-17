@@ -84,11 +84,12 @@ def dominantFlowX(flow_x):
     # central difference of absolute value of flow
     flow_x_abs = nd.convolve(np.abs(flow_x), _dxc_k)
 
-    # assign true to pixels with positive absolute difference
+    # pixel masks for positive and negative absolute differences
     dabs_p = flow_x_abs >= 0
+    dabs_m = flow_x_abs < 0
 
     flow_x_dom[dabs_p] = nd.convolve(flow_x, _sxp_k)[dabs_p]
-    flow_x_dom[not dabs_p] = nd.convolve(flow_x, _sxm_k)[not dabs_p]
+    flow_x_dom[dabs_m] = nd.convolve(flow_x, _sxm_k)[dabs_m]
 
     return flow_x_dom
 
@@ -123,12 +124,13 @@ def dominantFlowY(flow_y):
     # central difference of absolute value of flow
     flow_y_abs = nd.convolve(np.abs(flow_y), _dyc_k)
 
-    # assign true to pixes with possitive absolute difference
+    # pixel masks for positive and negative absolute differences
     dabs_p = flow_y_abs >= 0
+    dabs_m = flow_y_abs < 0
 
     # assign possitive or negative shifte
     flow_y_dom[dabs_p] = nd.convolve(flow_y, _syp_k)[dabs_p]
-    flow_y_dom[not dabs_p] = nd.convolve(flow_y, _sym_k)[not dabs_p]
+    flow_y_dom[dabs_m] = nd.convolve(flow_y, _sym_k)[dabs_m]
 
     return flow_y_dom
 
@@ -341,5 +343,5 @@ def propagationStep(flow, dt=1.0, dx=1.0, payload=None, border=3):
     # sanity check
     if np.isnan(flowPropagated).any() or np.isinf(flowPropagated).any():
         print('propagationStep(): NaN or Inf detected in propagated flow')
-    
+
     return flowPropagated, payloadPropagated
