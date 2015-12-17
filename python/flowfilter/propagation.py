@@ -12,8 +12,8 @@ import numpy as np
 import scipy.ndimage as nd
 
 
-__all__ = ['dominantFlow_x', 'dominantFlow_y',
-    'propagate', 'propagation_step']
+__all__ = ['dominantFlowX', 'dominantFlowY',
+    'propagate', 'propagationStep']
 
 
 ###########################################################
@@ -54,7 +54,7 @@ _syp_k = np.copy(_sxp_k.T)
 _sym_k = np.copy(_sxm_k.T)
 
 
-def dominantFlow_x(flow_x):
+def dominantFlowX(flow_x):
     """Computes dominant flow in X (column) direction.
 
     Parameters
@@ -73,7 +73,7 @@ def dominantFlow_x(flow_x):
 
     See Also
     --------
-    dominantFlow_y : Computes dominant flow in Y (row) direction
+    dominantFlowY : Computes dominant flow in Y (row) direction
     """
 
     if flow_x.ndim != 2:
@@ -93,7 +93,7 @@ def dominantFlow_x(flow_x):
     return flow_x_dom
 
 
-def dominantFlow_y(flow_y):
+def dominantFlowY(flow_y):
     """Computes dominant flow in Y (row) direction
 
     Parameters
@@ -112,7 +112,7 @@ def dominantFlow_y(flow_y):
 
     See Also
     --------
-    dominantFlow_x : Computes dominant flow in X (column) direction.
+    dominantFlowX : Computes dominant flow in X (column) direction.
     """
 
     if flow_y.ndim != 2:
@@ -173,7 +173,7 @@ def propagate(flow, iterations=1, dx=1.0, border=3, payload=None):
 
     See Also
     --------
-    propagation_step : Performs one iteration of the propagation numerical scheme.
+    propagationStep : Performs one iteration of the propagation numerical scheme.
     """
 
     if iterations <= 0: raise ValueError('iterations must be greater than zero')
@@ -183,13 +183,13 @@ def propagate(flow, iterations=1, dx=1.0, border=3, payload=None):
 
     #  run the numerical scheme
     for _ in range(iterations):
-        flow, payload = propagation_step(flow, dx, dt, border, payload)
+        flow, payload = propagationStep(flow, dx, dt, border, payload)
 
     # return the propagated flow and payload
     return flow, payload
 
 
-def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
+def propagationStep(flow, dx=1.0, dt=1.0, border=3, payload=None):
     """Performs one iteration of the propagation numerical scheme.
 
     Parameters
@@ -255,7 +255,7 @@ def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
     # Vh = V - R*U*dx(V)
     #############################################
 
-    Ud = dominantFlow_x(U)
+    Ud = dominantFlowX(U)
     
     # sign of dominant flow
     Up = Ud >= 0
@@ -291,7 +291,7 @@ def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
     # V1 = Vh - R*Vh*dy(V)
     #############################################
 
-    Vd = dominantFlow_y(Vh)
+    Vd = dominantFlowY(Vh)
     
     # sign of dominant flow
     Vp = Vd >= 0
@@ -340,6 +340,6 @@ def propagation_step(flow, dx=1.0, dt=1.0, border=3, payload=None):
     
     # sanity check
     if np.isnan(flowPropagated).any() or np.isinf(flowPropagated).any():
-        print('propagation_step(): NaN or Inf detected in propagated flow')
+        print('propagationStep(): NaN or Inf detected in propagated flow')
     
     return flowPropagated, payloadPropagated
