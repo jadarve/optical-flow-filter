@@ -87,9 +87,35 @@ class FlowFilter(object):
 
 class SimpleFlowFilter(FlowFilter):
     """Single pyramid level optical flow filter
+
+    Examples
+    --------
     """
 
     def __init__(self, **kwargs):
+        """Creates a new filter instance
+
+        Kwargs
+        ------
+        propIterations : integer, optional
+            Number of iterations performed during the
+            propagation stage. This parameter also controls
+            the maximum flow value the filter can handle. If
+            it is set to N, then the filter can handle up to
+            N pixels/frame optical flow values on each component.
+            Defaults to 1.
+
+        smoothIterations : integer, optional
+            Number of smooth iterations applied after the update
+            stage of the filter. Defaults to 1.
+
+        gamma : float, optional
+            temporal regularization gain controlling the relevance
+            of the predicted flow in the update. Value should be
+            greater than 0.0. Defaults to 1.0.
+
+        """
+
         super(SimpleFlowFilter, self).__init__()
 
         # unroll kwargs
@@ -128,12 +154,17 @@ class SimpleFlowFilter(FlowFilter):
     def compute(self):
         """Performs filter computations
 
-        This method does not return the computed
-        flow.
+        First it propagates old estimation of flow to current
+        time. Second, it updates the propagated flow with the
+        new uploaded image. Finally, it applies a smooting
+        operator to the updated flow to spread information to
+        textureless regions of the image.
 
         See also
         --------
+        loadImage : load a new image to the filter
         getFlow : returns optical flow
+        elapsedTime : returns the runtime taken to compute flow
         """
 
         # start recording elapsed time
@@ -162,7 +193,7 @@ class SimpleFlowFilter(FlowFilter):
 
 
     def elapsedTime(self):
-        """Returs the runtime taken to compute
+        """Returns the runtime taken to compute flow
 
         Returns
         -------
@@ -189,10 +220,17 @@ class SimpleFlowFilter(FlowFilter):
 
 class PyramidalFlowFilter(FlowFilter):
     """Pyramidal optical flow filter
+
+    Examples
+    --------
     """
 
     def __init__(self, **kwargs):
-        pass
+        
+        # unroll kwargs
+        self._H = kwargs.pop('levels', 1)   # pyramid levels
+
+        self._firstLoad = True
 
 
     def loadImage(self, img):
@@ -204,7 +242,18 @@ class PyramidalFlowFilter(FlowFilter):
             Image data
         """
 
-        pass
+        self._img = img
+
+        # if this is the firs loaded image
+        # set _imgOld same as new image
+        if self._firstLoad:
+            self._imgOld = np.copy(img)
+
+            # initializes flow
+            self._flow = np.zeros((self._imgOld.shape[0], self._imgOld.shape[1], 2),
+                dtype=np.float32)
+
+            self._firstLoad = False
 
 
     def compute(self):
