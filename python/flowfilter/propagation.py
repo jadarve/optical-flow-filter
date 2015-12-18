@@ -185,7 +185,7 @@ def propagate(flow, iterations=1, dx=1.0, payload=None, border=3):
 
     #  run the numerical scheme
     for _ in range(iterations):
-        flow, payload = propagationStep(flow, dx, dt, border, payload)
+        flow, payload = propagationStep(flow, dt, dx, payload, border)
 
     # return the propagated flow and payload
     return flow, payload
