@@ -11,7 +11,7 @@
 import numpy as np
 import scipy.ndimage as nd
 
-__all__ = []
+__all__ = ['imagePyramid', 'imageDown', 'imageUp']
 
 
 """1D smoothing mask"""
@@ -23,12 +23,27 @@ _smooth_k = np.dot(_sx_k.T, _sx_k)
 
 def imagePyramid(img, levels):
     """Creates an image pyramid
+
+    Parameters
+    ----------
+    img : ndarray
+        Image array. It can be a 2D or 3D array. If it is a 3D array,
+        the smoothing is applied independently to each channel.
+
+    levels : integer
+        Number of levels of the pyramid
+
+    Returns
+    -------
+    pyr : list[ndarray]
+        Image pyramid. pyr[0] contains image at original resolution.
+        pyr[h] contains an image subsampled by a factor 2^h.
     """
     
     if levels < 1: raise ValueError('levels should be greater or equal 1')
 
     if levels == 1:
-        return np.copy(img)
+        return [np.copy(img)]
 
     else:
         pyr = list()
@@ -37,7 +52,7 @@ def imagePyramid(img, levels):
         imgDownsampled = np.copy(img)
         pyr.append(imgDownsampled)
         
-        for _ in xrange(levels):
+        for _ in range(levels-1):
             imgDownsampled = imageDown(imgDownsampled)
             pyr.append(imgDownsampled)
 
@@ -77,25 +92,51 @@ def imageDown(img):
     if img.ndim == 2:
         
         # smooth and downsample by 2
-        imdown = ndimage.convolve(img, _smooth_k)
+        imdown = nd.convolve(img, _smooth_k)
         return np.copy(imdown[::2, ::2])
 
     else:
         depth = img.shape[2]
 
         # smooth and downsample each img component
-        smoothList = [nd.convolve(img[...,n])[::2, ::2] for n in range(depth)]
+        smoothList = [nd.convolve(img[...,n], _smooth_k)[::2, ::2] for n in range(depth)]
 
         # recombine channels and return
-        return np.concatenate([p[...,np.newaxis] for p in smoothList])
+        return np.concatenate([p[...,np.newaxis] for p in smoothList], axis=2)
 
 
 def imageUp(img, order=1):
     """Upsample input image by a factor of 2.
 
+    Parameters
+    ----------
+    img : ndarray
+        Image array. It can be a 2D or 3D array. If it is a 3D array,
+        the smoothing is applied independently to each channel.
+
+    order : integer, optional
+        Interpolation order. Defaults to 1
+
+    Returns :
+    imgUp : ndarray
+        Upsampled image of size (2*H, 2*W, D) where (H, W, D) is the
+        width, height and depth of the input image
     """
     
-    imgZoomed = np.zeros([2*img.shape[0], 2*img.shape[1]], dtype=img.dtype)
-    ndimage.zoom(img, 2.0, output=imgZoomed, order=order, mode='reflect')
-    
-    return imgZoomed
+    if img.ndim == 2:
+        imgZoomed = np.zeros([2*img.shape[0], 2*img.shape[1]], dtype=img.dtype)
+        nd.zoom(img, 2.0, output=imgZoomed, order=order, mode='reflect')
+        return imgZoomed
+
+    else:
+
+        zoomList = list()
+        for d in range(img.shape[2]):
+
+            imgZoomed = np.zeros([2*img.shape[0], 2*img.shape[1]], dtype=img.dtype)
+            nd.zoom(img[...,d], 2.0, output=imgZoomed, order=order, mode='reflect')
+
+            zoomList.append(imgZoomed)
+
+        # recombine channels and return
+        return np.concatenate([p[...,np.newaxis] for p in zoomList], axis=2)
