@@ -83,6 +83,10 @@ namespace flowfilter {
             // nothing to do
         }
 
+        void EmptyStage::configure() {
+            // nothing to do...
+        }
+
         void EmptyStage::compute() {
             
             startTiming();

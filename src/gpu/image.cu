@@ -5,6 +5,7 @@
  * \license 3-clause BSD, see LICENSE for more details
  */
 
+#include <cstring>
 #include <iostream>
 
 #include "flowfilter/gpu/image.h"
@@ -64,6 +65,10 @@ namespace flowfilter {
 
         int GPUImage::itemSize() const {
             return __itemSize;
+        }
+
+        void* GPUImage::data() {
+            return __ptr_dev.get();
         }
 
 
@@ -156,7 +161,108 @@ namespace flowfilter {
                 __itemSize == img.itemSize;
         }
 
+
+
+        //#################################################
+        // GPUTexture
+        //#################################################
+        GPUTexture::GPUTexture() {
+
+            // texture object is not valid
+            __validTexture = false;
+        }
+
+        GPUTexture::GPUTexture( GPUImage img, cudaChannelFormatKind format) :
+            GPUTexture(img, format, cudaAddressModeClamp, cudaFilterModePoint, cudaReadModeElementType){
+        }
+
+        GPUTexture::GPUTexture( GPUImage img,
+                                cudaChannelFormatKind format,
+                                cudaTextureAddressMode addressMode,
+                                cudaTextureFilterMode filterMode,
+                                cudaTextureReadMode readMode) {
+
+            // hold input image
+            __image = img;
+
+            // configure CUDA texture
+            configure(format, addressMode, filterMode, readMode);
+        }
+
+        GPUTexture::~GPUTexture() {
+
+            // only attempts to destroy the texture if the creation
+            // was successful
+            if(__validTexture) {
+                checkError(cudaDestroyTextureObject(__texture));    
+            }
+
+            // __image destructor is called automatically and
+            // devide buffer is released only if it's not being
+            // shared in any other part of the program.
+        }
+
+        cudaTextureObject_t GPUTexture::getTextureObject() {
+            return __texture;
+        }
+
+        GPUImage GPUTexture::getImage() {
+            return __image;
+        }
+
+        void GPUTexture::configure( cudaChannelFormatKind format,
+                                    cudaTextureAddressMode addressMode,
+                                    cudaTextureFilterMode filterMode,
+                                    cudaTextureReadMode readMode) {
+
+            int channels = __image.depth();
+            if(channels > 4) {
+                std::cerr << "ERROR: GPUTexture::configure(): image channels greater than 4: " << channels << std::endl;
+                return;
+            }
+
+            // bit width of element
+            int bitWidth = 8 * __image.itemSize();
+
+            // bit width of each channel
+            int w1 = bitWidth;  // there is at least one channel
+            int w2 = channels >= 2? bitWidth : 0;
+            int w3 = channels >= 3? bitWidth : 0;
+            int w4 = channels == 4? bitWidth : 0;
+
+            // channel descriptor
+            cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc(w1, w2, w3, w4, format);
+
+            // texture descriptor
+            cudaTextureDesc texDesc;
+            memset(&texDesc, 0, sizeof(texDesc));
+            texDesc.addressMode[0] = addressMode;
+            texDesc.addressMode[1] = addressMode;
+            texDesc.filterMode = filterMode;
+            texDesc.readMode = readMode;
+            texDesc.normalizedCoords = false;
+
+            // texture buffer descriptor
+            cudaResourceDesc resDesc;
+            memset(&resDesc, 0, sizeof(resDesc));
+            resDesc.resType = cudaResourceTypePitch2D;
+            resDesc.res.pitch2D.desc = channelDesc;
+            resDesc.res.pitch2D.devPtr = __image.data();
+            resDesc.res.pitch2D.pitchInBytes = __image.pitch();
+            resDesc.res.pitch2D.width = __image.width();
+            resDesc.res.pitch2D.height = __image.height();
+
+            // creates texture
+            cudaError_t err = cudaCreateTextureObject(&__texture, &resDesc, &texDesc, NULL);
+            if(err != cudaSuccess) {
+                std::cerr << "ERROR: GPUTexture::configure(): texture creation: "
+                    << cudaGetErrorString(err) << std::endl;
+
+                __validTexture = false;
+            } else {
+                __validTexture = true;
+            }
+        }
+
     }; // namespace gpu
 }; // namespace flowfilter
-
-        

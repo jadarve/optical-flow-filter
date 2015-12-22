@@ -11,7 +11,6 @@
 #include <memory>
 
 #include "flowfilter/image.h"
-// #include "flowfilter/gpu/pipeline.h"
 
 namespace flowfilter {
     namespace gpu {
@@ -33,6 +32,8 @@ namespace flowfilter {
             int depth() const;
             int pitch() const;
             int itemSize() const;
+
+            void* data();
 
 
             // TODO:: add stream parameter to support asynchrous copy
@@ -59,6 +60,42 @@ namespace flowfilter {
             void allocate();
             bool compareShape(const flowfilter::image_t& img) const;
 
+        };
+
+
+        class GPUTexture {
+
+        public:
+            GPUTexture();
+            GPUTexture( flowfilter::gpu::GPUImage img, cudaChannelFormatKind format);
+            GPUTexture( flowfilter::gpu::GPUImage img,
+                        cudaChannelFormatKind format,
+                        cudaTextureAddressMode addressMode,
+                        cudaTextureFilterMode filterMode,
+                        cudaTextureReadMode readMode);
+
+            ~GPUTexture();
+
+        public:
+            cudaTextureObject_t getTextureObject();
+            flowfilter::gpu::GPUImage getImage();
+
+
+        private:
+            void configure( cudaChannelFormatKind format,
+                            cudaTextureAddressMode addressMode,
+                            cudaTextureFilterMode filterMode,
+                            cudaTextureReadMode readMode);
+
+        private:
+            /** image buffer in GPU memory space */
+            flowfilter::gpu::GPUImage __image;
+
+            /** CUDA texture object */
+            cudaTextureObject_t __texture;
+
+            // tells if the created texture is valid
+            bool __validTexture;
         };
 
     }; // namespace gpu

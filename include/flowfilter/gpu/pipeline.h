@@ -41,6 +41,16 @@ namespace flowfilter {
             void stopTiming();
 
             /**
+             * \brief configures the stage.
+             *
+             * After configuration, calls to compute()
+             * are valid.
+             * Input buffers should not change after
+             * this method has been called.
+             */
+            virtual void configure() = 0;
+
+            /**
              * \brief perform computation
              */
             virtual void compute() = 0;
@@ -70,6 +80,7 @@ namespace flowfilter {
             EmptyStage();
             ~EmptyStage();
 
+            void configure();
             void compute();
         };
 
