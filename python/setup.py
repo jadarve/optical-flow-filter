@@ -51,13 +51,14 @@ extensions = list()
 #################################################
 # PURE PYTHON PACKAGES
 #################################################
-py_packages = ['flowfilter', 'flowfilter.rsc']
+py_packages = ['flowfilter', 'flowfilter.gpu', 'flowfilter.rsc']
 
 #################################################
 # CYTHON EXTENSIONS
 #################################################
-GPUmodulesTable = [('flowfilter.image', ['flowfilter/image.pyx'])
-                ]
+GPUmodulesTable = [ ('flowfilter.image', ['flowfilter/image.pyx']),
+                    ('flowfilter.gpu.image', ['flowfilter/gpu/image.pyx'])
+                    ]
 
 for mod in GPUmodulesTable:
     extList = cythonize(createExtension(mod[0], mod[1]), compiler_directives=cython_directives)

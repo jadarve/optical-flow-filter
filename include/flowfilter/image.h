@@ -31,12 +31,17 @@ typedef struct {
     /** Image width in pixels */
     int width;
 
+    /** Image depth in pixels */
+    int depth;
+
     /** Row pitch in bytes */
     std::size_t pitch;
 
-    /** Memory buffer pointer */
-    unsigned char* data;
+    /** Item size in bytes */
+    std::size_t itemSize;
 
+    /** Memory buffer pointer */
+    void* data;
 } image_t;
 
 
@@ -48,6 +53,16 @@ typedef struct {
  * \param[in] pixelSize pixel size in bytes.
  */
 image_t createImage(const int height, const int width, const size_t pixelSize);
+
+/**
+ * \brief Creates a new image. Allocates memory for storing pixel data.
+ *
+ * \param[in] height image height in pixels.
+ * \param[in] width image width in pixels.
+ * \param[in] depth image depth in pixels
+ * \param[in] pixelSize pixel size in bytes.
+ */
+image_t createImage(const int height, const int width, const int depth, const size_t pixelSize);
 
 /**
  * \brief Destroys an image. Deallocates image memory buffer.

@@ -12,11 +12,14 @@ cdef extern from 'flowfilter/image.h' namespace 'flowfilter':
 
         int height
         int width
+        int depth
         size_t pitch
-        unsigned char* ptr
+        size_t itemSize
+        void* data
 
 
 
 cdef class Image:
-
+    
+    cdef object numpyArray
     cdef image_t_cpp img

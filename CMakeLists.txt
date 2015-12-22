@@ -77,7 +77,7 @@ if (CUDA_FOUND)
 
     # NVCC compiler flags
     set(CUDA_NVCC_FLAGS             "-std=c++11")
-    set(CUDA_PROPAGATE_HOST_FLAGS ON)    
+    set(CUDA_PROPAGATE_HOST_FLAGS OFF)    
 
 endif(CUDA_FOUND)
 
@@ -87,6 +87,8 @@ endif(CUDA_FOUND)
 #################################################
 
 if(CUDA_FOUND)
+
+    message(STATUS "GPU sources: ${GPU_SRCS}")
     
     # flowfilter_gpu library with CUDA implementation
     cuda_add_library(flowfilter_gpu SHARED ${GPU_SRCS})
