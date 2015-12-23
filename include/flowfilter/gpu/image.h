@@ -48,7 +48,7 @@ namespace flowfilter {
         public:
             GPUImage();
             GPUImage(const int height, const int width,
-                const int depth = 1, const int itemSize = 4);
+                const int depth = 1, const int itemSize = sizeof(char));
 
             ~GPUImage();
 
@@ -104,6 +104,9 @@ namespace flowfilter {
         public:
             GPUTexture();
             GPUTexture( flowfilter::gpu::GPUImage img, cudaChannelFormatKind format);
+            GPUTexture( flowfilter::gpu::GPUImage img,
+                        cudaChannelFormatKind format,
+                        cudaTextureReadMode readMode);
             GPUTexture( flowfilter::gpu::GPUImage img,
                         cudaChannelFormatKind format,
                         cudaTextureAddressMode addressMode,

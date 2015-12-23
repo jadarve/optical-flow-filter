@@ -19,6 +19,7 @@ namespace flowfilter {
          * \brief Apply a smooth mask to input image in X and Y directions.
          */
         __global__ void imagePrefilter_k(cudaTextureObject_t inputImage,
+                gpuimage_t<unsigned char> img,
                 gpuimage_t<float2> imgPrefiltered);
 
         /**

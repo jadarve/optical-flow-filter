@@ -31,4 +31,5 @@ cdef extern from 'flowfilter/gpu/imagemodel.h' namespace 'flowfilter::gpu':
 cdef class ImageModel:
     
     cdef ImageModel_cpp imodel
+    cdef gimg.GPUImage inputImage
 

@@ -31,6 +31,9 @@ cdef class GPUImage:
             self.img = GPUImage_cpp(shape[0], shape[1],
                 1 if ndim == 2 else shape[2], itemSize)
 
+    def __dealloc__(self):
+        # nothing to do
+        pass
 
     def upload(self, np.ndarray img):
         

@@ -45,12 +45,10 @@ namespace flowfilter {
             int height = __inputImage.height();
             int width = __inputImage.width();
 
+            std::cout << "ImageModel::configure(): [" << height << ", " << width << ", " << __inputImage.depth() << "] size: " << __inputImage.itemSize() << " pitch: " << __inputImage.pitch() << std::endl;
+
             // wraps __inputImage with normalized texture
-            __inputImageTexture = GPUTexture(__inputImage,
-                cudaChannelFormatKindUnsigned,
-                cudaAddressModeClamp,
-                cudaFilterModePoint,
-                cudaReadModeNormalizedFloat);
+            __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindUnsigned, cudaReadModeNormalizedFloat);
 
             // 2-channel[float] filtered image
             __imageFiltered = GPUImage(height, width, 2, sizeof(float));
@@ -83,7 +81,7 @@ namespace flowfilter {
 
             // prefilter
             imagePrefilter_k<<<__grid, __block, 0, __stream>>> (
-                __inputImageTexture.getTextureObject(),
+                __inputImageTexture.getTextureObject(), __inputImage.wrap<unsigned char>(),
                 __imageFiltered.wrap<float2>());
 
             // compute brightness parameters
@@ -107,7 +105,7 @@ namespace flowfilter {
                 throw std::exception();
             }
 
-            if(img.itemSize() != 1) {
+            if(img.itemSize() != sizeof(unsigned char)) {
                 std::cerr << "ERROR: ImageModel::setInputImage(): item size should be 1: " << img.itemSize() << std::endl;
                 throw std::exception();
             }
@@ -126,6 +124,7 @@ namespace flowfilter {
         flowfilter::gpu::GPUImage ImageModel::getImageGradient() {
 
             return __imageGradient;
+            // return __imageFiltered;
         }
 
 

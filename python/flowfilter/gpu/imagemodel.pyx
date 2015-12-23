@@ -19,8 +19,13 @@ cdef class ImageModel:
             # nothing to do
             return
 
-        self.imodel = ImageModel_cpp(inputImage.img)
+        self.inputImage = inputImage
+        self.imodel = ImageModel_cpp(self.inputImage.img)
 
+
+    def __dealloc__(self):
+        # nothing to do
+        pass
 
     def configure(self):
         self.imodel.configure()
@@ -37,8 +42,9 @@ cdef class ImageModel:
     def setInputImage(self, gimg.GPUImage inputImage):
         """
         """
-
-        self.imodel.setInputImage(inputImage.img)
+        
+        self.inputImage = inputImage
+        self.imodel.setInputImage(self.inputImage.img)
 
 
     def getImageConstant(self):

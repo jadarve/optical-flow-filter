@@ -91,9 +91,9 @@ namespace flowfilter {
             if(compareShape(img)) {
 
                 // print first 5 elements of img
-                // for(int i = 0; i < 5; i ++) {
-                //     std::cout << i << ": " << static_cast<float*>(img.data)[i] << std::endl;
-                // }
+                for(int i = 0; i < 5; i ++) {
+                    std::cout << i << ": " << (int)static_cast<unsigned char*>(img.data)[i] << std::endl;
+                }
 
                 // issue synchronous memory copy
                 checkError(cudaMemcpy2D(__ptr_dev.get(), __pitch, img.data, img.pitch,
@@ -173,7 +173,14 @@ namespace flowfilter {
         }
 
         GPUTexture::GPUTexture( GPUImage img, cudaChannelFormatKind format) :
-            GPUTexture(img, format, cudaAddressModeClamp, cudaFilterModePoint, cudaReadModeElementType){
+            GPUTexture(img, format, cudaAddressModeClamp, cudaFilterModePoint, cudaReadModeElementType) {
+        }
+
+        GPUTexture::GPUTexture( GPUImage img,
+                                cudaChannelFormatKind format,
+                                cudaTextureReadMode readMode) : 
+            GPUTexture(img, format, cudaAddressModeClamp, cudaFilterModePoint, readMode) {
+
         }
 
         GPUTexture::GPUTexture( GPUImage img,
@@ -214,6 +221,8 @@ namespace flowfilter {
                                     cudaTextureAddressMode addressMode,
                                     cudaTextureFilterMode filterMode,
                                     cudaTextureReadMode readMode) {
+            
+            __validTexture = false;
 
             int channels = __image.depth();
             if(channels > 4) {
@@ -229,6 +238,9 @@ namespace flowfilter {
             int w2 = channels >= 2? bitWidth : 0;
             int w3 = channels >= 3? bitWidth : 0;
             int w4 = channels == 4? bitWidth : 0;
+
+            std::cout << "GPUTexture::configure(): channel width: [" << w1 << ", " << w2 << ", " << w3 << ", " << w4 << "]" << std::endl;
+            std::cout << "GPUTexture::configure(): [" << __image.height() << ", " << __image.width() << ", " << __image.depth() << "] size: " << __image.itemSize() << " pitch: " << __image.pitch() << std::endl;
 
             // channel descriptor
             cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc(w1, w2, w3, w4, format);
@@ -254,13 +266,15 @@ namespace flowfilter {
 
             // creates texture
             cudaError_t err = cudaCreateTextureObject(&__texture, &resDesc, &texDesc, NULL);
-            if(err != cudaSuccess) {
+
+            if(err == cudaSuccess) {
+                __validTexture = true;
+            } else {
+
                 std::cerr << "ERROR: GPUTexture::configure(): texture creation: "
                     << cudaGetErrorString(err) << std::endl;
 
                 __validTexture = false;
-            } else {
-                __validTexture = true;
             }
         }
 
