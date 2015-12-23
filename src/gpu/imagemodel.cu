@@ -47,8 +47,14 @@ namespace flowfilter {
 
             std::cout << "ImageModel::configure(): [" << height << ", " << width << ", " << __inputImage.depth() << "] size: " << __inputImage.itemSize() << " pitch: " << __inputImage.pitch() << std::endl;
 
-            // wraps __inputImage with normalized texture
-            __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindUnsigned, cudaReadModeNormalizedFloat);
+            if(__inputImage.itemSize == sizeof(unsigned char)) {
+                // wraps __inputImage with normalized texture
+                __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindUnsigned, cudaReadModeNormalizedFloat);    
+            } else {
+                // wraps __inputImage with float texture
+                __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindFloat);    
+            }
+            
 
             // 2-channel[float] filtered image
             __imageFiltered = GPUImage(height, width, 2, sizeof(float));
@@ -105,8 +111,8 @@ namespace flowfilter {
                 throw std::exception();
             }
 
-            if(img.itemSize() != sizeof(unsigned char)) {
-                std::cerr << "ERROR: ImageModel::setInputImage(): item size should be 1: " << img.itemSize() << std::endl;
+            if(img.itemSize() != sizeof(unsigned char) or img.itemSize() != sizeof(float)) {
+                std::cerr << "ERROR: ImageModel::setInputImage(): item size should be 1 or 4: " << img.itemSize() << std::endl;
                 throw std::exception();
             }
 
