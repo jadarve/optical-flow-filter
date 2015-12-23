@@ -60,10 +60,14 @@ namespace flowfilter {
              */
             float elapsedTime() const;
 
+
+        protected:
+            /** CUDA stream to which this stage belongs */
+            cudaStream_t __stream;
+
         private:
             cudaEvent_t __start;
             cudaEvent_t __stop;
-            cudaStream_t __stream;
             float __elapsedTime;
         };
 

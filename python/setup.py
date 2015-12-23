@@ -57,7 +57,8 @@ py_packages = ['flowfilter', 'flowfilter.gpu', 'flowfilter.rsc']
 # CYTHON EXTENSIONS
 #################################################
 GPUmodulesTable = [ ('flowfilter.image', ['flowfilter/image.pyx']),
-                    ('flowfilter.gpu.image', ['flowfilter/gpu/image.pyx'])
+                    ('flowfilter.gpu.image', ['flowfilter/gpu/image.pyx']),
+                    ('flowfilter.gpu.imagemodel', ['flowfilter/gpu/imagemodel.pyx'])
                     ]
 
 for mod in GPUmodulesTable:

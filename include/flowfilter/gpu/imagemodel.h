@@ -58,8 +58,8 @@ namespace flowfilter {
             //#########################
             // Pipeline stage outputs
             //#########################
-            flowfilter::gpu::GPUImage getImageConstantDevice();
-            flowfilter::gpu::GPUImage getImageGradientDevice();
+            flowfilter::gpu::GPUImage getImageConstant();
+            flowfilter::gpu::GPUImage getImageGradient();
 
         private:
 
@@ -79,6 +79,10 @@ namespace flowfilter {
             /** 2-channels image with X and Y filtering version of inputImage */
             flowfilter::gpu::GPUImage __imageFiltered;
             flowfilter::gpu::GPUTexture __imageFilteredTexture;
+
+            // block and grid size for kernel calls
+            dim3 __block;
+            dim3 __grid;
         };
 
     }; // namespace gpu

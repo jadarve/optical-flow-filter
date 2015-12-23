@@ -43,8 +43,8 @@ namespace flowfilter {
 
             // nothing to do
             // device buffer is released by gpu_deleter
-            std::cout << "GPUImage::~GPUImage(): [" << 
-                __height << ", " << __width << ", " << __depth << "]" << std::endl;
+            // std::cout << "GPUImage::~GPUImage(): [" << 
+            //     __height << ", " << __width << ", " << __depth << "]" << std::endl;
         }
 
         int GPUImage::height() const {
@@ -135,7 +135,7 @@ namespace flowfilter {
 
         void GPUImage::allocate() {
 
-            std::cout << "GPUImage::allocate()" << std::endl;
+            // std::cout << "GPUImage::allocate()" << std::endl;
 
             void* buffer_dev = nullptr;
             cudaError_t err = cudaMallocPitch(&buffer_dev, &__pitch,
@@ -144,7 +144,7 @@ namespace flowfilter {
             // create a new shared pointer
             __ptr_dev = std::shared_ptr<void> {buffer_dev, gpu_deleter<void>()};
 
-            std::cout << "\tpitch: " << __pitch << std::endl;
+            // std::cout << "\tpitch: " << __pitch << std::endl;
 
             if(err != cudaSuccess) {
                 std::cerr << "ERROR: GPUImage device memory allocation: "

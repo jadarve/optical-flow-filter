@@ -17,7 +17,6 @@ namespace flowfilter {
         template<typename T>
         struct gpu_deleter {
             void operator()(T* p) {
-                // std::cerr << "gpu_deleter: calling cudaFree()" << std::endl;
                 
                 if(p != nullptr) {
                     // dont put std::cerr here, in Python appears an error when importing module
@@ -28,8 +27,6 @@ namespace flowfilter {
                         std::cerr << "ERROR: gpu_deleter: "
                                 << cudaGetErrorString(err) << std::endl;
                     }
-                } else {
-                    std::cerr << "gpu_deleter: null ptr" << std::endl;
                 }
             }
         };

@@ -1,3 +1,5 @@
+message(STATUS "entering src folder")
+
 add_gpu_sources (
     image.cpp
 )

@@ -15,7 +15,6 @@ import flowfilter.image as fimg
 from image cimport GPUImage_cpp
 
 
-
 cdef class GPUImage:
     
 
@@ -55,16 +54,12 @@ cdef class GPUImage:
         """
 
         if output == None:
-            output = np.zeros(self.shape, dtype=np.float32)
+            output = np.zeros(self.shape, dtype=dtype)
 
         oshape = (output.shape[0], output.shape[1], output.shape[2])
-        #print('GPUImage.download(): output shape: {0}'.format(oshape))
 
         cdef fimg.Image output_w = fimg.Image(output)
-
-        #print('before download: {0}'.format(output))
         self.img.download(output_w.img)
-        #print('after download: {0}'.format(output))
         
         return output
 

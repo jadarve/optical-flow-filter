@@ -9,6 +9,8 @@
 #include <iostream>
 
 #include "flowfilter/gpu/imagemodel.h"
+#include "flowfilter/gpu/util.h"
+#include "flowfilter/gpu/device/imagemodel_k.h"
 
 namespace flowfilter {
     namespace gpu {
@@ -43,20 +45,26 @@ namespace flowfilter {
             int height = __inputImage.height();
             int width = __inputImage.width();
 
-            // wraps __inputImage with unsigned char texture
-            __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindUnsigned);
+            // wraps __inputImage with normalized texture
+            __inputImageTexture = GPUTexture(__inputImage,
+                cudaChannelFormatKindUnsigned,
+                cudaAddressModeClamp,
+                cudaFilterModePoint,
+                cudaReadModeNormalizedFloat);
 
+            // 2-channel[float] filtered image
+            __imageFiltered = GPUImage(height, width, 2, sizeof(float));
+            __imageFilteredTexture = GPUTexture(__imageFiltered, cudaChannelFormatKindFloat);
 
-            // 2-channel unsigned char filtered image
-            // TODO: need to check if this actually works!
-            __imageFiltered = GPUImage(height, width, 2, 1);
-            __imageFilteredTexture = GPUTexture(__imageFiltered, cudaChannelFormatKindUnsigned);
+            // 1-channel[float] constant model parameter
+            __imageConstant = GPUImage(height, width, 1, sizeof(float));
 
-            // 1-channel float constant brightness model parameter
-            __imageConstant = GPUImage(height, width, 1, 4);
+            // 2-channel[float] gradient model parameter
+            __imageGradient = GPUImage(height, width, 2, sizeof(float));
 
-            // 2-channel float constant brightness model parameter
-            __imageGradient = GPUImage(height, width, 2, 4);
+            // configure block and grid sizes
+            __block = dim3(32, 32, 1);
+            configureKernelGrid(height, width, __block, __grid);
 
             __configured = true;
         }
@@ -66,16 +74,23 @@ namespace flowfilter {
          */
         void ImageModel::compute() {
 
-            if(!__configured) {
-                std::cerr << "ERROR: ImageModel::compute() stage not configured." << std::endl;
-            }
-
             startTiming();
 
-            // prefilter
+            if(!__configured) {
+                std::cerr << "ERROR: ImageModel::compute() stage not configured." << std::endl;
+                exit(-1);
+            }
 
+            // prefilter
+            imagePrefilter_k<<<__grid, __block, 0, __stream>>> (
+                __inputImageTexture.getTextureObject(),
+                __imageFiltered.wrap<float2>());
 
             // compute brightness parameters
+            imageModel_k<<<__grid, __block, 0, __stream>>> (
+                __imageFilteredTexture.getTextureObject(),
+                __imageConstant.wrap<float>(),
+                __imageGradient.wrap<float2>());
 
             stopTiming();
         }
@@ -87,8 +102,15 @@ namespace flowfilter {
         void ImageModel::setInputImage(flowfilter::gpu::GPUImage img) {
 
             // check if image is a gray scale image with pixels 1 byte long
-            if(img.depth() != 1) throw std::exception();
-            if(img.itemSize() != 1) throw std::exception();
+            if(img.depth() != 1) {
+                std::cerr << "ERROR: ImageModel::setInputImage(): image depth should be 1: " << img.depth() << std::endl;
+                throw std::exception();
+            }
+
+            if(img.itemSize() != 1) {
+                std::cerr << "ERROR: ImageModel::setInputImage(): item size should be 1: " << img.itemSize() << std::endl;
+                throw std::exception();
+            }
 
             __inputImage = img;
         }
@@ -96,12 +118,12 @@ namespace flowfilter {
         //#########################
         // Pipeline stage outputs
         //#########################
-        flowfilter::gpu::GPUImage ImageModel::getImageConstantDevice() {
+        flowfilter::gpu::GPUImage ImageModel::getImageConstant() {
 
             return __imageConstant;
         }
 
-        flowfilter::gpu::GPUImage ImageModel::getImageGradientDevice() {
+        flowfilter::gpu::GPUImage ImageModel::getImageGradient() {
 
             return __imageGradient;
         }

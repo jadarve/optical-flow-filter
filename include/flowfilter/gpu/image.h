@@ -10,10 +10,36 @@
 
 #include <memory>
 
+#include <cuda.h>
+#include <cuda_runtime.h>
+
 #include "flowfilter/image.h"
 
 namespace flowfilter {
     namespace gpu {
+
+        /**
+         * \brief struct to encapsulated image information.
+         *
+         * This structure is used internally in the kernel and
+         * device functions.
+         */
+        template<typename T>
+        struct gpuimage_t {
+
+            /** height in pixels */
+            int height;
+
+            /** width in pixels */
+            int width;
+
+            /** row pitch in bytes*/
+            std::size_t pitch;
+
+            /** memory buffer*/
+            T* data;
+        };
+
 
         /*! \brief GPU Image container.
          */
@@ -34,6 +60,16 @@ namespace flowfilter {
             int itemSize() const;
 
             void* data();
+
+            template<typename T>
+            gpuimage_t<T> wrap() {
+                gpuimage_t<T> img;
+                img.height = __height;
+                img.width = __width;
+                img.pitch = __pitch;
+                img.data = (T*)__ptr_dev.get();
+                return img;
+            }
 
 
             // TODO:: add stream parameter to support asynchrous copy
