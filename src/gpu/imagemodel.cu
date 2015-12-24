@@ -18,7 +18,8 @@ namespace flowfilter {
         //#################################################
         // ImageModel
         //#################################################
-        ImageModel::ImageModel() {
+        ImageModel::ImageModel() :
+            Stage() {
             __configured = false;
         }
 
@@ -28,7 +29,8 @@ namespace flowfilter {
          * This constructor internally calles configure() so that the
          * stage is ready to perform computations.
          */
-        ImageModel::ImageModel(flowfilter::gpu::GPUImage inputImage) {
+        ImageModel::ImageModel(flowfilter::gpu::GPUImage inputImage) :
+            Stage() {
             
             __configured = false;
             setInputImage(inputImage);
@@ -37,7 +39,10 @@ namespace flowfilter {
 
         ImageModel::~ImageModel() {
 
+            std::cout << "ImageModel::~ImageModel()" << std::endl;
+
             // nothing to do...
+            // delete __inputImageTexture;
         }
 
         void ImageModel::configure() {
@@ -47,9 +52,9 @@ namespace flowfilter {
 
             std::cout << "ImageModel::configure(): [" << height << ", " << width << ", " << __inputImage.depth() << "] size: " << __inputImage.itemSize() << " pitch: " << __inputImage.pitch() << std::endl;
 
-            if(__inputImage.itemSize == sizeof(unsigned char)) {
+            if(__inputImage.itemSize() == sizeof(unsigned char)) {
                 // wraps __inputImage with normalized texture
-                __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindUnsigned, cudaReadModeNormalizedFloat);    
+                __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindUnsigned, cudaReadModeNormalizedFloat);
             } else {
                 // wraps __inputImage with float texture
                 __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindFloat);    
@@ -78,7 +83,7 @@ namespace flowfilter {
          */
         void ImageModel::compute() {
 
-            startTiming();
+            // startTiming();
 
             if(!__configured) {
                 std::cerr << "ERROR: ImageModel::compute() stage not configured." << std::endl;
@@ -96,7 +101,7 @@ namespace flowfilter {
                 __imageConstant.wrap<float>(),
                 __imageGradient.wrap<float2>());
 
-            stopTiming();
+            // stopTiming();
         }
 
 
@@ -111,7 +116,8 @@ namespace flowfilter {
                 throw std::exception();
             }
 
-            if(img.itemSize() != sizeof(unsigned char) or img.itemSize() != sizeof(float)) {
+            if(img.itemSize() != sizeof(unsigned char) && img.itemSize() != sizeof(float)) {
+                std::cerr << "ERROR: sizeof(uchar): " << sizeof(unsigned char) << std::endl;
                 std::cerr << "ERROR: ImageModel::setInputImage(): item size should be 1 or 4: " << img.itemSize() << std::endl;
                 throw std::exception();
             }

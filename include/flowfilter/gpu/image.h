@@ -135,6 +135,9 @@ namespace flowfilter {
 
             // tells if the created texture is valid
             bool __validTexture;
+
+            /** reference counter for this object */
+            std::shared_ptr<int> __refCounter;
         };
 
     }; // namespace gpu

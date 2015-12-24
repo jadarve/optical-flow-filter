@@ -77,7 +77,7 @@ namespace flowfilter {
                 int b = (int)c;
                 float bf = tex2D<float>(inputImage, pix.x, pix.y);
 
-                printf("(%d, %d): %d : %f\n", pix.y, pix.x, b, bf);
+                printf("(%d, %d): %d : %f : %llx\n", pix.y, pix.x, b, bf, inputImage);
             }
         }
 
@@ -143,10 +143,11 @@ namespace flowfilter {
             *coordPitch(imgGradient, pix) = make_float2(diff_x, diff_y);
             *coordPitch(imgConstant, pix) = smooth;
 
-            // if(pix.x == 100 && pix.y == 100) {
-            //     float2 b = tex2D<float2>(imgPrefiltered, pix.x, pix.y);
-            //     // *coordPitch(imgGradient, pix) = make_float2(b.x, b.y);
-            // }
+            if(pix.x == 100 && pix.y == 100) {
+                float2 b = tex2D<float2>(imgPrefiltered, pix.x, pix.y);
+                *coordPitch(imgGradient, pix) = make_float2(b.x, b.y);
+                printf("(%d, %d): %llx\n", pix.y, pix.x, imgPrefiltered);
+            }
         }
 
     }; // namespace gpu

@@ -170,6 +170,8 @@ namespace flowfilter {
 
             // texture object is not valid
             __validTexture = false;
+            // __refCounter = std::shared_ptr<int>(new int(0));
+            __refCounter = std::make_shared<int>(0);
         }
 
         GPUTexture::GPUTexture( GPUImage img, cudaChannelFormatKind format) :
@@ -189,6 +191,9 @@ namespace flowfilter {
                                 cudaTextureFilterMode filterMode,
                                 cudaTextureReadMode readMode) {
 
+            // __refCounter = std::shared_ptr<int>(new int(0));
+            __refCounter = std::make_shared<int>(0);
+
             // hold input image
             __image = img;
 
@@ -198,11 +203,17 @@ namespace flowfilter {
 
         GPUTexture::~GPUTexture() {
 
+            std::cout << "GPUTexture::~GPUTexture(): " <<  __refCounter.use_count() << " : " << __texture << std::endl;
+
+
             // only attempts to destroy the texture if the creation
             // was successful
-            if(__validTexture) {
-                checkError(cudaDestroyTextureObject(__texture));    
-            }
+            // if(__refCounter.use_count() == 1) {
+            //     if(__validTexture) {
+            //         std::cout << "\tdestroying texture" << std::endl;
+            //         checkError(cudaDestroyTextureObject(__texture));    
+            //     }
+            // }
 
             // __image destructor is called automatically and
             // devide buffer is released only if it's not being
@@ -265,17 +276,21 @@ namespace flowfilter {
             resDesc.res.pitch2D.height = __image.height();
 
             // creates texture
-            cudaError_t err = cudaCreateTextureObject(&__texture, &resDesc, &texDesc, NULL);
+            checkError(cudaCreateTextureObject(&__texture, &resDesc, &texDesc, NULL));
+            __validTexture = true;
 
-            if(err == cudaSuccess) {
-                __validTexture = true;
-            } else {
+            // cudaError_t err = cudaCreateTextureObject(&__texture, &resDesc, &texDesc, NULL);
 
-                std::cerr << "ERROR: GPUTexture::configure(): texture creation: "
-                    << cudaGetErrorString(err) << std::endl;
+            // std::cout << "GPUTexture::configure(): texture ID: " << __texture << std::endl;
+            // if(err == cudaSuccess) {
+            //     __validTexture = true;
+            // } else {
 
-                __validTexture = false;
-            }
+            //     std::cerr << "ERROR: GPUTexture::configure(): texture creation: "
+            //         << cudaGetErrorString(err) << std::endl;
+
+            //     __validTexture = false;
+            // }
         }
 
     }; // namespace gpu

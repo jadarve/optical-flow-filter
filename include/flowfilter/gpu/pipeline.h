@@ -8,6 +8,8 @@
 #ifndef FLOWFILTER_GPU_PIPELINE_H_
 #define FLOWFILTER_GPU_PIPELINE_H_
 
+#include <memory>
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -69,6 +71,8 @@ namespace flowfilter {
             cudaEvent_t __start;
             cudaEvent_t __stop;
             float __elapsedTime;
+
+            std::shared_ptr<int> __referenceCounter;
         };
 
 

@@ -5,10 +5,12 @@
  * \license 3-clause BSD, see LICENSE for more details
  */
 
+#include <exception>
+#include <iostream>
 
+#include "flowfilter/gpu/error.h"
 #include "flowfilter/gpu/pipeline.h"
 
-#include <iostream>
 
 namespace flowfilter {
     namespace gpu {
@@ -24,42 +26,59 @@ namespace flowfilter {
 
             __stream = stream;
             __elapsedTime = 0.0f;
+            __referenceCounter = std::make_shared<int>(0);
 
-            cudaError_t startErr = cudaEventCreate(&__start);
-            cudaError_t stopErr = cudaEventCreate(&__stop);
+            checkError(cudaEventCreate(&__start));
+            checkError(cudaEventCreate(&__stop));
 
-            if(startErr != cudaSuccess || stopErr != cudaSuccess) {
-                std::cerr << "Stage::Stage(): error creating CUDA events: "
-                << cudaGetErrorString(startErr) << " - "
-                << cudaGetErrorString(stopErr) << std::endl;
+            // if(startErr != cudaSuccess || stopErr != cudaSuccess) {
+            //     std::cerr << "Stage::Stage(): error creating CUDA events: "
+            //     << cudaGetErrorString(startErr) << " - "
+            //     << cudaGetErrorString(stopErr) << std::endl;
 
-                // TODO: throw exception
-            }
+            //     throw std::exception();
+            // }
         }
 
         Stage::~Stage() {
 
-            cudaError_t startErr = cudaEventDestroy(__start);
-            cudaError_t stopErr = cudaEventDestroy(__stop);
+            std::cout << "Stage::~Stage(): " << __referenceCounter.use_count() << std::endl;
 
-            if(startErr != cudaSuccess || stopErr != cudaSuccess) {
-                std::cerr << "Stage::Stage(): error destroying CUDA events: "
-                << cudaGetErrorString(startErr) << " - "
-                << cudaGetErrorString(stopErr) << std::endl;
+            if(__referenceCounter.use_count() == 2) {
 
-                // TODO: throw exception
+                checkError(cudaEventDestroy(__start));
+                checkError(cudaEventDestroy(__stop));
+
+                // if(startErr != cudaSuccess || stopErr != cudaSuccess) {
+                //     std::cerr << "Stage::Stage(): error destroying CUDA events: "
+                //     << cudaGetErrorString(startErr) << " - "
+                //     << cudaGetErrorString(stopErr) << std::endl;
+
+                //     throw std::exception();
+                // }    
             }
         }
 
 
         void Stage::startTiming() {
-            cudaEventRecord(__start, __stream);
+            checkError(cudaEventRecord(__start, __stream));
+            // cudaError_t startErr = cudaGetLastError();
+            // if(startErr != cudaSuccess) {
+            //     std::cerr << "ERROR: Stage::startTiming(): error starting timing: "
+            //     << cudaGetErrorString(startErr) << std::endl;
+            // }
         }
 
         void Stage::stopTiming() {
-            cudaEventRecord(__stop, __stream);
-            cudaEventSynchronize(__stop);
-            cudaEventElapsedTime(&__elapsedTime, __start, __stop);
+            checkError(cudaEventRecord(__stop, __stream));
+            checkError(cudaEventSynchronize(__stop));
+            checkError(cudaEventElapsedTime(&__elapsedTime, __start, __stop));
+
+            cudaError_t stopErr = cudaGetLastError();
+            if(stopErr != cudaSuccess) {
+                std::cerr << "ERROR: Stage::startTiming(): error stoping timing: "
+                << cudaGetErrorString(stopErr) << std::endl;
+            }
         }
 
         /**
