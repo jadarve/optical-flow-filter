@@ -23,7 +23,7 @@ namespace flowfilter {
         }
 
         Stage::Stage(cudaStream_t stream) {
-
+            checkError(cudaSetDevice(0));
             __stream = stream;
             __elapsedTime = 0.0f;
             __referenceCounter = std::make_shared<int>(0);
@@ -42,7 +42,7 @@ namespace flowfilter {
 
         Stage::~Stage() {
 
-            std::cout << "Stage::~Stage(): " << __referenceCounter.use_count() << std::endl;
+            // std::cout << "Stage::~Stage(): " << __referenceCounter.use_count() << std::endl;
 
             if(__referenceCounter.use_count() == 2) {
 

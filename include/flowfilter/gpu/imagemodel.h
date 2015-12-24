@@ -29,7 +29,7 @@ namespace flowfilter {
              * This constructor internally calles configure() so that the
              * stage is ready to perform computations.
              */
-            ImageModel(flowfilter::gpu::GPUImage inputImage);
+            ImageModel(flowfilter::gpu::GPUImage& inputImage);
 
             ~ImageModel();
 
@@ -53,7 +53,7 @@ namespace flowfilter {
             //#########################
             // Pipeline stage inputs
             //#########################
-            void setInputImage(flowfilter::gpu::GPUImage img);
+            void setInputImage(flowfilter::gpu::GPUImage& img);
 
             //#########################
             // Pipeline stage outputs
@@ -65,6 +65,9 @@ namespace flowfilter {
 
             // tell if the stage has been configured
             bool __configured;
+
+            /** tells if an input image has been set */
+            bool __inputImageSet;
 
             // inputs
             flowfilter::gpu::GPUImage __inputImage;

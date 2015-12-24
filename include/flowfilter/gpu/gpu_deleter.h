@@ -18,7 +18,7 @@ namespace flowfilter {
         struct gpu_deleter {
             void operator()(T* p) {
                 
-                if(p != nullptr) {
+                if(p) {
                     // dont put std::cerr here, in Python appears an error when importing module
                     // std::cerr << "gpu_deleter: calling cudaFree()" << std::endl;
                     

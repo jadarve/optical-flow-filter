@@ -103,11 +103,11 @@ namespace flowfilter {
 
         public:
             GPUTexture();
-            GPUTexture( flowfilter::gpu::GPUImage img, cudaChannelFormatKind format);
-            GPUTexture( flowfilter::gpu::GPUImage img,
+            GPUTexture( flowfilter::gpu::GPUImage& img, cudaChannelFormatKind format);
+            GPUTexture( flowfilter::gpu::GPUImage& img,
                         cudaChannelFormatKind format,
                         cudaTextureReadMode readMode);
-            GPUTexture( flowfilter::gpu::GPUImage img,
+            GPUTexture( flowfilter::gpu::GPUImage& img,
                         cudaChannelFormatKind format,
                         cudaTextureAddressMode addressMode,
                         cudaTextureFilterMode filterMode,

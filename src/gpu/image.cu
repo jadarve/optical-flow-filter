@@ -24,7 +24,6 @@ namespace flowfilter {
             __depth = 0;
             __pitch = 0;
             __itemSize = 0;
-            __ptr_dev = std::shared_ptr<void> {nullptr, gpu_deleter<void>()};
         }
 
         GPUImage::GPUImage(const int height, const int width,
@@ -44,7 +43,7 @@ namespace flowfilter {
             // nothing to do
             // device buffer is released by gpu_deleter
             // std::cout << "GPUImage::~GPUImage(): [" << 
-            //     __height << ", " << __width << ", " << __depth << "]" << std::endl;
+            //     __height << ", " << __width << ", " << __depth << "] : " << __ptr_dev.use_count() << std::endl;
         }
 
         int GPUImage::height() const {
@@ -91,9 +90,9 @@ namespace flowfilter {
             if(compareShape(img)) {
 
                 // print first 5 elements of img
-                for(int i = 0; i < 5; i ++) {
-                    std::cout << i << ": " << (int)static_cast<unsigned char*>(img.data)[i] << std::endl;
-                }
+                // for(int i = 0; i < 5; i ++) {
+                //     std::cout << i << ": " << (int)static_cast<unsigned char*>(img.data)[i] << std::endl;
+                // }
 
                 // issue synchronous memory copy
                 checkError(cudaMemcpy2D(__ptr_dev.get(), __pitch, img.data, img.pitch,
@@ -138,19 +137,19 @@ namespace flowfilter {
             // std::cout << "GPUImage::allocate()" << std::endl;
 
             void* buffer_dev = nullptr;
-            cudaError_t err = cudaMallocPitch(&buffer_dev, &__pitch,
-                __width*__depth*__itemSize, __height);
+            checkError(cudaMallocPitch(&buffer_dev, &__pitch,
+                __width*__depth*__itemSize, __height));
 
             // create a new shared pointer
             __ptr_dev = std::shared_ptr<void> {buffer_dev, gpu_deleter<void>()};
 
             // std::cout << "\tpitch: " << __pitch << std::endl;
 
-            if(err != cudaSuccess) {
-                std::cerr << "ERROR: GPUImage device memory allocation: "
-                    << cudaGetErrorString(err) << std::endl;
-                // TODO: throw exception?
-            }
+            // if(err != cudaSuccess) {
+            //     std::cerr << "ERROR: GPUImage device memory allocation: "
+            //         << cudaGetErrorString(err) << std::endl;
+            //     // TODO: throw exception?
+            // }
         }
 
         bool GPUImage::compareShape(const flowfilter::image_t& img) const {
@@ -174,18 +173,18 @@ namespace flowfilter {
             __refCounter = std::make_shared<int>(0);
         }
 
-        GPUTexture::GPUTexture( GPUImage img, cudaChannelFormatKind format) :
+        GPUTexture::GPUTexture( GPUImage& img, cudaChannelFormatKind format) :
             GPUTexture(img, format, cudaAddressModeClamp, cudaFilterModePoint, cudaReadModeElementType) {
         }
 
-        GPUTexture::GPUTexture( GPUImage img,
+        GPUTexture::GPUTexture( GPUImage& img,
                                 cudaChannelFormatKind format,
                                 cudaTextureReadMode readMode) : 
             GPUTexture(img, format, cudaAddressModeClamp, cudaFilterModePoint, readMode) {
 
         }
 
-        GPUTexture::GPUTexture( GPUImage img,
+        GPUTexture::GPUTexture( GPUImage& img,
                                 cudaChannelFormatKind format,
                                 cudaTextureAddressMode addressMode,
                                 cudaTextureFilterMode filterMode,
@@ -203,17 +202,17 @@ namespace flowfilter {
 
         GPUTexture::~GPUTexture() {
 
-            std::cout << "GPUTexture::~GPUTexture(): " <<  __refCounter.use_count() << " : " << __texture << std::endl;
+            // std::cout << "GPUTexture::~GPUTexture(): " <<  __refCounter.use_count() << " : " << __texture << std::endl;
 
 
             // only attempts to destroy the texture if the creation
             // was successful
-            // if(__refCounter.use_count() == 1) {
-            //     if(__validTexture) {
-            //         std::cout << "\tdestroying texture" << std::endl;
-            //         checkError(cudaDestroyTextureObject(__texture));    
-            //     }
-            // }
+            if(__refCounter.use_count() == 1) {
+                if(__validTexture) {
+                    // std::cout << "\tdestroying texture" << std::endl;
+                    checkError(cudaDestroyTextureObject(__texture));    
+                }
+            }
 
             // __image destructor is called automatically and
             // devide buffer is released only if it's not being
@@ -250,8 +249,8 @@ namespace flowfilter {
             int w3 = channels >= 3? bitWidth : 0;
             int w4 = channels == 4? bitWidth : 0;
 
-            std::cout << "GPUTexture::configure(): channel width: [" << w1 << ", " << w2 << ", " << w3 << ", " << w4 << "]" << std::endl;
-            std::cout << "GPUTexture::configure(): [" << __image.height() << ", " << __image.width() << ", " << __image.depth() << "] size: " << __image.itemSize() << " pitch: " << __image.pitch() << std::endl;
+            // std::cout << "GPUTexture::configure(): channel width: [" << w1 << ", " << w2 << ", " << w3 << ", " << w4 << "]" << std::endl;
+            // std::cout << "GPUTexture::configure(): [" << __image.height() << ", " << __image.width() << ", " << __image.depth() << "] size: " << __image.itemSize() << " pitch: " << __image.pitch() << std::endl;
 
             // channel descriptor
             cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc(w1, w2, w3, w4, format);

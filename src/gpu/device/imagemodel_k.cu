@@ -24,6 +24,9 @@ namespace flowfilter {
 
         /**
          * \brief Apply a smooth mask to input image in X and Y directions.
+         *
+         * NOTE:    reading float, either from a float image or a normalized
+         *          image is faster than reading unsigned char directly.
          */
         __global__ void imagePrefilter_k(cudaTextureObject_t inputImage,
                 gpuimage_t<unsigned char> img,
@@ -45,7 +48,7 @@ namespace flowfilter {
             //#################################
             float smooth_x = 0.0f;
 
-            // #pragma unroll
+            #pragma unroll
             for(int c = -IMS_R; c <= IMS_R; c ++) {
                 smooth_x += smooth_mask[c + IMS_R] * tex2D<float>(inputImage, pix.x + c, pix.y);
             }
@@ -55,7 +58,7 @@ namespace flowfilter {
             //#################################
             float smooth_y = 0.0f;
 
-            // #pragma unroll
+            #pragma unroll
             for(int r = -IMS_R; r <= IMS_R; r ++) {
                 smooth_y += smooth_mask[r + IMS_R] * tex2D<float>(inputImage, pix.x, pix.y + r);
             }
@@ -65,20 +68,6 @@ namespace flowfilter {
             //#################################
             // {smooth_y, smooth_x}
             *coordPitch(imgPrefiltered, pix) = make_float2(smooth_y, smooth_x);
-
-            // if(pix.x == 100 && pix.y == 100) {
-            //     float b = tex2D<float>(inputImage, pix.x, pix.y);
-            //     printf("(%d, %d): %f, %f, %f", pix.y, pix.x, smooth_y, smooth_x, b);
-            //     // *coordPitch(imgPrefiltered, pix) = make_float2(10.0, 20.0);
-            // }
-
-            if(pix.y == 0 && pix.x < 5) {
-                unsigned char c = *coordPitch(img, pix);
-                int b = (int)c;
-                float bf = tex2D<float>(inputImage, pix.x, pix.y);
-
-                printf("(%d, %d): %d : %f : %llx\n", pix.y, pix.x, b, bf, inputImage);
-            }
         }
 
 
@@ -142,12 +131,6 @@ namespace flowfilter {
             // {diff_x, diff_y}
             *coordPitch(imgGradient, pix) = make_float2(diff_x, diff_y);
             *coordPitch(imgConstant, pix) = smooth;
-
-            if(pix.x == 100 && pix.y == 100) {
-                float2 b = tex2D<float2>(imgPrefiltered, pix.x, pix.y);
-                *coordPitch(imgGradient, pix) = make_float2(b.x, b.y);
-                printf("(%d, %d): %llx\n", pix.y, pix.x, imgPrefiltered);
-            }
         }
 
     }; // namespace gpu

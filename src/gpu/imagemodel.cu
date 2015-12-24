@@ -10,6 +10,7 @@
 
 #include "flowfilter/gpu/imagemodel.h"
 #include "flowfilter/gpu/util.h"
+ #include "flowfilter/gpu/error.h"
 #include "flowfilter/gpu/device/imagemodel_k.h"
 
 namespace flowfilter {
@@ -21,6 +22,7 @@ namespace flowfilter {
         ImageModel::ImageModel() :
             Stage() {
             __configured = false;
+            __inputImageSet = false;
         }
 
         /**
@@ -29,17 +31,18 @@ namespace flowfilter {
          * This constructor internally calles configure() so that the
          * stage is ready to perform computations.
          */
-        ImageModel::ImageModel(flowfilter::gpu::GPUImage inputImage) :
+        ImageModel::ImageModel(flowfilter::gpu::GPUImage& inputImage) :
             Stage() {
             
             __configured = false;
+            __inputImageSet = false;
             setInputImage(inputImage);
             configure();
         }
 
         ImageModel::~ImageModel() {
 
-            std::cout << "ImageModel::~ImageModel()" << std::endl;
+            // std::cout << "ImageModel::~ImageModel()" << std::endl;
 
             // nothing to do...
             // delete __inputImageTexture;
@@ -47,10 +50,15 @@ namespace flowfilter {
 
         void ImageModel::configure() {
 
+            if(!__inputImageSet) {
+                std::cerr << "ERROR: ImageModel::configure(): input image has not been set" << std::endl;
+                throw std::exception();
+            }
+
             int height = __inputImage.height();
             int width = __inputImage.width();
 
-            std::cout << "ImageModel::configure(): [" << height << ", " << width << ", " << __inputImage.depth() << "] size: " << __inputImage.itemSize() << " pitch: " << __inputImage.pitch() << std::endl;
+            // std::cout << "ImageModel::configure(): [" << height << ", " << width << ", " << __inputImage.depth() << "] size: " << __inputImage.itemSize() << " pitch: " << __inputImage.pitch() << std::endl;
 
             if(__inputImage.itemSize() == sizeof(unsigned char)) {
                 // wraps __inputImage with normalized texture
@@ -59,9 +67,8 @@ namespace flowfilter {
                 // wraps __inputImage with float texture
                 __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindFloat);    
             }
-            
 
-            // 2-channel[float] filtered image
+            // // 2-channel[float] filtered image
             __imageFiltered = GPUImage(height, width, 2, sizeof(float));
             __imageFilteredTexture = GPUTexture(__imageFiltered, cudaChannelFormatKindFloat);
 
@@ -71,7 +78,7 @@ namespace flowfilter {
             // 2-channel[float] gradient model parameter
             __imageGradient = GPUImage(height, width, 2, sizeof(float));
 
-            // configure block and grid sizes
+            // // configure block and grid sizes
             __block = dim3(32, 32, 1);
             configureKernelGrid(height, width, __block, __grid);
 
@@ -83,7 +90,7 @@ namespace flowfilter {
          */
         void ImageModel::compute() {
 
-            // startTiming();
+            startTiming();
 
             if(!__configured) {
                 std::cerr << "ERROR: ImageModel::compute() stage not configured." << std::endl;
@@ -95,20 +102,22 @@ namespace flowfilter {
                 __inputImageTexture.getTextureObject(), __inputImage.wrap<unsigned char>(),
                 __imageFiltered.wrap<float2>());
 
+            checkError(cudaPeekAtLastError());
+
             // compute brightness parameters
             imageModel_k<<<__grid, __block, 0, __stream>>> (
                 __imageFilteredTexture.getTextureObject(),
                 __imageConstant.wrap<float>(),
                 __imageGradient.wrap<float2>());
 
-            // stopTiming();
+            stopTiming();
         }
 
 
         //#########################
         // Pipeline stage inputs
         //#########################
-        void ImageModel::setInputImage(flowfilter::gpu::GPUImage img) {
+        void ImageModel::setInputImage(flowfilter::gpu::GPUImage& img) {
 
             // check if image is a gray scale image with pixels 1 byte long
             if(img.depth() != 1) {
@@ -123,6 +132,7 @@ namespace flowfilter {
             }
 
             __inputImage = img;
+            __inputImageSet = true;
         }
 
         //#########################
@@ -136,7 +146,6 @@ namespace flowfilter {
         flowfilter::gpu::GPUImage ImageModel::getImageGradient() {
 
             return __imageGradient;
-            // return __imageFiltered;
         }
 
 

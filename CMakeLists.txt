@@ -94,3 +94,4 @@ if(CUDA_FOUND)
     cuda_add_library(flowfilter_gpu SHARED ${GPU_SRCS})
 
 endif(CUDA_FOUND)
+
