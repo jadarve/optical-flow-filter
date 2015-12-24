@@ -51,12 +51,12 @@ namespace flowfilter {
             void compute();
 
             //#########################
-            // Pipeline stage inputs
+            // Stage inputs
             //#########################
             void setInputImage(flowfilter::gpu::GPUImage& img);
 
             //#########################
-            // Pipeline stage outputs
+            // Stage outputs
             //#########################
             flowfilter::gpu::GPUImage getImageConstant();
             flowfilter::gpu::GPUImage getImageGradient();
@@ -86,6 +86,7 @@ namespace flowfilter {
             // block and grid size for kernel calls
             dim3 __block;
             dim3 __grid;
+
         };
 
     }; // namespace gpu

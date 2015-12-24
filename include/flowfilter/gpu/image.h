@@ -62,7 +62,7 @@ namespace flowfilter {
             void* data();
 
             template<typename T>
-            gpuimage_t<T> wrap() {
+            inline gpuimage_t<T> wrap() {
                 gpuimage_t<T> img;
                 img.height = __height;
                 img.width = __width;

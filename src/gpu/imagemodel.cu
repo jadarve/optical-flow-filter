@@ -10,7 +10,7 @@
 
 #include "flowfilter/gpu/imagemodel.h"
 #include "flowfilter/gpu/util.h"
- #include "flowfilter/gpu/error.h"
+#include "flowfilter/gpu/error.h"
 #include "flowfilter/gpu/device/imagemodel_k.h"
 
 namespace flowfilter {
@@ -78,7 +78,7 @@ namespace flowfilter {
             // 2-channel[float] gradient model parameter
             __imageGradient = GPUImage(height, width, 2, sizeof(float));
 
-            // // configure block and grid sizes
+            // configure block and grid sizes
             __block = dim3(32, 32, 1);
             configureKernelGrid(height, width, __block, __grid);
 
@@ -102,8 +102,6 @@ namespace flowfilter {
                 __inputImageTexture.getTextureObject(), __inputImage.wrap<unsigned char>(),
                 __imageFiltered.wrap<float2>());
 
-            checkError(cudaPeekAtLastError());
-
             // compute brightness parameters
             imageModel_k<<<__grid, __block, 0, __stream>>> (
                 __imageFilteredTexture.getTextureObject(),
@@ -125,8 +123,9 @@ namespace flowfilter {
                 throw std::exception();
             }
 
-            if(img.itemSize() != sizeof(unsigned char) && img.itemSize() != sizeof(float)) {
-                std::cerr << "ERROR: sizeof(uchar): " << sizeof(unsigned char) << std::endl;
+            if(img.itemSize() != sizeof(unsigned char) &&
+                img.itemSize() != sizeof(float)) {
+
                 std::cerr << "ERROR: ImageModel::setInputImage(): item size should be 1 or 4: " << img.itemSize() << std::endl;
                 throw std::exception();
             }
