@@ -9,7 +9,7 @@
 #define FLOWFILTER_GPU_IMAGEMODEL_K_H_
 
 
-#include "flowfilter/gpu/device/image_k.h"
+#include "flowfilter/gpu/image.h"
 
 
 namespace flowfilter {

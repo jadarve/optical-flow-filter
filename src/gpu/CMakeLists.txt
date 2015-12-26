@@ -8,6 +8,7 @@ add_gpu_sources(
     imagemodel.cu
     propagation.cu
     update.cu
+    flowsmoothing.cu
 )
 
 # process CMakeLists.txt in device folder
