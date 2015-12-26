@@ -13,23 +13,23 @@
 
 
 namespace flowfilter {
-    namespace gpu {
+namespace gpu {
 
-        /**
-         * \brief Apply a smooth mask to input image in X and Y directions.
-         */
-        __global__ void imagePrefilter_k(cudaTextureObject_t inputImage,
-                gpuimage_t<unsigned char> img,
-                gpuimage_t<float2> imgPrefiltered);
+/**
+ * \brief Apply a smooth mask to input image in X and Y directions.
+ */
+__global__ void imagePrefilter_k(cudaTextureObject_t inputImage,
+                                 gpuimage_t<unsigned char> img,
+                                 gpuimage_t<float2> imgPrefiltered);
 
-        /**
-         * \brief Compute image gradient and constant term from XY smoothed image.
-         */
-        __global__ void imageModel_k(cudaTextureObject_t imgPrefiltered,
-                gpuimage_t<float> imgConstant,
-                gpuimage_t<float2> imgGradient);
+/**
+ * \brief Compute image gradient and constant term from XY smoothed image.
+ */
+__global__ void imageModel_k(cudaTextureObject_t imgPrefiltered,
+                             gpuimage_t<float> imgConstant,
+                             gpuimage_t<float2> imgGradient);
 
-    }; // namespace gpu
+}; // namespace gpu
 }; // namespace flowfilter
 
 #endif // FLOWFILTER_GPU_IMAGEMODEL_K_H_

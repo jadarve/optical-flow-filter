@@ -44,7 +44,7 @@ namespace flowfilter {
 
             // std::cout << "Stage::~Stage(): " << __referenceCounter.use_count() << std::endl;
 
-            if(__referenceCounter.use_count() == 2) {
+            if(__referenceCounter.use_count() == 1) {
 
                 checkError(cudaEventDestroy(__start));
                 checkError(cudaEventDestroy(__stop));

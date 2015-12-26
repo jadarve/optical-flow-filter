@@ -15,81 +15,81 @@
 #include "flowfilter/gpu/image.h"
 
 namespace flowfilter {
-    namespace gpu {
+namespace gpu {
 
-        
-        class ImageModel : public Stage {
 
-        public:
-            ImageModel();
+class ImageModel : public Stage {
 
-            /**
-             * \brief creates an image model stage with a given input image
-             *
-             * This constructor internally calles configure() so that the
-             * stage is ready to perform computations.
-             */
-            ImageModel(flowfilter::gpu::GPUImage& inputImage);
+public:
+    ImageModel();
 
-            ~ImageModel();
+    /**
+     * \brief creates an image model stage with a given input image
+     *
+     * This constructor internally calles configure() so that the
+     * stage is ready to perform computations.
+     */
+    ImageModel(flowfilter::gpu::GPUImage& inputImage);
 
-        public:
+    ~ImageModel();
 
-            /**
-             * \brief configures the stage.
-             *
-             * After configuration, calls to compute()
-             * are valid.
-             * Input buffers should not change after
-             * this method has been called.
-             */
-            void configure();
+public:
 
-            /**
-             * \brief performs computation of brightness parameters
-             */
-            void compute();
+    /**
+     * \brief configures the stage.
+     *
+     * After configuration, calls to compute()
+     * are valid.
+     * Input buffers should not change after
+     * this method has been called.
+     */
+    void configure();
 
-            //#########################
-            // Stage inputs
-            //#########################
-            void setInputImage(flowfilter::gpu::GPUImage& img);
+    /**
+     * \brief performs computation of brightness parameters
+     */
+    void compute();
 
-            //#########################
-            // Stage outputs
-            //#########################
-            flowfilter::gpu::GPUImage getImageConstant();
-            flowfilter::gpu::GPUImage getImageGradient();
+    //#########################
+    // Stage inputs
+    //#########################
+    void setInputImage(flowfilter::gpu::GPUImage& img);
 
-        private:
+    //#########################
+    // Stage outputs
+    //#########################
+    flowfilter::gpu::GPUImage getImageConstant();
+    flowfilter::gpu::GPUImage getImageGradient();
 
-            // tell if the stage has been configured
-            bool __configured;
+private:
 
-            /** tells if an input image has been set */
-            bool __inputImageSet;
+    // tell if the stage has been configured
+    bool __configured;
 
-            // inputs
-            flowfilter::gpu::GPUImage __inputImage;
-            flowfilter::gpu::GPUTexture __inputImageTexture;
+    /** tells if an input image has been set */
+    bool __inputImageSet;
 
-            // outputs
-            flowfilter::gpu::GPUImage __imageConstant;
-            flowfilter::gpu::GPUImage __imageGradient;
+    // inputs
+    flowfilter::gpu::GPUImage __inputImage;
+    flowfilter::gpu::GPUTexture __inputImageTexture;
 
-            // intermediate buffers
+    // outputs
+    flowfilter::gpu::GPUImage __imageConstant;
+    flowfilter::gpu::GPUImage __imageGradient;
 
-            /** 2-channels image with X and Y filtering version of inputImage */
-            flowfilter::gpu::GPUImage __imageFiltered;
-            flowfilter::gpu::GPUTexture __imageFilteredTexture;
+    // intermediate buffers
 
-            // block and grid size for kernel calls
-            dim3 __block;
-            dim3 __grid;
+    /** 2-channels image with X and Y filtering version of inputImage */
+    flowfilter::gpu::GPUImage __imageFiltered;
+    flowfilter::gpu::GPUTexture __imageFilteredTexture;
 
-        };
+    // block and grid size for kernel calls
+    dim3 __block;
+    dim3 __grid;
 
-    }; // namespace gpu
+};
+
+}; // namespace gpu
 }; // namespace flowfilter
 
 #endif // FLOWFILTER_GPU_IMAGEMODEL_H_

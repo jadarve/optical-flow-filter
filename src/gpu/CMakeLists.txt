@@ -3,9 +3,10 @@ message(STATUS "entering src/gpu folder")
 add_gpu_sources(
     error.cu
     image.cu
+    util.cu
     pipeline.cu
     imagemodel.cu
-    util.cu
+    propagation.cu
 )
 
 # process CMakeLists.txt in device folder

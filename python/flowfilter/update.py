@@ -15,10 +15,10 @@ import numpy as np
 import scipy.ndimage as nd
 
 
-__all__ = ['brightnessModel']
+__all__ = ['imageModel', 'update', 'smoothFlow']
 
 
-def brightnessModel(img, support=5):
+def imageModel(img, support=5):
     """Computes brightness model parameters.
 
     Parameters
@@ -127,7 +127,7 @@ def update(img, imgOld, flowPredicted, support=5, gamma=1.0):
     if gamma <= 0.0: raise ValueError('gamma should be greater than zero')
     
     # compute the image model parameters
-    A0, Ax, Ay = brightnessModel(img, support)
+    A0, Ax, Ay = imageModel(img, support)
     
     # temporal derivative
     Yt = imgOld - A0
