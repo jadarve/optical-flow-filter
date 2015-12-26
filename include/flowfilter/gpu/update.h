@@ -23,10 +23,10 @@ class FlowUpdate : public Stage {
 public:
     FlowUpdate();
     FlowUpdate(flowfilter::gpu::GPUImage& inputFlow,
-               flowfilter::gpu::GPUImage& imageConstant,
-               flowfilter::gpu::GPUImage& imageGradient,
-               const float gamma,
-               const float maxflow);
+               flowfilter::gpu::GPUImage& inputImage,
+               flowfilter::gpu::GPUImage& inputImageGradient,
+               const float gamma = 1.0,
+               const float maxflow = 1.0);
     ~FlowUpdate();
 
 public:
@@ -46,15 +46,17 @@ public:
      */
     void compute();
 
+    float getGamma() const;
+    void setGamma(const float gamma);
 
-    void setGamma(const float gamma = 1.0);
-    void setMaxFlow(const float maxflow = 1.0);
+    float getMaxFlow() const;
+    void setMaxFlow(const float maxflow);
 
     //#########################
     // Stage inputs
     //#########################
     void setInputFlow(flowfilter::gpu::GPUImage& inputFlow);
-    void setInputImage(flowfilter::gpu::GPUImage& imageConstant);
+    void setInputImage(flowfilter::gpu::GPUImage& image);
     void setInputImageGradient(flowfilter::gpu::GPUImage& imageGradient);
 
     //#########################

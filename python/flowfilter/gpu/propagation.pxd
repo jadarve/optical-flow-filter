@@ -10,10 +10,10 @@ cimport flowfilter.gpu.image as gimg
 
 cdef extern from 'flowfilter/gpu/propagation.h' namespace 'flowfilter::gpu':
     
-    cdef cppclass FlwoPropagator_cpp 'flowfilter::gpu::FlowPropagator':
+    cdef cppclass FlowPropagator_cpp 'flowfilter::gpu::FlowPropagator':
 
-        FlwoPropagator_cpp()
-        FlwoPropagator_cpp(gimg.GPUImage_cpp& inputFlow, const int iterations)
+        FlowPropagator_cpp()
+        FlowPropagator_cpp(gimg.GPUImage_cpp& inputFlow, const int iterations)
 
 
         void configure()
@@ -34,5 +34,5 @@ cdef extern from 'flowfilter/gpu/propagation.h' namespace 'flowfilter::gpu':
 
 cdef class FlowPropagator:
     
-    cdef FlwoPropagator_cpp propagator
+    cdef FlowPropagator_cpp propagator
 

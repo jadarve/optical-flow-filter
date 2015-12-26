@@ -19,7 +19,7 @@ cdef class FlowPropagator:
             # nothing to do
             return
         
-        self.propagator = FlwoPropagator_cpp(inputFlow.img, iterations)
+        self.propagator = FlowPropagator_cpp(inputFlow.img, iterations)
 
 
     def __dealloc__(self):

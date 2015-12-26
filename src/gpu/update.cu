@@ -27,9 +27,10 @@ FlowUpdate::FlowUpdate() {
     __maxflow = 1.0;
 }
 
+
 FlowUpdate::FlowUpdate(flowfilter::gpu::GPUImage& inputFlow,
-           flowfilter::gpu::GPUImage& imageConstant,
-           flowfilter::gpu::GPUImage& imageGradient,
+           flowfilter::gpu::GPUImage& inputImage,
+           flowfilter::gpu::GPUImage& inputImageGradient,
            const float gamma,
            const float maxflow) {
 
@@ -41,10 +42,11 @@ FlowUpdate::FlowUpdate(flowfilter::gpu::GPUImage& inputFlow,
     setGamma(gamma);
     setMaxFlow(maxflow);
     setInputFlow(inputFlow);
-    setInputImage(imageConstant);
-    setInputImageGradient(imageGradient);
+    setInputImage(inputImage);
+    setInputImageGradient(inputImageGradient);
     configure();
 }
+
 
 FlowUpdate::~FlowUpdate() {
 
@@ -52,15 +54,6 @@ FlowUpdate::~FlowUpdate() {
 }
 
 
-
-/**
- * \brief configures the stage.
- *
- * After configuration, calls to compute()
- * are valid.
- * Input buffers should not change after
- * this method has been called.
- */
 void FlowUpdate::configure() {
 
     if(!__inputFlowSet) {
@@ -98,9 +91,7 @@ void FlowUpdate::configure() {
     __configured = true;
 }
 
-/**
- * \brief performs computation of brightness parameters
- */
+
 void FlowUpdate::compute() {
 
     startTiming();
@@ -117,6 +108,12 @@ void FlowUpdate::compute() {
     stopTiming();
 }
 
+
+float FlowUpdate::getGamma() const {
+    return __gamma;
+}
+
+
 void FlowUpdate::setGamma(const float gamma) {
 
     if(gamma <= 0) {
@@ -127,10 +124,17 @@ void FlowUpdate::setGamma(const float gamma) {
     __gamma = gamma;
 }
 
+
+float FlowUpdate::getMaxFlow() const {
+    return __maxflow;
+}
+
+
 void FlowUpdate::setMaxFlow(const float maxflow) {
 
     __maxflow = maxflow;
 }
+
 
 void FlowUpdate::setInputFlow(flowfilter::gpu::GPUImage& inputFlow) {
 
@@ -150,6 +154,7 @@ void FlowUpdate::setInputFlow(flowfilter::gpu::GPUImage& inputFlow) {
     __inputFlowSet = true;
 }
 
+
 void FlowUpdate::setInputImage(flowfilter::gpu::GPUImage& image) {
 
     if(image.depth() != 1) {
@@ -167,6 +172,7 @@ void FlowUpdate::setInputImage(flowfilter::gpu::GPUImage& image) {
     __inputImage = image;
     __inputImageSet = true;
 }
+
 
 void FlowUpdate::setInputImageGradient(flowfilter::gpu::GPUImage& imageGradient) {
 
@@ -191,6 +197,7 @@ flowfilter::gpu::GPUImage FlowUpdate::getUpdatedFlow() {
 
     return __flowUpdated;
 }
+
 
 flowfilter::gpu::GPUImage FlowUpdate::getUpdatedImage() {
 
