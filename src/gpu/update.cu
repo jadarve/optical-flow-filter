@@ -11,7 +11,7 @@
 #include "flowfilter/gpu/util.h"
 #include "flowfilter/gpu/error.h"
 #include "flowfilter/gpu/update.h"
- #include "flowfilter/gpu/device/update_k.h"
+#include "flowfilter/gpu/device/update_k.h"
 
 namespace flowfilter {
 namespace gpu {
