@@ -138,9 +138,10 @@ void ImageModel::setInputImage(flowfilter::gpu::GPUImage& img) {
 // Pipeline stage outputs
 //#########################
 flowfilter::gpu::GPUImage ImageModel::getImageConstant() {
-
+    
     return __imageConstant;
 }
+
 
 flowfilter::gpu::GPUImage ImageModel::getImageGradient() {
 

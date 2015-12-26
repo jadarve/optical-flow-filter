@@ -5,8 +5,8 @@
  * \license 3-clause BSD, see LICENSE for more details
  */
 
-#ifndef FLOWFILTER_GPU_UPDATE_H_
-#define FLOWFILTER_GPU_UPDATE_H_
+#ifndef FLOWFILTER_GPU_FLOWSMOOTHING_H_
+#define FLOWFILTER_GPU_FLOWSMOOTHING_H_
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -89,4 +89,4 @@ private:
 }; // namespace gpu
 }; // namespace flowfilter
 
-#endif // FLOWFILTER_GPU_UPDATE_H_
+#endif // FLOWFILTER_GPU_FLOWSMOOTHING_H_
