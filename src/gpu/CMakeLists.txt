@@ -7,6 +7,7 @@ add_gpu_sources(
     pipeline.cu
     imagemodel.cu
     propagation.cu
+    update.cu
 )
 
 # process CMakeLists.txt in device folder
