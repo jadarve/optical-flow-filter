@@ -31,7 +31,7 @@ ImageModel::ImageModel() :
  * This constructor internally calles configure() so that the
  * stage is ready to perform computations.
  */
-ImageModel::ImageModel(flowfilter::gpu::GPUImage& inputImage) :
+ImageModel::ImageModel(flowfilter::gpu::GPUImage inputImage) :
     Stage() {
     
     __configured = false;
@@ -115,7 +115,7 @@ void ImageModel::compute() {
 //#########################
 // Pipeline stage inputs
 //#########################
-void ImageModel::setInputImage(flowfilter::gpu::GPUImage& img) {
+void ImageModel::setInputImage(flowfilter::gpu::GPUImage img) {
 
     // check if image is a gray scale image with pixels 1 byte long
     if(img.depth() != 1) {

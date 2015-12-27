@@ -13,7 +13,7 @@ cdef extern from 'flowfilter/gpu/propagation.h' namespace 'flowfilter::gpu':
     cdef cppclass FlowPropagator_cpp 'flowfilter::gpu::FlowPropagator':
 
         FlowPropagator_cpp()
-        FlowPropagator_cpp(gimg.GPUImage_cpp& inputFlow, const int iterations)
+        FlowPropagator_cpp(gimg.GPUImage_cpp inputFlow, const int iterations)
 
 
         void configure()
@@ -25,7 +25,7 @@ cdef extern from 'flowfilter/gpu/propagation.h' namespace 'flowfilter::gpu':
         float getDt() const
 
         # Pipeline stage inputs
-        void setInputFlow(gimg.GPUImage_cpp& inputFlow)
+        void setInputFlow(gimg.GPUImage_cpp inputFlow)
 
         # Pipeline stage outputs
         gimg.GPUImage_cpp getPropagatedFlow()

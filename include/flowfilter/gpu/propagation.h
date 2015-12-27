@@ -25,7 +25,7 @@ class FlowPropagator : public Stage {
 
 public:
     FlowPropagator();
-    FlowPropagator(flowfilter::gpu::GPUImage& inputFlow, const int iterations=1);
+    FlowPropagator(flowfilter::gpu::GPUImage inputFlow, const int iterations=1);
     ~FlowPropagator();
 
 public:
@@ -52,7 +52,7 @@ public:
     //#########################
     // Stage inputs
     //#########################
-    void setInputFlow(flowfilter::gpu::GPUImage& inputFlow);
+    void setInputFlow(flowfilter::gpu::GPUImage inputFlow);
 
     //#########################
     // Stage outputs

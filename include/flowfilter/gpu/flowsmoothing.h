@@ -22,7 +22,7 @@ class FlowSmoother : public Stage {
 
 public:
     FlowSmoother();
-    FlowSmoother(flowfilter::gpu::GPUImage& inputFlow, const int iterations);
+    FlowSmoother(flowfilter::gpu::GPUImage inputFlow, const int iterations);
     ~FlowSmoother();
 
 public:
@@ -48,7 +48,7 @@ public:
     //#########################
     // Stage inputs
     //#########################
-    void setInputFlow(flowfilter::gpu::GPUImage& inputFlow);
+    void setInputFlow(flowfilter::gpu::GPUImage inputFlow);
 
     //#########################
     // Stage outputs

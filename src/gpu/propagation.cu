@@ -25,7 +25,7 @@ FlowPropagator::FlowPropagator() :
     __dt = 0.0f;
 }
 
-FlowPropagator::FlowPropagator(GPUImage& inputFlow,
+FlowPropagator::FlowPropagator(GPUImage inputFlow,
     const int iterations) : 
     Stage() {
 
@@ -124,7 +124,7 @@ float FlowPropagator::getDt() const {
     return __dt;
 }
 
-void FlowPropagator::setInputFlow(flowfilter::gpu::GPUImage& inputFlow) {
+void FlowPropagator::setInputFlow(flowfilter::gpu::GPUImage inputFlow) {
 
     if(inputFlow.depth() != 2) {
         std::cerr << "ERROR: FlowPropagator::setInputFlow(): input flow should have depth 2: "

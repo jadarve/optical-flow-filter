@@ -25,7 +25,7 @@ FlowSmoother::FlowSmoother() :
 }
 
 
-FlowSmoother::FlowSmoother(GPUImage& inputFlow,
+FlowSmoother::FlowSmoother(GPUImage inputFlow,
     const int iterations) :
     Stage() {
 
@@ -127,7 +127,7 @@ void FlowSmoother::setIterations(const int N) {
 }
 
 
-void FlowSmoother::setInputFlow(GPUImage& inputFlow) {
+void FlowSmoother::setInputFlow(GPUImage inputFlow) {
 
     if(inputFlow.depth() != 2) {
         std::cerr << "ERROR: FlowSmoother::setInputFlow(): input flow should have depth 2: "

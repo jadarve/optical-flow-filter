@@ -22,9 +22,9 @@ class FlowUpdate : public Stage {
 
 public:
     FlowUpdate();
-    FlowUpdate(flowfilter::gpu::GPUImage& inputFlow,
-               flowfilter::gpu::GPUImage& inputImage,
-               flowfilter::gpu::GPUImage& inputImageGradient,
+    FlowUpdate(flowfilter::gpu::GPUImage inputFlow,
+               flowfilter::gpu::GPUImage inputImage,
+               flowfilter::gpu::GPUImage inputImageGradient,
                const float gamma = 1.0,
                const float maxflow = 1.0);
     ~FlowUpdate();
@@ -55,9 +55,9 @@ public:
     //#########################
     // Stage inputs
     //#########################
-    void setInputFlow(flowfilter::gpu::GPUImage& inputFlow);
-    void setInputImage(flowfilter::gpu::GPUImage& image);
-    void setInputImageGradient(flowfilter::gpu::GPUImage& imageGradient);
+    void setInputFlow(flowfilter::gpu::GPUImage inputFlow);
+    void setInputImage(flowfilter::gpu::GPUImage image);
+    void setInputImageGradient(flowfilter::gpu::GPUImage imageGradient);
 
     //#########################
     // Stage outputs

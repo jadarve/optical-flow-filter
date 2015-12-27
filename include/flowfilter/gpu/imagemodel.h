@@ -29,7 +29,7 @@ public:
      * This constructor internally calles configure() so that the
      * stage is ready to perform computations.
      */
-    ImageModel(flowfilter::gpu::GPUImage& inputImage);
+    ImageModel(flowfilter::gpu::GPUImage inputImage);
 
     ~ImageModel();
 
@@ -53,7 +53,7 @@ public:
     //#########################
     // Stage inputs
     //#########################
-    void setInputImage(flowfilter::gpu::GPUImage& img);
+    void setInputImage(flowfilter::gpu::GPUImage img);
 
     //#########################
     // Stage outputs

@@ -13,7 +13,7 @@ cdef extern from 'flowfilter/gpu/imagemodel.h' namespace 'flowfilter::gpu':
     cdef cppclass ImageModel_cpp 'flowfilter::gpu::ImageModel':
 
         ImageModel_cpp()
-        ImageModel_cpp(gimg.GPUImage_cpp& inputImage)
+        ImageModel_cpp(gimg.GPUImage_cpp inputImage)
 
 
         void configure()
@@ -21,7 +21,7 @@ cdef extern from 'flowfilter/gpu/imagemodel.h' namespace 'flowfilter::gpu':
         float elapsedTime()
 
         # Pipeline stage inputs
-        void setInputImage(gimg.GPUImage_cpp& img)
+        void setInputImage(gimg.GPUImage_cpp img)
 
         # Pipeline stage outputs
         gimg.GPUImage_cpp getImageConstant()

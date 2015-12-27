@@ -28,9 +28,9 @@ FlowUpdate::FlowUpdate() {
 }
 
 
-FlowUpdate::FlowUpdate(flowfilter::gpu::GPUImage& inputFlow,
-           flowfilter::gpu::GPUImage& inputImage,
-           flowfilter::gpu::GPUImage& inputImageGradient,
+FlowUpdate::FlowUpdate(flowfilter::gpu::GPUImage inputFlow,
+           flowfilter::gpu::GPUImage inputImage,
+           flowfilter::gpu::GPUImage inputImageGradient,
            const float gamma,
            const float maxflow) {
 
@@ -136,7 +136,7 @@ void FlowUpdate::setMaxFlow(const float maxflow) {
 }
 
 
-void FlowUpdate::setInputFlow(flowfilter::gpu::GPUImage& inputFlow) {
+void FlowUpdate::setInputFlow(flowfilter::gpu::GPUImage inputFlow) {
 
     if(inputFlow.depth() != 2) {
         std::cerr << "ERROR: FlowUpdate::setInputFlow(): input flow should have depth 2: "
@@ -155,7 +155,7 @@ void FlowUpdate::setInputFlow(flowfilter::gpu::GPUImage& inputFlow) {
 }
 
 
-void FlowUpdate::setInputImage(flowfilter::gpu::GPUImage& image) {
+void FlowUpdate::setInputImage(flowfilter::gpu::GPUImage image) {
 
     if(image.depth() != 1) {
         std::cerr << "ERROR: FlowUpdate::setInputImage(): input image should have depth 1: "
@@ -174,7 +174,7 @@ void FlowUpdate::setInputImage(flowfilter::gpu::GPUImage& image) {
 }
 
 
-void FlowUpdate::setInputImageGradient(flowfilter::gpu::GPUImage& imageGradient) {
+void FlowUpdate::setInputImageGradient(flowfilter::gpu::GPUImage imageGradient) {
 
     if(imageGradient.depth() != 2) {
         std::cerr << "ERROR: FlowUpdate::setInputImageGradient(): input image gradient should have depth 2: "
