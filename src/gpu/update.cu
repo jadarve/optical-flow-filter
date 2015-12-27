@@ -17,7 +17,8 @@ namespace flowfilter {
 namespace gpu {
 
 
-FlowUpdate::FlowUpdate() {
+FlowUpdate::FlowUpdate() :
+    Stage() {
 
     __configured = false;
     __inputFlowSet = false;
@@ -32,7 +33,8 @@ FlowUpdate::FlowUpdate(flowfilter::gpu::GPUImage inputFlow,
            flowfilter::gpu::GPUImage inputImage,
            flowfilter::gpu::GPUImage inputImageGradient,
            const float gamma,
-           const float maxflow) {
+           const float maxflow) : 
+    Stage() {
 
     __configured = false;
     __inputFlowSet = false;

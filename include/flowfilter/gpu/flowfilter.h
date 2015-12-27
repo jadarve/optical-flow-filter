@@ -29,6 +29,10 @@ class FlowFilter : public Stage {
 public:
     FlowFilter();
     FlowFilter(const int height, const int witdh);
+    FlowFilter(const int height, const int witdh,
+        const int smoothIterations,
+        const float maxflow,
+        const float gamma);
     ~FlowFilter();
 
 public:
@@ -47,6 +51,18 @@ public:
      */
     void compute();
 
+
+    //#########################
+    // Stage outputs
+    //#########################
+
+    flowfilter::gpu::GPUImage getFlow();
+
+
+    //#########################
+    // Host load-download
+    //#########################
+
     /**
      * \brief load image stored in CPU memory space
      */
@@ -54,7 +70,22 @@ public:
 
     void downloadFlow(flowfilter::image_t& flow);
 
-    flowfilter::gpu::GPUImage getFlow();
+    
+    //#########################
+    // Parameters
+    //#########################
+
+    float getGamma() const;
+    void setGamma(const float gamma);
+
+    float getMaxFlow() const;
+    void setMaxFlow(const float maxflow);
+
+    int getSmoothIterations() const;
+    void setSmoothIterations(const int N);
+
+    int getPropagationIterations() const;
+
 
 
 private:
@@ -63,12 +94,6 @@ private:
 
     bool __configured;
     bool __firstLoad;
-
-    float __gamma;
-    float __maxflow;
-    
-    int __propagationIterations;
-    int __smoothIterations;
 
     flowfilter::gpu::GPUImage __inputImage;
 
