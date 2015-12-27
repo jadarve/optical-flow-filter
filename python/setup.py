@@ -60,7 +60,8 @@ GPUmodulesTable = [ ('flowfilter.image', ['flowfilter/image.pyx']),
                     ('flowfilter.gpu.image', ['flowfilter/gpu/image.pyx']),
                     ('flowfilter.gpu.imagemodel', ['flowfilter/gpu/imagemodel.pyx']),
                     ('flowfilter.gpu.propagation', ['flowfilter/gpu/propagation.pyx']),
-                    ('flowfilter.gpu.update', ['flowfilter/gpu/update.pyx'])
+                    ('flowfilter.gpu.update', ['flowfilter/gpu/update.pyx']),
+                    ('flowfilter.gpu.flowfilter', ['flowfilter/gpu/flowfilter.pyx'])
                     ]
 
 for mod in GPUmodulesTable:

@@ -28,6 +28,7 @@ FlowFilter::FlowFilter() :
 
 FlowFilter::FlowFilter(const int height, const int width) :
     FlowFilter(height, width, 1, 1.0, 1.0) {
+        
 }
 
 FlowFilter::FlowFilter(const int height, const int width,
