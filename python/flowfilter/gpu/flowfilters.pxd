@@ -6,8 +6,8 @@
     :license: 3-clause BSD, see LICENSE for more details
 """
 
-cimport flowfilter.image as fimg
 cimport flowfilter.gpu.image as gimg
+cimport flowfilter.image as fimg
 
 cdef extern from 'flowfilter/gpu/flowfilter.h' namespace 'flowfilter::gpu':
     
@@ -31,9 +31,19 @@ cdef extern from 'flowfilter/gpu/flowfilter.h' namespace 'flowfilter::gpu':
         # Host load-download
         void loadImage(fimg.image_t_cpp& image)
         void downloadFlow(fimg.image_t_cpp& flow)
+        void downloadImage(fimg.image_t_cpp& image);
+
+        ## Image model outputs
+        #void downloadImageGradient(fimg.image_t_cpp& gradient)
+        #void downloadImageConstant(fimg.image_t_cpp& gradient)
+
+        ## Update stage outputs
+        #void downloadImageUpdated(fimg.image_t_cpp& image)
+
+        ## Smooth stage outputs
+        #void downloadSmoothedFlow(fimg.image_t_cpp& flow)
         
         # Parameters
-
         float getGamma() const
         void setGamma(const float gamma)
 
@@ -44,6 +54,9 @@ cdef extern from 'flowfilter/gpu/flowfilter.h' namespace 'flowfilter::gpu':
         void setSmoothIterations(const int N)
 
         int getPropagationIterations() const
+
+        int height() const
+        int width() const
 
 
 cdef class FlowFilter:

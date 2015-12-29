@@ -68,7 +68,27 @@ public:
      */
     void loadImage(flowfilter::image_t& image);
 
+    /**
+     * \brief returns the new estimate of optical flow
+     */
     void downloadFlow(flowfilter::image_t& flow);
+
+    /**
+     * \brief returns current brightness model constant value, corresponding
+     *      to a smoothed version of the original image
+     */
+    void downloadImage(flowfilter::image_t& image);
+
+    // // Image model outputs
+    // void downloadImageGradient(flowfilter::image_t& gradient);
+    // void downloadImageConstant(flowfilter::image_t& gradient);
+
+    // // Update stage
+    // void downloadFlowUpdated(flowfilter::image_t& flow);
+    // void downloadImageUpdated(flowfilter::image_t& image);
+
+    // // Smooth stage
+    // void downloadSmoothedFlow(flowfilter::image_t& flow);
 
     
     //#########################
@@ -86,6 +106,8 @@ public:
 
     int getPropagationIterations() const;
 
+    int height() const;
+    int width() const;
 
 
 private:

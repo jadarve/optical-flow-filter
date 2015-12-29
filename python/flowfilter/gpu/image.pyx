@@ -12,8 +12,6 @@ import numpy as np
 cimport flowfilter.image as fimg
 import flowfilter.image as fimg
 
-from image cimport GPUImage_cpp
-
 
 cdef class GPUImage:
     

@@ -89,6 +89,12 @@ void FlowFilter::configure() {
     // of the propagator. This replaces dummyFlow previously
     // assigned to the update
     __update.setInputFlow(__propagator.getPropagatedFlow());
+    
+    // clear buffers
+    __propagator.getPropagatedFlow().clear();
+    __update.getUpdatedFlow().clear();
+    __update.getUpdatedImage().clear();
+    __smoother.getSmoothedFlow().clear();
 
     __configured = true;
     __firstLoad = true;
@@ -99,14 +105,6 @@ void FlowFilter::compute() {
 
     startTiming();
 
-    if(__firstLoad) {
-
-        // TODO: set old image to input image
-        // set old flow to zero
-
-        __firstLoad = false;
-    }
-
     // compute image model
     __imageModel.compute();
 
@@ -115,7 +113,7 @@ void FlowFilter::compute() {
 
     // update
     __update.compute();
-
+    
     // smooth updated flow
     __smoother.compute();
 
@@ -124,11 +122,50 @@ void FlowFilter::compute() {
 
 void FlowFilter::loadImage(flowfilter::image_t& image) {
     __inputImage.upload(image);
+
+    if(__firstLoad) {
+
+        std::cout << "FlowFilter::loadImage(): fisrt load" << std::endl;
+
+        // compute image model parameters
+        __imageModel.compute();
+
+        // set the old image value to current
+        // computed constant brightness parameter
+        GPUImage imConstant = __imageModel.getImageConstant();
+        __update.getUpdatedImage().copyFrom(imConstant);
+        
+        __firstLoad = false;
+    }
 }
 
 void FlowFilter::downloadFlow(flowfilter::image_t& flow) {
-    __update.getUpdatedFlow().download(flow);
+    __smoother.getSmoothedFlow().download(flow);
 }
+
+void FlowFilter::downloadImage(flowfilter::image_t& image) {
+    __update.getUpdatedImage().download(image);
+}
+
+// void FlowFilter::downloadImageGradient(flowfilter::image_t& gradient) {
+//     __imageModel.getImageGradient().download(gradient);
+// }
+
+// void FlowFilter::downloadImageConstant(flowfilter::image_t& image) {
+//     __imageModel.getImageConstant().download(image);
+// }
+
+// void FlowFilter::downloadImageUpdated(flowfilter::image_t& image) {
+//     __update.getUpdatedImage().download(image);
+// }
+
+// void FlowFilter::downloadFlowUpdated(flowfilter::image_t& flow) {
+//     __update.getUpdatedFlow().download(flow);
+// }
+
+// void FlowFilter::downloadSmoothedFlow(flowfilter::image_t& flow) {
+//     __smoother.getSmoothedFlow().download(flow);
+// }
 
 GPUImage FlowFilter::getFlow() {
     return __update.getUpdatedFlow();
@@ -170,6 +207,14 @@ int FlowFilter::getPropagationIterations() const {
     return __propagator.getIterations();
 }
 
+int FlowFilter::height() const {
+    return __height;
+    
+}
+
+int FlowFilter::width() const {
+    return __width;
+}
 
 }; // namespace gpu
 }; // namespace flowfilter
