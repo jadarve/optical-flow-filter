@@ -22,6 +22,14 @@ __global__ void imageDownX_uint8_k(cudaTextureObject_t inputImage,
 __global__ void imageDownY_uint8_k(cudaTextureObject_t inputImage,
     gpuimage_t<unsigned char> imageDown);
 
+
+__global__ void imageDownX_float_k(cudaTextureObject_t inputImage,
+    gpuimage_t<float> imageDown);
+
+
+__global__ void imageDownY_float_k(cudaTextureObject_t inputImage,
+    gpuimage_t<float> imageDown);
+
 }; // namespace gpu
 }; // namespace flowfilter
 

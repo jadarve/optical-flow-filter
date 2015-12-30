@@ -142,7 +142,25 @@ void ImagePyramid::compute() {
 
     } else {
 
-        // TODO
+        for(int h = 0; h < __levels -1; h ++) {
+
+            // downsample in X
+            if(h == 0) {
+                imageDownX_float_k<<<__gridX[h], __block, 0, __stream>>>(
+                    __inputImageTexture.getTextureObject(),
+                    __pyramidX[h].wrap<float>());
+
+            } else {
+                imageDownX_float_k<<<__gridX[h], __block, 0, __stream>>>(
+                    __pyramidTextureY[h-1].getTextureObject(),
+                    __pyramidX[h].wrap<float>());
+            }
+
+            // downsample in Y
+            imageDownY_float_k<<<__gridY[h], __block, 0, __stream>>>(
+                __pyramidTextureX[h].getTextureObject(),
+                __pyramidY[h].wrap<float>());
+        }
     }
 
     stopTiming();
