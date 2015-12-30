@@ -19,9 +19,30 @@ __global__ void flowPropagateX_k(cudaTextureObject_t inputFlow,
                                  gpuimage_t<float2> flowPropagated,
                                  const float dt, const int border);
 
+
 __global__ void flowPropagateY_k(cudaTextureObject_t inputFlow,
                                  gpuimage_t<float2> flowPropagated,
                                  const float dt, const int border);
+
+
+__global__ void flowPropagatePayloadX_k(cudaTextureObject_t inputFlow,
+                                        gpuimage_t<float2> flowPropagated,
+                                        cudaTextureObject_t scalarPayload,
+                                        gpuimage_t<float> scalarPropagated,
+                                        cudaTextureObject_t vectorPayload,
+                                        gpuimage_t<float2> vectorPropagated,
+                                        const float dt, const int border);
+
+
+__global__ void flowPropagatePayloadY_k(cudaTextureObject_t inputFlow,
+                                        gpuimage_t<float2> flowPropagated,
+                                        cudaTextureObject_t scalarPayload,
+                                        gpuimage_t<float> scalarPropagated,
+                                        cudaTextureObject_t vectorPayload,
+                                        gpuimage_t<float2> vectorPropagated,
+                                        const float dt, const int border);
+
+
 
 
 }; // namespace gpu

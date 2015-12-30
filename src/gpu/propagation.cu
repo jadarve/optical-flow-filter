@@ -148,5 +148,280 @@ GPUImage FlowPropagator::getPropagatedFlow() {
     return __propagatedFlow_Y;
 }
 
+
+
+//###############################################
+// FlowPropagatorPayload
+//###############################################
+FlowPropagatorPayload::FlowPropagatorPayload() :
+    Stage() {
+
+    __iterations = 0;
+    __dt = 0.0f;
+    __configured = false;
+
+    __inputFlowSet = false;
+    __scalarPayloadSet = false;
+    __vectorPayloadSet = false;
+
+}
+
+
+FlowPropagatorPayload::FlowPropagatorPayload(GPUImage inputFlow,
+    GPUImage scalarPayload,
+    GPUImage vectorPayload,
+    const int iterations) :
+    Stage() {
+
+    __iterations = 0;
+    __dt = 0.0f;
+    __configured = false;
+
+    __inputFlowSet = false;
+    __scalarPayloadSet = false;
+    __vectorPayloadSet = false;
+
+    setInputFlow(inputFlow);
+    setScalarPayload(scalarPayload);
+    setVectorPayload(vectorPayload);
+    setIterations(iterations);
+    configure();
+}
+
+
+FlowPropagatorPayload::~FlowPropagatorPayload() {
+
+    // nothing to do
+}
+
+
+
+void FlowPropagatorPayload::configure() {
+
+    if(!__inputFlowSet) {
+        std::cerr << "ERROR: FlowPropagatorPayload::configure(): input flow has not been set" << std::endl;
+        throw std::exception();
+    }
+
+    if(!__scalarPayloadSet) {
+        std::cerr << "ERROR: FlowPropagatorPayload::configure(): input scalar payload has not been set" << std::endl;
+        throw std::exception();
+    }
+
+    if(!__vectorPayloadSet) {
+        std::cerr << "ERROR: FlowPropagatorPayload::configure(): input vector payload has not been set" << std::endl;
+        throw std::exception();
+    }
+
+    int height = __inputFlow.height();
+    int width = __inputFlow.width();
+
+    //##################
+    // flow
+    //##################
+    __inputFlowTexture = GPUTexture(__inputFlow, cudaChannelFormatKindFloat);
+
+    __propagatedFlow_X = GPUImage(height, width, 2, sizeof(float));
+    __propagatedFlowTexture_X = GPUTexture(__propagatedFlow_X, cudaChannelFormatKindFloat);
+
+    __propagatedFlow_Y = GPUImage(height, width, 2, sizeof(float));
+    __propagatedFlowTexture_Y = GPUTexture(__propagatedFlow_Y, cudaChannelFormatKindFloat);
+
+    //##################
+    // scalar payload
+    //##################
+    __inputScalarTexture = GPUTexture(__inputScalar, cudaChannelFormatKindFloat);
+
+    __propagatedScalar_X = GPUImage(height, width, 1, sizeof(float));
+    __propagatedScalarTexture_X = GPUTexture(__propagatedScalar_X, cudaChannelFormatKindFloat);
+
+    __propagatedScalar_Y = GPUImage(height, width, 1, sizeof(float));
+    __propagatedScalarTexture_Y = GPUTexture(__propagatedScalar_Y, cudaChannelFormatKindFloat);
+
+    //##################
+    // vector payload
+    //##################
+    __inputVectorTexture = GPUTexture(__inputVector, cudaChannelFormatKindFloat);
+
+    __propagatedVector_X = GPUImage(height, width, 2, sizeof(float));
+    __propagatedVectorTexture_X = GPUTexture(__propagatedVector_X, cudaChannelFormatKindFloat);
+
+    __propagatedVector_Y = GPUImage(height, width, 2, sizeof(float));
+    __propagatedVectorTexture_Y = GPUTexture(__propagatedVector_Y, cudaChannelFormatKindFloat);
+
+
+    // configure block and grid sizes
+    __block = dim3(32, 32, 1);
+    configureKernelGrid(height, width, __block, __grid);
+
+    __configured = true;
+}
+
+
+void FlowPropagatorPayload::compute() {
+
+    startTiming();
+
+    if(!__configured) {
+        std::cerr << "ERROR: FlowPropagator::compute() stage not configured." << std::endl;
+        exit(-1);
+    }
+
+    // First iteration takes as input __inputFlow
+    flowPropagatePayloadX_k<<<__grid, __block, 0, __stream>>>(
+        __inputFlowTexture.getTextureObject(),
+        __propagatedFlow_X.wrap<float2>(),
+        __inputScalarTexture.getTextureObject(),
+        __propagatedScalar_X.wrap<float>(),
+        __inputVectorTexture.getTextureObject(),
+        __propagatedVector_X.wrap<float2>(), __dt, 1);
+
+    flowPropagatePayloadY_k<<<__grid, __block, 0, __stream>>>(
+        __propagatedFlowTexture_X.getTextureObject(),
+        __propagatedFlow_Y.wrap<float2>(),
+        __propagatedScalarTexture_X.getTextureObject(),
+        __propagatedScalar_Y.wrap<float>(),
+        __propagatedVectorTexture_X.getTextureObject(),
+        __propagatedVector_Y.wrap<float2>(), __dt, 1);
+
+
+    // Rest of iterations
+    for(int n = 0; n < __iterations - 1; n ++) {
+
+        // take as input __propagatedFlowY
+        flowPropagatePayloadX_k<<<__grid, __block, 0, __stream>>>(
+            __propagatedFlowTexture_Y.getTextureObject(),
+            __propagatedFlow_X.wrap<float2>(),
+            __propagatedScalarTexture_Y.getTextureObject(),
+            __propagatedScalar_X.wrap<float>(),
+            __propagatedVectorTexture_Y.getTextureObject(),
+            __propagatedVector_X.wrap<float2>(), __dt, 1);
+
+        flowPropagatePayloadY_k<<<__grid, __block, 0, __stream>>>(
+            __propagatedFlowTexture_X.getTextureObject(),
+            __propagatedFlow_Y.wrap<float2>(),
+            __propagatedScalarTexture_X.getTextureObject(),
+            __propagatedScalar_Y.wrap<float>(),
+            __propagatedVectorTexture_X.getTextureObject(),
+            __propagatedVector_Y.wrap<float2>(), __dt, 1);
+    }
+
+    stopTiming();
+}
+
+
+void FlowPropagatorPayload::setIterations(const int N) {
+
+    if(N <= 0) {
+        std::cerr << "ERROR: FlowPropagatorPayload::setIterations(): iterations less than zero: "
+            << N << std::endl;
+
+        throw std::exception();
+    }
+
+    __iterations = N;
+    __dt = 1.0f / float(__iterations);
+}
+
+int FlowPropagatorPayload::getIterations() const {
+    return __iterations;
+}
+
+float FlowPropagatorPayload::getDt() const {
+    return __dt;
+}
+
+
+//#########################
+// Stage inputs
+//#########################
+void FlowPropagatorPayload::setInputFlow(GPUImage inputFlow) {
+
+    if(inputFlow.depth() != 2) {
+        std::cerr << "ERROR: FlowPropagator::setInputFlow(): input flow should have depth 2: "
+            << inputFlow.depth() << std::endl;
+        throw std::exception();
+    }
+
+    if(inputFlow.itemSize() != 4) {
+        std::cerr << "ERROR: FlowPropagator::setInputFlow(): input flow should have item size 4: "
+            << inputFlow.itemSize() << std::endl;
+        throw std::exception();
+    }
+
+    __inputFlow = inputFlow;
+    __inputFlowSet = true;
+}
+
+void FlowPropagatorPayload::setScalarPayload(GPUImage scalarPayload) {
+
+    if(scalarPayload.depth() != 1) {
+        std::cerr << "ERROR: FlowPropagatorPayload::setscalarPayload(): input flow should have depth 2: "
+            << scalarPayload.depth() << std::endl;
+        throw std::exception();
+    }
+
+    if(scalarPayload.itemSize() != 4) {
+        std::cerr << "ERROR: FlowPropagatorPayload::setscalarPayload(): input flow should have item size 4: "
+            << scalarPayload.itemSize() << std::endl;
+        throw std::exception();
+    }
+
+    // check size with respect to __inputFlow
+    if(scalarPayload.height() != __inputFlow.height() ||
+        scalarPayload.width() != __inputFlow.width()) {
+        std::cerr << "ERROR: FlowPropagatorPayload::setscalarPayload(): scalar field shape" <<
+            "does not match with input flow" << std::endl;
+        throw std::exception();
+    }
+
+    __inputScalar = scalarPayload;
+    __scalarPayloadSet = true;
+}
+
+void FlowPropagatorPayload::setVectorPayload(GPUImage vectorPayload) {
+
+    if(vectorPayload.depth() != 2) {
+        std::cerr << "ERROR: FlowPropagatorPayload::setvectorPayload(): input flow should have depth 2: "
+            << vectorPayload.depth() << std::endl;
+        throw std::exception();
+    }
+
+    if(vectorPayload.itemSize() != 4) {
+        std::cerr << "ERROR: FlowPropagatorPayload::setvectorPayload(): input flow should have item size 4: "
+            << vectorPayload.itemSize() << std::endl;
+        throw std::exception();
+    }
+
+    // check size with respect to __inputFlow
+    if(vectorPayload.height() != __inputFlow.height() ||
+        vectorPayload.width() != __inputFlow.width()) {
+        std::cerr << "ERROR: FlowPropagatorPayload::setvectorPayload(): scalar field shape" <<
+            "does not match with input flow" << std::endl;
+        throw std::exception();
+    }
+
+    __inputVector = vectorPayload;
+    __vectorPayloadSet = true;
+}
+
+
+//#########################
+// Stage outputs
+//#########################
+GPUImage FlowPropagatorPayload::getPropagatedFlow() {
+    return __propagatedFlow_Y;
+}
+
+GPUImage FlowPropagatorPayload::getPropagatedScalarPayload() {
+    return __propagatedScalar_Y;
+}
+
+GPUImage FlowPropagatorPayload::getPropagatedVectorPayload() {
+    return __propagatedVector_Y;
+}
+
+
+
 }; // namespace gpu
 }; // namespace flowfilter

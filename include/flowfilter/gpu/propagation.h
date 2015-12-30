@@ -95,40 +95,109 @@ private:
 };
 
 
-// class FlowPropagatorPayload : public Stage {
+/**
+ * \brief Optical flow propagator with scalar and vector payloads.
+ */
+class FlowPropagatorPayload : public Stage {
 
-// public:
+public:
+    FlowPropagatorPayload();
+    FlowPropagatorPayload(flowfilter::gpu::GPUImage inputFlow,
+        flowfilter::gpu::GPUImage scalarPayload,
+        flowfilter::gpu::GPUImage vectorPayload,
+        const int iterations=1);
 
-//     /**
-//      * \brief configures the stage.
-//      *
-//      * After configuration, calls to compute()
-//      * are valid.
-//      * Input buffers should not change after
-//      * this method has been called.
-//      */
-//     void configure();
+    ~FlowPropagatorPayload();
 
-//     /**
-//      * \brief performs computation of brightness parameters
-//      */
-//     void compute();
+public:
 
-//     //#########################
-//     // Stage inputs
-//     //#########################
-//     void setIterations(const int N);
-//     void setInputFlow(flowfilter::gpu::GPUImage& img);
-//     void setPayloadScalar(flowfilter::gpu::GPUImage& img);
-//     void setPayloadVector2(flowfilter::gpu::GPUImage& img);
+    /**
+     * \brief configures the stage.
+     *
+     * After configuration, calls to compute()
+     * are valid.
+     * Input buffers should not change after
+     * this method has been called.
+     */
+    void configure();
 
-//     //#########################
-//     // Stage outputs
-//     //#########################
-//     flowfilter::gpu::GPUImage getPropagatedFlow();
-//     flowfilter::gpu::GPUImage getPropagatedPayloadScalar();
-//     flowfilter::gpu::GPUImage getPropagatedPayloadVector2();
-// };
+    /**
+     * \brief performs computation of brightness parameters
+     */
+    void compute();
+
+    void setIterations(const int N);
+    int getIterations() const;
+    float getDt() const;
+
+    //#########################
+    // Stage inputs
+    //#########################
+    void setInputFlow(flowfilter::gpu::GPUImage img);
+    void setScalarPayload(flowfilter::gpu::GPUImage img);
+    void setVectorPayload(flowfilter::gpu::GPUImage img);
+
+    //#########################
+    // Stage outputs
+    //#########################
+    flowfilter::gpu::GPUImage getPropagatedFlow();
+    flowfilter::gpu::GPUImage getPropagatedScalarPayload();
+    flowfilter::gpu::GPUImage getPropagatedVectorPayload();
+
+
+private:
+
+    int __iterations;
+    float __dt;
+
+    /** tell if the stage has been configured */
+    bool __configured;
+
+    /** tells if an input flow has been set */
+    bool __inputFlowSet;
+    bool __scalarPayloadSet;
+    bool __vectorPayloadSet;
+
+    // inputs
+    flowfilter::gpu::GPUImage __inputFlow;
+    flowfilter::gpu::GPUTexture __inputFlowTexture;
+
+    flowfilter::gpu::GPUImage __inputScalar;
+    flowfilter::gpu::GPUTexture __inputScalarTexture;
+
+    flowfilter::gpu::GPUImage __inputVector;
+    flowfilter::gpu::GPUTexture __inputVectorTexture;
+
+    // outputs
+
+    /** output of the propagation in Y (row) direction */
+    flowfilter::gpu::GPUImage __propagatedFlow_Y;
+    flowfilter::gpu::GPUTexture __propagatedFlowTexture_Y;
+
+    flowfilter::gpu::GPUImage __propagatedScalar_Y;
+    flowfilter::gpu::GPUTexture __propagatedScalarTexture_Y;
+
+    flowfilter::gpu::GPUImage __propagatedVector_Y;
+    flowfilter::gpu::GPUTexture __propagatedVectorTexture_Y;
+
+
+    // intermediate buffers
+    
+    /** output of the propagation in X (column) direction */
+    flowfilter::gpu::GPUImage __propagatedFlow_X;
+    flowfilter::gpu::GPUTexture __propagatedFlowTexture_X;
+
+    flowfilter::gpu::GPUImage __propagatedScalar_X;
+    flowfilter::gpu::GPUTexture __propagatedScalarTexture_X;
+
+    flowfilter::gpu::GPUImage __propagatedVector_X;
+    flowfilter::gpu::GPUTexture __propagatedVectorTexture_X;
+
+
+    // block and grid size for kernel calls
+    dim3 __block;
+    dim3 __grid;
+};
 
 
 }; // namespace gpu
