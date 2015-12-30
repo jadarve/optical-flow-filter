@@ -59,6 +59,7 @@ py_packages = ['flowfilter', 'flowfilter.gpu', 'flowfilter.rsc']
 GPUmodulesTable = [ ('flowfilter.image', ['flowfilter/image.pyx']),
                     ('flowfilter.gpu.image', ['flowfilter/gpu/image.pyx']),
                     ('flowfilter.gpu.imagemodel', ['flowfilter/gpu/imagemodel.pyx']),
+                    ('flowfilter.gpu.pyramid', ['flowfilter/gpu/pyramid.pyx']),
                     ('flowfilter.gpu.propagation', ['flowfilter/gpu/propagation.pyx']),
                     ('flowfilter.gpu.update', ['flowfilter/gpu/update.pyx']),
 

@@ -51,7 +51,6 @@ public:
     // Stage inputs
     //#########################
     void setInputImage(flowfilter::gpu::GPUImage img);
-
     void setLevels(const int levels);
 
 
@@ -59,6 +58,7 @@ public:
     // Stage outputs
     //#########################
     flowfilter::gpu::GPUImage getImage(int level);
+    int getLevels() const;
 
 
 private:

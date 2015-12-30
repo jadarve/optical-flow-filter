@@ -32,17 +32,12 @@ ImagePyramid::ImagePyramid(flowfilter::gpu::GPUImage image,
     const int levels) :
     Stage() {
 
-    if(levels <= 0) {
-        std::cerr << "ERROR: ImagePyramid::ImagePyramid(): " <<
-            "levels should be greater than zero: " << levels << std::endl;
-        throw std::exception();
-    }
-
-    __levels = levels;
     __configured = false;
     __inputImageSet = false;
 
+    setLevels(levels);
     setInputImage(image);
+    configure();
 }
 
 ImagePyramid::~ImagePyramid() {
@@ -72,6 +67,7 @@ void ImagePyramid::configure() {
         __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindFloat);
     }
 
+    // for levels 0 to H - 2
     for(int h = 0; h < __levels -1; h ++) {
 
         // downsampling in X
@@ -91,21 +87,20 @@ void ImagePyramid::configure() {
         dim3 gy(0, 0, 0);
         configureKernelGrid(height, width, __block, gy);
         __gridY.push_back(gy);
-        
 
         // configure textures
         if(isUchar8) {
             GPUTexture tex_x(img_x, cudaChannelFormatKindUnsigned, cudaReadModeNormalizedFloat);
-            GPUTexture tex_y(img_x, cudaChannelFormatKindUnsigned, cudaReadModeNormalizedFloat);
+            GPUTexture tex_y(img_y, cudaChannelFormatKindUnsigned, cudaReadModeNormalizedFloat);
 
             __pyramidTextureX.push_back(tex_x);
-            __pyramidTextureX.push_back(tex_y);
+            __pyramidTextureY.push_back(tex_y);
         } else {
             GPUTexture tex_x(img_x, cudaChannelFormatKindFloat);
             GPUTexture tex_y(img_y, cudaChannelFormatKindFloat);
 
             __pyramidTextureX.push_back(tex_x);
-            __pyramidTextureX.push_back(tex_y);
+            __pyramidTextureY.push_back(tex_y);
         }
     }
 
@@ -117,7 +112,7 @@ void ImagePyramid::compute() {
     startTiming();
 
     if(!__configured) {
-
+        std::cerr << "ERROR: ImagePyramid::compute(): stage not configured" << std::endl;
         throw std::exception();
     }
 
@@ -161,19 +156,30 @@ void ImagePyramid::setInputImage(flowfilter::gpu::GPUImage img) {
 
     // check if image is a gray scale image with pixels 1 byte long
     if(img.depth() != 1) {
-        std::cerr << "ERROR: ImageModel::setInputImage(): image depth should be 1: " << img.depth() << std::endl;
+        std::cerr << "ERROR: ImagePyramid::setInputImage(): image depth should be 1: " << img.depth() << std::endl;
         throw std::exception();
     }
 
     if(img.itemSize() != sizeof(unsigned char) &&
         img.itemSize() != sizeof(float)) {
 
-        std::cerr << "ERROR: ImageModel::setInputImage(): item size should be 1 or 4: " << img.itemSize() << std::endl;
+        std::cerr << "ERROR: ImagePyramid::setInputImage(): item size should be 1 or 4: " << img.itemSize() << std::endl;
         throw std::exception();
     }
 
     __inputImage = img;
     __inputImageSet = true;
+}
+
+void ImagePyramid::setLevels(const int levels) {
+
+    if(levels <= 0) {
+        std::cerr << "ERROR: ImagePyramid::setLevels(): " <<
+            "levels should be greater than zero: " << levels << std::endl;
+        throw std::exception();
+    }
+
+    __levels = levels;
 }
 
 
@@ -190,8 +196,13 @@ flowfilter::gpu::GPUImage ImagePyramid::getImage(int level) {
     if(level == 0) {
         return __inputImage;
     } else {
-        return __pyramidY[level];
+        return __pyramidY[level-1];
     }
+}
+
+
+int ImagePyramid::getLevels() const {
+    return __levels;
 }
 
 

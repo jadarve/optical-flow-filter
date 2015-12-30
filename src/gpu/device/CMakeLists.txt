@@ -5,4 +5,5 @@ add_gpu_sources(
     propagation_k.cu
     update_k.cu
     flowsmoothing_k.cu
+    pyramid_k.cu
 )
