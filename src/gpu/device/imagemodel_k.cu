@@ -29,7 +29,6 @@ __constant__ float diff_mask[] = {-0.2, -0.1, 0.0, 0.1, 0.2};
  *          image is faster than reading unsigned char directly.
  */
 __global__ void imagePrefilter_k(cudaTextureObject_t inputImage,
-        gpuimage_t<unsigned char> img,
         gpuimage_t<float2> imgPrefiltered) {
 
     const int height = imgPrefiltered.height;

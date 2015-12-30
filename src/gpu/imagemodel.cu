@@ -99,8 +99,7 @@ void ImageModel::compute() {
 
     // prefilter
     imagePrefilter_k<<<__grid, __block, 0, __stream>>> (
-        __inputImageTexture.getTextureObject(), __inputImage.wrap<unsigned char>(),
-        __imageFiltered.wrap<float2>());
+        __inputImageTexture.getTextureObject(), __imageFiltered.wrap<float2>());
 
     // compute brightness parameters
     imageModel_k<<<__grid, __block, 0, __stream>>> (
