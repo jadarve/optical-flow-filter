@@ -24,6 +24,15 @@ __global__ void flowUpdate_k(gpuimage_t<float> newImage,
                              const float gamma, const float maxflow);
 
 
+__global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
+                                  gpuimage_t<float2> newImageGradient,
+                                  gpuimage_t<float> oldImage,
+                                  gpuimage_t<float2> oldDeltaFlow,
+                                  cudaTextureObject_t oldFlowTexture,
+                                  gpuimage_t<float> imageUpdated,
+                                  gpuimage_t<float2> deltaFlowUpdated,
+                                  gpuimage_t<float2> flowUpdated,
+                                  const float gamma, const float maxflow);
 }; // namespace gpu
 }; // namespace flowfilter
 

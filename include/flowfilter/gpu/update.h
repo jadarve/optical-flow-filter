@@ -88,6 +88,88 @@ private:
 
 };
 
+
+class DeltaFlowUpdate : public Stage {
+
+public:
+    DeltaFlowUpdate();
+    DeltaFlowUpdate(flowfilter::gpu::GPUImage inputFlow,
+                    flowfilter::gpu::GPUImage inputDeltaFlow,
+                    flowfilter::gpu::GPUImage inputPriorImage,
+                    flowfilter::gpu::GPUImage inputImage,
+                    flowfilter::gpu::GPUImage inputImageGradient,
+                    const float gamma = 1.0,
+                    const float maxflow = 1.0);
+    ~DeltaFlowUpdate();
+
+public:
+
+    /**
+     * \brief configures the stage.
+     *
+     * After configuration, calls to compute()
+     * are valid.
+     * Input buffers should not change after
+     * this method has been called.
+     */
+    void configure();
+
+    /**
+     * \brief performs computation of brightness parameters
+     */
+    void compute();
+
+    float getGamma() const;
+    void setGamma(const float gamma);
+
+    float getMaxFlow() const;
+    void setMaxFlow(const float maxflow);
+
+    //#########################
+    // Stage inputs
+    //#########################
+    void setInputFlow(flowfilter::gpu::GPUImage inputFlow);
+    void setInputDeltaFlow(flowfilter::gpu::GPUImage inputDeltaFlow);
+    void setInputPriorImage(flowfilter::gpu::GPUImage image);
+    void setInputImage(flowfilter::gpu::GPUImage image);
+    void setInputImageGradient(flowfilter::gpu::GPUImage imageGradient);
+
+    //#########################
+    // Stage outputs
+    //#########################
+    flowfilter::gpu::GPUImage getUpdatedFlow();
+    flowfilter::gpu::GPUImage getUpdatedDeltaFlow();
+    flowfilter::gpu::GPUImage getUpdatedImage();
+
+
+private:
+    float __gamma;
+    float __maxflow;
+
+    bool __configured;
+    bool __inputDeltaFlowSet;
+    bool __inputPriorImageSet;
+    bool __inputFlowSet;
+    bool __inputImageSet;
+    bool __inputImageGradientSet;
+
+    flowfilter::gpu::GPUImage __inputFlow;
+    flowfilter::gpu::GPUTexture __inputFlowTexture;
+
+    flowfilter::gpu::GPUImage __inputDeltaFlow;
+    flowfilter::gpu::GPUImage __inputImage;
+    flowfilter::gpu::GPUImage __inputImageGradient;
+
+    flowfilter::gpu::GPUImage __flowUpdated;
+    flowfilter::gpu::GPUImage __deltaFlowUpdated;
+    flowfilter::gpu::GPUImage __imageUpdated;
+
+
+    dim3 __block;
+    dim3 __grid;
+
+};
+
 }; // namespace gpu
 }; // namespace flowfilter
 
