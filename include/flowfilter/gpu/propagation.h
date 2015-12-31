@@ -141,8 +141,8 @@ public:
     // Stage outputs
     //#########################
     flowfilter::gpu::GPUImage getPropagatedFlow();
-    flowfilter::gpu::GPUImage getPropagatedScalarPayload();
-    flowfilter::gpu::GPUImage getPropagatedVectorPayload();
+    flowfilter::gpu::GPUImage getPropagatedScalar();
+    flowfilter::gpu::GPUImage getPropagatedVector();
 
 
 private:

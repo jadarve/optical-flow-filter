@@ -51,5 +51,123 @@ cdef class FlowPropagator:
         propFlow.img = self.propagator.getPropagatedFlow()
 
         return propFlow
+
+
+    property iterations:
+        def __get__(self):
+            return self.propagator.getIterations()
+
+        def __set__(self, int N):
+            self.propagator.setIterations(N)
+
+        def __del__(self):
+            pass
     
+
+    property dt:
+        def __get__(self):
+            return self.propagator.getDt()
+
+        def __set__(self, int dt):
+            raise RuntimeError('dt cannot be set, use iterations property instead')
+
+        def __del__(self):
+            pass
+
+
+cdef class FlowPropagatorPayload:
     
+    def __cinit__(self,
+        gimg.GPUImage inputFlow = None,
+        gimg.GPUImage inputScalar = None,
+        gimg.GPUImage inputVector = None,
+        int iterations = 1):
+        
+        if (inputFlow == None or inputScalar == None
+            or inputVector == None):
+
+            # nothing to do
+            return
+        
+        self.propagator = FlowPropagatorPayload_cpp(
+            inputFlow.img, inputScalar.img,
+            inputVector.img, iterations)
+
+
+    def __dealloc__(self):
+        # nothing to do
+        pass
+
+    def configure(self):
+        self.propagator.configure()
+
+
+    def compute(self):
+        self.propagator.compute()
+
+
+    def elapsedTime(self):
+        return self.propagator.elapsedTime()
+
+
+    def setInputFlow(self, gimg.GPUImage inputFlow):
+        """
+        """
+
+        self.propagator.setInputFlow(inputFlow.img)
+
+
+    def setScalarPayload(self, gimg.GPUImage scalarField):
+
+        self.propagator.setScalarPayload(scalarField.img)
+
+
+    def setVectorPayload(self, gimg.GPUImage vectorField):
+
+        self.propagator.setVectorPayload(vectorField.img)
+
+
+    def getPropagatedFlow(self):
+
+        cdef gimg.GPUImage propFlow = gimg.GPUImage()
+        propFlow.img = self.propagator.getPropagatedFlow()
+
+        return propFlow
+
+
+    def getPropagatedScalar(self):
+
+        cdef gimg.GPUImage propScalar = gimg.GPUImage()
+        propScalar.img = self.propagator.getPropagatedScalar()
+
+        return propScalar
+
+
+    def getPropagatedVector(self):
+
+        cdef gimg.GPUImage propVector = gimg.GPUImage()
+        propVector.img = self.propagator.getPropagatedVector()
+
+        return propVector
+
+
+    property iterations:
+        def __get__(self):
+            return self.propagator.getIterations()
+
+        def __set__(self, int N):
+            self.propagator.setIterations(N)
+
+        def __del__(self):
+            pass
+    
+
+    property dt:
+        def __get__(self):
+            return self.propagator.getDt()
+
+        def __set__(self, int dt):
+            raise RuntimeError('dt cannot be set, use iterations property instead')
+
+        def __del__(self):
+            pass

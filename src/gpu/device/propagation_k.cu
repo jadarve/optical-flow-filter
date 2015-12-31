@@ -181,7 +181,7 @@ __global__ void flowPropagatePayloadX_k(cudaTextureObject_t inputFlow,
     float loadProp1 = load1_0;
     loadProp1 -= dt*Ud* (Ud >= 0.0f? lx1_m : lx1_p);
 
-    // pack the results
+    // pack results
     *coordPitch(scalarPropagated, pix) = loadProp1;
 
     //#################################
@@ -199,7 +199,7 @@ __global__ void flowPropagatePayloadX_k(cudaTextureObject_t inputFlow,
     loadProp2.x -= dt*Ud* (Ud >= 0.0f? lx2_m.x : lx2_p.x);
     loadProp2.y -= dt*Ud* (Ud >= 0.0f? lx2_m.y : lx2_p.y);
 
-    // pack the results
+    // pack results
     *coordPitch(vectorPropagated, pix) = loadProp2;
 
     
@@ -281,7 +281,7 @@ __global__ void flowPropagatePayloadY_k(cudaTextureObject_t inputFlow,
     float loadProp1 = load1_0;
     loadProp1 -= dt*Vd* (Vd >= 0.0f? ly1_m : ly1_p);
 
-    // pack the results
+    // pack results
     *coordPitch(scalarPropagated, pix) = loadProp1;
 
     //#################################
@@ -299,10 +299,9 @@ __global__ void flowPropagatePayloadY_k(cudaTextureObject_t inputFlow,
     loadProp2.x -= dt*Vd* (Vd >= 0.0f? ly2_m.x : ly2_p.x);
     loadProp2.y -= dt*Vd* (Vd >= 0.0f? ly2_m.y : ly2_p.y);
 
-    // pack the results
+    // pack results
     *coordPitch(vectorPropagated, pix) = loadProp2;
-
-    
 }
+
 }; // namespace gpu
 }; // namespace flowfilter

@@ -413,11 +413,11 @@ GPUImage FlowPropagatorPayload::getPropagatedFlow() {
     return __propagatedFlow_Y;
 }
 
-GPUImage FlowPropagatorPayload::getPropagatedScalarPayload() {
+GPUImage FlowPropagatorPayload::getPropagatedScalar() {
     return __propagatedScalar_Y;
 }
 
-GPUImage FlowPropagatorPayload::getPropagatedVectorPayload() {
+GPUImage FlowPropagatorPayload::getPropagatedVector() {
     return __propagatedVector_Y;
 }
 
