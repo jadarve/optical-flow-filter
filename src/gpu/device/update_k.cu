@@ -161,6 +161,7 @@ __global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
     // PACK RESULTS
     //#################################
     *coordPitch(deltaFlowUpdated, pix) = dFlowNew;
+    *coordPitch(flowUpdated, pix) = flowNew;
     *coordPitch(imageUpdated, pix) = a0;
 }
 

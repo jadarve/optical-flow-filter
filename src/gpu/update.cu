@@ -220,7 +220,7 @@ DeltaFlowUpdate::DeltaFlowUpdate() :
     __maxflow = 1.0;
     __configured = false;
     __inputDeltaFlowSet = false;
-    __inputPriorImageSet = false;
+    __inputImageOldSet = false;
     __inputFlowSet = false;
     __inputImageSet = false;
     __inputImageGradientSet = false;
@@ -229,7 +229,7 @@ DeltaFlowUpdate::DeltaFlowUpdate() :
 
 DeltaFlowUpdate::DeltaFlowUpdate(GPUImage inputFlow,
     GPUImage inputDeltaFlow,
-    GPUImage inputPriorImage,
+    GPUImage inputImageOld,
     GPUImage inputImage,
     GPUImage inputImageGradient,
     const float gamma,
@@ -238,7 +238,7 @@ DeltaFlowUpdate::DeltaFlowUpdate(GPUImage inputFlow,
 
     __configured = false;
     __inputDeltaFlowSet = false;
-    __inputPriorImageSet = false;
+    __inputImageOldSet = false;
     __inputFlowSet = false;
     __inputImageSet = false;
     __inputImageGradientSet = false;
@@ -247,7 +247,7 @@ DeltaFlowUpdate::DeltaFlowUpdate(GPUImage inputFlow,
     setMaxFlow(maxflow);
     setInputDeltaFlow(inputDeltaFlow);
     setInputFlow(inputFlow);
-    setInputPriorImage(inputPriorImage);
+    setInputImageOld(inputImageOld);
     setInputImage(inputImage);
     setInputImageGradient(inputImageGradient);
     configure();
@@ -271,7 +271,7 @@ void DeltaFlowUpdate::configure() {
         throw std::exception();
     }
 
-    if(!__inputPriorImageSet) {
+    if(!__inputImageOldSet) {
         std::cerr << "ERROR: DeltaFlowUpdate::configure(): input image prior not set" << std::endl;
         throw std::exception();
     }
@@ -286,17 +286,30 @@ void DeltaFlowUpdate::configure() {
         throw std::exception();
     }
 
-    int height = __inputFlow.height();
-    int width = __inputFlow.width();
+    int height = __inputDeltaFlow.height();
+    int width = __inputDeltaFlow.width();
 
     // verify that height and width of inputs are all the same
-    if(height != __inputImage.height() || height != __inputImageGradient.height()
-        || width != __inputImage.width() || width != __inputImageGradient.width()) {
+    if( height != __inputImage.height() || width != __inputImage.width() ||
+        height != __inputImageGradient.height() || width != __inputImageGradient.width() ||
+        height != __inputImageOld.height() || width != __inputImageOld.width()) {
+
         std::cerr << "ERROR: DeltaFlowUpdate::configure(): input buffers do not match height and width" << std::endl;
         throw std::exception();
     }
+    
+    // configure texture for reading inputFlow
+    // using normalized texture coordinates and linear interpolation
+    __inputFlowTexture = GPUTexture(__inputFlow,
+        cudaChannelFormatKindUnsigned,
+        cudaAddressModeClamp,
+        cudaFilterModeLinear,
+        cudaReadModeElementType,
+        true);
 
+    // outputs
     __flowUpdated = GPUImage(height, width, 2, sizeof(float));
+    __deltaFlowUpdated = GPUImage(height, width, 2, sizeof(float));
     __imageUpdated = GPUImage(height, width, 1, sizeof(float));
 
     // configure block and grid sizes
@@ -309,6 +322,20 @@ void DeltaFlowUpdate::configure() {
 
 void DeltaFlowUpdate::compute() {
 
+    startTiming();
+
+    deltaFlowUpdate_k<<<__grid, __block, 0, __stream>>> (
+        __inputImage.wrap<float>(),
+        __inputImageGradient.wrap<float2>(),
+        __inputImageOld.wrap<float>(),
+        __inputDeltaFlow.wrap<float2>(),
+        __inputFlowTexture.getTextureObject(),
+        __imageUpdated.wrap<float>(),
+        __deltaFlowUpdated.wrap<float2>(),
+        __flowUpdated.wrap<float2>(),
+        __gamma, __maxflow);
+
+    stopTiming();
 }
 
 
@@ -369,6 +396,24 @@ void DeltaFlowUpdate::setInputDeltaFlow(GPUImage inputDeltaFlow) {
 
     __inputDeltaFlow = inputDeltaFlow;
     __inputFlowSet = true;
+}
+
+void DeltaFlowUpdate::setInputImageOld(GPUImage image) {
+
+    if(image.depth() != 1) {
+        std::cerr << "ERROR: DeltaFlowUpdate::setInputImageOld(): input image should have depth 1: "
+            << image.depth() << std::endl;
+        throw std::exception();
+    }
+
+    if(image.itemSize() != sizeof(float)) {
+        std::cerr << "ERROR: DeltaFlowUpdate::setInputImageOld(): input image should have item size 4: "
+            << image.itemSize() << std::endl;
+        throw std::exception();
+    }
+
+    __inputImageOld = image;
+    __inputImageOldSet = true;
 }
 
 

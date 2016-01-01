@@ -95,7 +95,7 @@ public:
     DeltaFlowUpdate();
     DeltaFlowUpdate(flowfilter::gpu::GPUImage inputFlow,
                     flowfilter::gpu::GPUImage inputDeltaFlow,
-                    flowfilter::gpu::GPUImage inputPriorImage,
+                    flowfilter::gpu::GPUImage inputOldImage,
                     flowfilter::gpu::GPUImage inputImage,
                     flowfilter::gpu::GPUImage inputImageGradient,
                     const float gamma = 1.0,
@@ -130,7 +130,7 @@ public:
     //#########################
     void setInputFlow(flowfilter::gpu::GPUImage inputFlow);
     void setInputDeltaFlow(flowfilter::gpu::GPUImage inputDeltaFlow);
-    void setInputPriorImage(flowfilter::gpu::GPUImage image);
+    void setInputImageOld(flowfilter::gpu::GPUImage image);
     void setInputImage(flowfilter::gpu::GPUImage image);
     void setInputImageGradient(flowfilter::gpu::GPUImage imageGradient);
 
@@ -148,7 +148,7 @@ private:
 
     bool __configured;
     bool __inputDeltaFlowSet;
-    bool __inputPriorImageSet;
+    bool __inputImageOldSet;
     bool __inputFlowSet;
     bool __inputImageSet;
     bool __inputImageGradientSet;
@@ -157,6 +157,7 @@ private:
     flowfilter::gpu::GPUTexture __inputFlowTexture;
 
     flowfilter::gpu::GPUImage __inputDeltaFlow;
+    flowfilter::gpu::GPUImage __inputImageOld;
     flowfilter::gpu::GPUImage __inputImage;
     flowfilter::gpu::GPUImage __inputImageGradient;
 
