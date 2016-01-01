@@ -301,7 +301,7 @@ void DeltaFlowUpdate::configure() {
     // configure texture for reading inputFlow
     // using normalized texture coordinates and linear interpolation
     __inputFlowTexture = GPUTexture(__inputFlow,
-        cudaChannelFormatKindUnsigned,
+        cudaChannelFormatKindFloat,
         cudaAddressModeClamp,
         cudaFilterModeLinear,
         cudaReadModeElementType,
@@ -338,6 +338,9 @@ void DeltaFlowUpdate::compute() {
     stopTiming();
 }
 
+float DeltaFlowUpdate::getGamma() const {
+    return __gamma;
+}
 
 void DeltaFlowUpdate::setGamma(const float gamma) {
 
@@ -395,7 +398,7 @@ void DeltaFlowUpdate::setInputDeltaFlow(GPUImage inputDeltaFlow) {
     }
 
     __inputDeltaFlow = inputDeltaFlow;
-    __inputFlowSet = true;
+    __inputDeltaFlowSet = true;
 }
 
 void DeltaFlowUpdate::setInputImageOld(GPUImage image) {
