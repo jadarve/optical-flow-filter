@@ -204,13 +204,24 @@ GPUTexture::GPUTexture() {
 }
 
 GPUTexture::GPUTexture( GPUImage& img, cudaChannelFormatKind format) :
-    GPUTexture(img, format, cudaAddressModeClamp, cudaFilterModePoint, cudaReadModeElementType) {
+    GPUTexture(img, format, cudaAddressModeClamp, 
+        cudaFilterModePoint, cudaReadModeElementType, false) {
 }
 
 GPUTexture::GPUTexture( GPUImage& img,
                         cudaChannelFormatKind format,
                         cudaTextureReadMode readMode) : 
-    GPUTexture(img, format, cudaAddressModeClamp, cudaFilterModePoint, readMode) {
+    GPUTexture(img, format, cudaAddressModeClamp,
+        cudaFilterModePoint, readMode, false) {
+
+}
+
+GPUTexture::GPUTexture( flowfilter::gpu::GPUImage& img,
+                        cudaChannelFormatKind format,
+                        cudaTextureReadMode readMode,
+                        const bool normalizedCoords) : 
+    GPUTexture(img, format, cudaAddressModeClamp, cudaFilterModePoint,
+        readMode, normalizedCoords) {
 
 }
 
@@ -218,7 +229,8 @@ GPUTexture::GPUTexture( GPUImage& img,
                         cudaChannelFormatKind format,
                         cudaTextureAddressMode addressMode,
                         cudaTextureFilterMode filterMode,
-                        cudaTextureReadMode readMode) {
+                        cudaTextureReadMode readMode,
+                        const bool normalizedCoords) {
 
     __refCounter = std::make_shared<int>(0);
 
@@ -226,7 +238,7 @@ GPUTexture::GPUTexture( GPUImage& img,
     __image = img;
 
     // configure CUDA texture
-    configure(format, addressMode, filterMode, readMode);
+    configure(format, addressMode, filterMode, readMode, normalizedCoords);
 }
 
 GPUTexture::~GPUTexture() {
@@ -238,7 +250,6 @@ GPUTexture::~GPUTexture() {
     // was successful
     if(__refCounter.use_count() == 1) {
         if(__validTexture) {
-            // std::cout << "\tdestroying texture" << std::endl;
             checkError(cudaDestroyTextureObject(__texture));    
         }
     }
@@ -259,7 +270,8 @@ GPUImage GPUTexture::getImage() {
 void GPUTexture::configure( cudaChannelFormatKind format,
                             cudaTextureAddressMode addressMode,
                             cudaTextureFilterMode filterMode,
-                            cudaTextureReadMode readMode) {
+                            cudaTextureReadMode readMode,
+                            const bool normalizedCoords) {
     
     __validTexture = false;
 
@@ -291,7 +303,7 @@ void GPUTexture::configure( cudaChannelFormatKind format,
     texDesc.addressMode[1] = addressMode;
     texDesc.filterMode = filterMode;
     texDesc.readMode = readMode;
-    texDesc.normalizedCoords = false;
+    texDesc.normalizedCoords = normalizedCoords;
 
     // texture buffer descriptor
     cudaResourceDesc resDesc;

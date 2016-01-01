@@ -123,9 +123,15 @@ public:
 
     GPUTexture( flowfilter::gpu::GPUImage& img,
                 cudaChannelFormatKind format,
+                cudaTextureReadMode readMode,
+                const bool normalizedCoords);
+
+    GPUTexture( flowfilter::gpu::GPUImage& img,
+                cudaChannelFormatKind format,
                 cudaTextureAddressMode addressMode,
                 cudaTextureFilterMode filterMode,
-                cudaTextureReadMode readMode);
+                cudaTextureReadMode readMode,
+                const bool normalizedCoords);
 
     ~GPUTexture();
 
@@ -138,7 +144,8 @@ private:
     void configure( cudaChannelFormatKind format,
                     cudaTextureAddressMode addressMode,
                     cudaTextureFilterMode filterMode,
-                    cudaTextureReadMode readMode);
+                    cudaTextureReadMode readMode,
+                    const bool normalizedCoords);
 
 private:
     /** image buffer in GPU memory space */
