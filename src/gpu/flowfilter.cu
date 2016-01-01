@@ -521,6 +521,10 @@ GPUImage DeltaFlowFilter::getFlow() {
     return __update.getUpdatedFlow();
 }
 
+GPUImage DeltaFlowFilter::getImage() {
+    return __update.getUpdatedImage();
+}
+
 
 float DeltaFlowFilter::getGamma() const {
     return __update.getGamma();
@@ -660,6 +664,41 @@ void PyramidalFlowFilter::compute() {
     stopTiming();
 }
 
+GPUImage PyramidalFlowFilter::getFlow() {
+
+    if(__levels == 1) {
+        return __topLevelFilter.getFlow();
+    } else {
+        return __lowLevelFilters[0].getFlow();
+    }
+}
+
+
+void PyramidalFlowFilter::loadImage(image_t& image) {
+
+    __inputImage.upload(image);
+}
+
+
+void PyramidalFlowFilter::downloadFlow(image_t& flow) {
+
+    if(__levels == 1) {
+        __topLevelFilter.downloadFlow(flow);
+    } else {
+        __lowLevelFilters[0].getFlow().download(flow);
+    }
+}
+
+
+void PyramidalFlowFilter::downloadImage(image_t& image) {
+
+    if(__levels == 1) {
+        __topLevelFilter.downloadImage(image);
+    } else {
+        __lowLevelFilters[0].getImage().download(image);
+    }
+}
+
 
 float PyramidalFlowFilter::getGamma(const int level) const {
     
@@ -705,7 +744,7 @@ void PyramidalFlowFilter::setMaxFlow(const float maxflow) {
 
     if(__levels == 1) {
         __topLevelFilter.setMaxFlow(maxflow);
-        
+
     } else {
 
         float maxflowLevel = maxflow;
@@ -734,8 +773,6 @@ int PyramidalFlowFilter::width() const {
 int PyramidalFlowFilter::levels() const {
     return __levels;
 }
-
-
 
 
 }; // namespace gpu

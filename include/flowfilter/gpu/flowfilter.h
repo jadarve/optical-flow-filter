@@ -183,6 +183,7 @@ public:
     //#########################
 
     flowfilter::gpu::GPUImage getFlow();
+    flowfilter::gpu::GPUImage getImage();
 
 
     //#########################
