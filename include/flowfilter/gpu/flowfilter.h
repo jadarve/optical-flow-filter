@@ -8,6 +8,8 @@
 #ifndef FLOWFILTER_GPU_FLOWFILTER_H_
 #define FLOWFILTER_GPU_FLOWFILTER_H_
 
+#include <vector>
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -19,6 +21,7 @@
 #include "flowfilter/gpu/update.h"
 #include "flowfilter/gpu/propagation.h"
 #include "flowfilter/gpu/flowsmoothing.h"
+#include "flowfilter/gpu/pyramid.h"
 
 
 namespace flowfilter {
@@ -28,6 +31,7 @@ class FlowFilter : public Stage {
 
 public:
     FlowFilter();
+    FlowFilter(flowfilter::gpu::GPUImage inputImage);
     FlowFilter(const int height, const int witdh);
     FlowFilter(const int height, const int witdh,
         const int smoothIterations,
@@ -51,6 +55,15 @@ public:
      */
     void compute();
 
+    void computeImageModel();
+    void computePropagation();
+    void computeUpdate();
+
+    //#########################
+    // Stage inputs
+    //#########################
+
+    void setInputImage(flowfilter::gpu::GPUImage inputImage);
 
     //#########################
     // Stage outputs
@@ -116,6 +129,7 @@ private:
 
     bool __configured;
     bool __firstLoad;
+    bool __inputImageSet;
 
     flowfilter::gpu::GPUImage __inputImage;
 
@@ -123,6 +137,184 @@ private:
     flowfilter::gpu::FlowUpdate __update;
     flowfilter::gpu::FlowSmoother __smoother;
     flowfilter::gpu::FlowPropagator __propagator;
+
+};
+
+
+class DeltaFlowFilter : public Stage {
+
+public:
+    DeltaFlowFilter();
+    DeltaFlowFilter(flowfilter::gpu::GPUImage inputImage,
+        flowfilter::gpu::GPUImage inputFlow);
+    ~DeltaFlowFilter();
+
+public:
+    /**
+     * \brief configures the stage.
+     *
+     * After configuration, calls to compute()
+     * are valid.
+     * Input buffers should not change after
+     * this method has been called.
+     */
+    void configure();
+
+    /**
+     * \brief perform computation
+     */
+    void compute();
+
+
+    void computeImageModel();
+    void computePropagation();
+    void computeUpdate();
+
+    //#########################
+    // Stage inputs
+    //#########################
+
+    void setInputImage(flowfilter::gpu::GPUImage inputImage);
+    void setInputFlow(flowfilter::gpu::GPUImage inputFlow);
+
+
+    //#########################
+    // Stage outputs
+    //#########################
+
+    flowfilter::gpu::GPUImage getFlow();
+
+
+    //#########################
+    // Parameters
+    //#########################
+
+    float getGamma() const;
+    void setGamma(const float gamma);
+
+    float getMaxFlow() const;
+    void setMaxFlow(const float maxflow);
+
+    int getSmoothIterations() const;
+    void setSmoothIterations(const int N);
+
+    int getPropagationIterations() const;
+
+    int height() const;
+    int width() const;
+
+
+private:
+    int __height;
+    int __width;
+
+    bool __configured;
+    bool __firstLoad;
+
+    /** Tells if __inputImage has been set from a external source */
+    bool __inputImageSet;
+
+    bool __inputFlowSet;
+
+    flowfilter::gpu::GPUImage __inputImage;
+    flowfilter::gpu::GPUImage __inputFlow;
+
+    flowfilter::gpu::ImageModel __imageModel;
+    flowfilter::gpu::DeltaFlowUpdate __update;
+    flowfilter::gpu::FlowSmoother __smoother;
+    flowfilter::gpu::FlowPropagatorPayload __propagator;
+
+};
+
+
+class PyramidalFlowFilter : public Stage {
+
+public:
+    PyramidalFlowFilter();
+    PyramidalFlowFilter(const int height, const int width, const int levels);
+    ~PyramidalFlowFilter();
+
+
+public:
+    /**
+     * \brief configures the stage.
+     *
+     * After configuration, calls to compute()
+     * are valid.
+     * Input buffers should not change after
+     * this method has been called.
+     */
+    void configure();
+
+    /**
+     * \brief perform computation
+     */
+    void compute();
+
+
+    //#########################
+    // Stage outputs
+    //#########################
+
+    flowfilter::gpu::GPUImage getFlow();
+
+
+    //#########################
+    // Host load-download
+    //#########################
+
+    /**
+     * \brief load image stored in CPU memory space
+     */
+    void loadImage(flowfilter::image_t& image);
+
+    /**
+     * \brief returns the new estimate of optical flow
+     */
+    void downloadFlow(flowfilter::image_t& flow);
+
+    /**
+     * \brief returns current brightness model constant value, corresponding
+     *      to a smoothed version of the original image
+     */
+    void downloadImage(flowfilter::image_t& image);
+
+
+    //#########################
+    // Parameters
+    //#########################
+
+    float getGamma(const int level) const;
+    void setGamma(const int level, const float gamma);
+
+    float getMaxFlow() const;
+    void setMaxFlow(const float maxflow);
+
+    // int getSmoothIterations() const;
+    // void setSmoothIterations(const int N);
+
+    // int getPropagationIterations() const;
+
+    int height() const;
+    int width() const;
+    int levels() const;
+
+
+private:
+
+    bool __configured;
+
+    int __height;
+    int __width;
+    int __levels;
+
+    flowfilter::gpu::GPUImage __inputImage;
+
+    flowfilter::gpu::ImagePyramid __imagePyramid;
+
+    flowfilter::gpu::FlowFilter __topLevelFilter;
+
+    std::vector<DeltaFlowFilter> __lowLevelFilters;
 
 };
 

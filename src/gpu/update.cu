@@ -98,6 +98,11 @@ void FlowUpdate::compute() {
 
     startTiming();
 
+    if(!__configured) {
+        std::cerr << "ERROR: FlowUpdate::compute() stage not configured." << std::endl;
+        exit(-1);
+    }
+
     flowUpdate_k<<<__grid, __block, 0, __stream>>>(
         __inputImage.wrap<float>(),
         __inputImageGradient.wrap<float2>(),
@@ -323,6 +328,11 @@ void DeltaFlowUpdate::configure() {
 void DeltaFlowUpdate::compute() {
 
     startTiming();
+
+    if(!__configured) {
+        std::cerr << "ERROR: DeltaFlowUpdate::compute() stage not configured." << std::endl;
+        exit(-1);
+    }
 
     deltaFlowUpdate_k<<<__grid, __block, 0, __stream>>> (
         __inputImage.wrap<float>(),

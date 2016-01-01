@@ -62,7 +62,7 @@ __global__ void flowUpdate_k(gpuimage_t<float> newImage,
     float2 ofNew = make_float2( (N00*qx + N01*qy)*rdetM,
                                 (N10*qx + N11*qy)*rdetM);
 
-    // truncates the flow to lie on its allowed interval
+    // truncates the flow to lie in its allowed interval
     ofNew.x = max(-maxflow, min(ofNew.x, maxflow));
     ofNew.y = max(-maxflow, min(ofNew.y, maxflow));
 
@@ -129,15 +129,11 @@ __global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
     float qx = gamma*deltaFlowOld.x + a1.x*Yt;
     float qy = gamma*deltaFlowOld.y + a1.y*Yt;
 
-    // computes the updated optical flow
+    // computes updated optical flow
     float2 dFlowNew = make_float2( (N00*qx + N01*qy)*rdetM,
                                 (N10*qx + N11*qy)*rdetM);
 
-    // truncates the flow to lie on its allowed interval
-    dFlowNew.x = max(-maxflow, min(dFlowNew.x, maxflow));
-    dFlowNew.y = max(-maxflow, min(dFlowNew.y, maxflow));
-
-    // sanitize the output
+    // sanitize output
     dFlowNew.x = isinf(dFlowNew.x) + isnan(dFlowNew.x) > 0? 0.0f : dFlowNew.x;
     dFlowNew.y = isinf(dFlowNew.y) + isnan(dFlowNew.y) > 0? 0.0f : dFlowNew.y;
 
@@ -153,9 +149,13 @@ __global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
     // linear interpolation of flow value
     float2 flowUp = tex2D<float2>(oldFlowTexture, u, v);
 
-    // update the upsampled flow from top level
+    // update upsampled flow from top level
     float2 flowNew = make_float2(dFlowNew.x + 2*flowUp.x,
         dFlowNew.y + 2*flowUp.y);
+
+    // truncates flow to lie in its allowed interval
+    flowNew.x = max(-maxflow, min(flowNew.x, maxflow));
+    flowNew.y = max(-maxflow, min(flowNew.y, maxflow));
 
     //#################################
     // PACK RESULTS
@@ -164,7 +164,6 @@ __global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
     *coordPitch(flowUpdated, pix) = flowNew;
     *coordPitch(imageUpdated, pix) = a0;
 }
-
 
 }; // namespace gpu
 }; // namespace flowfilter
