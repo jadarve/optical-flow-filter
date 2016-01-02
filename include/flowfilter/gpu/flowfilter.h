@@ -291,8 +291,8 @@ public:
     float getMaxFlow() const;
     void setMaxFlow(const float maxflow);
 
-    // int getSmoothIterations() const;
-    // void setSmoothIterations(const int N);
+    int getSmoothIterations(const int level) const;
+    void setSmoothIterations(const int level, const int N);
 
     // int getPropagationIterations() const;
 

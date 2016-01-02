@@ -59,7 +59,48 @@ cdef extern from 'flowfilter/gpu/flowfilter.h' namespace 'flowfilter::gpu':
         int width() const
 
 
+    cdef cppclass PyramidalFlowFilter_cpp 'flowfilter::gpu::PyramidalFlowFilter':
+        
+
+        PyramidalFlowFilter_cpp()
+        PyramidalFlowFilter_cpp(const int height,
+            const int width, const int levels)
+        
+
+        void configure()
+        void compute()
+        float elapsedTime()
+
+
+        # Pipeline stage outputs
+        gimg.GPUImage_cpp getFlow()
+
+
+        # Host load-download
+        void loadImage(fimg.image_t_cpp& image)
+        void downloadFlow(fimg.image_t_cpp& flow)
+        void downloadImage(fimg.image_t_cpp& image)
+
+        # Paramters
+        float getGamma(const int level) const
+        void setGamma(const int level, const float gamma)
+
+        float getMaxFlow() const
+        void setMaxFlow(const float maxflow)
+
+        int getSmoothIterations(const int level) const
+        void setSmoothIterations(const int level, const int smoothIterations)
+
+        int height() const
+        int width() const
+        int levels() const
+
+
 cdef class FlowFilter:
     
     cdef FlowFilter_cpp ffilter
 
+
+cdef class PyramidalFlowFilter:
+    
+    cdef PyramidalFlowFilter_cpp ffilter

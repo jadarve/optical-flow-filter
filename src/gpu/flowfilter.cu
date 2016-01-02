@@ -388,6 +388,9 @@ void DeltaFlowFilter::configure() {
 
 
     // clear buffers
+    __imageModel.getImageConstant().clear();
+    __imageModel.getImageGradient().clear();
+
     __propagator.getPropagatedFlow().clear();
     __propagator.getPropagatedScalar().clear();
     __propagator.getPropagatedVector().clear();
@@ -459,12 +462,13 @@ void DeltaFlowFilter::computeUpdate() {
     startTiming();
 
     if(__firstLoad) {
-        std::cout << "FlowFilter::compute(): fisrt load" << std::endl;
+        std::cout << "DeltaFlowFilter::compute(): fisrt load" << std::endl;
 
         // set the old image value to current
         // computed constant brightness parameter
         GPUImage imConstant = __imageModel.getImageConstant();
         __update.getUpdatedImage().copyFrom(imConstant);
+        __propagator.getPropagatedScalar().copyFrom(imConstant);
         
         __firstLoad = false;
     }
@@ -487,7 +491,8 @@ void DeltaFlowFilter::setInputImage(GPUImage inputImage) {
         throw std::exception();
     }
 
-    if(inputImage.itemSize() != sizeof(float)) {
+    if(inputImage.itemSize() != sizeof(unsigned char) &&
+        inputImage.itemSize() != sizeof(float)) {
         std::cerr << "ERROR: DeltaFlowFilter::setInputImage(): input image should have item size 4: "
             << inputImage.itemSize() << std::endl;
         throw std::exception();
@@ -518,7 +523,7 @@ void DeltaFlowFilter::setInputFlow(GPUImage inputFlow) {
 
 
 GPUImage DeltaFlowFilter::getFlow() {
-    return __update.getUpdatedFlow();
+    return __smoother.getSmoothedFlow();
 }
 
 GPUImage DeltaFlowFilter::getImage() {
@@ -594,6 +599,8 @@ PyramidalFlowFilter::PyramidalFlowFilter(const int height, const int width, cons
     __width = width;
     __levels = levels;
     __configured = false;
+
+    configure();
 }
 
 
@@ -617,6 +624,7 @@ void PyramidalFlowFilter::configure() {
         __lowLevelFilters.resize(__levels -1);
 
         GPUImage levelInputFlow = __topLevelFilter.getFlow();
+        levelInputFlow.clear();
 
         for(int h = __levels -2; h >= 0; h --) {
 
@@ -625,6 +633,12 @@ void PyramidalFlowFilter::configure() {
 
             levelInputFlow = __lowLevelFilters[h].getFlow();
         }
+    }
+
+    // clear buffers
+    __inputImage.clear();
+    for(int h = 0; h < __levels; h ++) {
+        __imagePyramid.getImage(h).clear();
     }
 
     __configured = true;
@@ -726,6 +740,35 @@ void PyramidalFlowFilter::setGamma(const int level, const float gamma) {
         __topLevelFilter.setGamma(gamma);
     } else {
         __lowLevelFilters[level].setGamma(gamma);
+    }
+}
+
+int PyramidalFlowFilter::getSmoothIterations(const int level) const {
+
+    if(level < 0 || level >= __levels) {
+        std::cerr << "ERROR: PyramidalFlowFilter::getSmoothIterations(): level index out of bounds: " << level << std::endl;
+        throw std::exception();
+    }
+
+    if(level == __levels -1) {
+        return __topLevelFilter.getSmoothIterations();
+    } else {
+        return __lowLevelFilters[level].getSmoothIterations();
+    }
+}
+
+
+void PyramidalFlowFilter::setSmoothIterations(const int level, const int N) {
+
+    if(level < 0 || level >= __levels) {
+        std::cerr << "ERROR: PyramidalFlowFilter::setSmoothIterations(): level index out of bounds: " << level << std::endl;
+        throw std::exception();
+    }
+
+    if(level == __levels -1) {
+        __topLevelFilter.setSmoothIterations(N);
+    } else {
+        __lowLevelFilters[level].setSmoothIterations(N);
     }
 }
 
