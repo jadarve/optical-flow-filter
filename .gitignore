@@ -46,3 +46,4 @@ imageTest
 #######################################
 *.sublime-workspace
 *.sublime-project
+doc/
