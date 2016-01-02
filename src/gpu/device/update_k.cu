@@ -137,7 +137,7 @@ __global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
     dFlowNew.x = isinf(dFlowNew.x) + isnan(dFlowNew.x) > 0? 0.0f : dFlowNew.x;
     dFlowNew.y = isinf(dFlowNew.y) + isnan(dFlowNew.y) > 0? 0.0f : dFlowNew.y;
 
-    // truncates flow to lie in its allowed interval
+    // truncates dflow to lie in its allowed interval
     dFlowNew.x = max(-0.25f*maxflow, min(dFlowNew.x, 0.25f*maxflow));
     dFlowNew.y = max(-0.25f*maxflow, min(dFlowNew.y, 0.25f*maxflow));
 

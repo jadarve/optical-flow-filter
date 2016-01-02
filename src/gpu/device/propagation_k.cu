@@ -201,8 +201,6 @@ __global__ void flowPropagatePayloadX_k(cudaTextureObject_t inputFlow,
 
     // pack results
     *coordPitch(vectorPropagated, pix) = loadProp2;
-
-    
 }
 
 
