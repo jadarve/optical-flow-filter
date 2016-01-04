@@ -17,10 +17,10 @@ from Cython.Build import cythonize
 
 import numpy as np
 
-incDirs = ['../include',
+incDirs = ['/usr/local/include',
            np.get_include()]
 
-libDirs = ['../build/lib']
+libDirs = ['/usr/local/lib']
 
 
 libs = ['flowfilter_gpu']
