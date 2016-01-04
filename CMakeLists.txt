@@ -40,7 +40,6 @@ macro (add_gpu_sources)
 endmacro()
 
 
-
 #################################################
 # LIBRARY SETTINGS
 #################################################
@@ -79,19 +78,23 @@ if (CUDA_FOUND)
     set(CUDA_NVCC_FLAGS             "-std=c++11")
     set(CUDA_PROPAGATE_HOST_FLAGS OFF)    
 
-endif(CUDA_FOUND)
-
-
-#################################################
-# TARGETS
-#################################################
-
-if(CUDA_FOUND)
 
     message(STATUS "GPU sources: ${GPU_SRCS}")
+    message(STATUS "HEADER FILES: ${HEADER_LIST}")
     
     # flowfilter_gpu library with CUDA implementation
     cuda_add_library(flowfilter_gpu SHARED ${GPU_SRCS})
 
-endif(CUDA_FOUND)
+    # install
+    install(
+        TARGETS flowfilter_gpu
+        LIBRARY DESTINATION lib
+    )
 
+    # install header files
+    install(
+        DIRECTORY include/flowfilter
+        DESTINATION include
+    )
+
+endif(CUDA_FOUND)
