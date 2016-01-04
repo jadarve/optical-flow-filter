@@ -6,4 +6,5 @@ add_gpu_sources(
     update_k.cu
     flowsmoothing_k.cu
     pyramid_k.cu
+    display_k.cu
 )

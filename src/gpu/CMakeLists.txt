@@ -11,6 +11,7 @@ add_gpu_sources(
     flowsmoothing.cu
     flowfilter.cu
     pyramid.cu
+    display.cu
 )
 
 # process CMakeLists.txt in device folder

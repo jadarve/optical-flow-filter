@@ -62,6 +62,7 @@ GPUmodulesTable = [ ('flowfilter.image', ['flowfilter/image.pyx']),
                     ('flowfilter.gpu.pyramid', ['flowfilter/gpu/pyramid.pyx']),
                     ('flowfilter.gpu.propagation', ['flowfilter/gpu/propagation.pyx']),
                     ('flowfilter.gpu.update', ['flowfilter/gpu/update.pyx']),
+                    ('flowfilter.gpu.display', ['flowfilter/gpu/display.pyx']),
 
                     # this module cannot be called flowfilter.gpu.flowfilter
                     ('flowfilter.gpu.flowfilters', ['flowfilter/gpu/flowfilters.pyx'])
