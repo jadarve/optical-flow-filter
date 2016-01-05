@@ -6,6 +6,8 @@
     :license: 3-clause BSD, see LICENSE for more details
 """
 
+from libcpp cimport bool
+
 cimport flowfilter.gpu.image as gimg
 
 cdef extern from 'flowfilter/gpu/propagation.h' namespace 'flowfilter::gpu':
@@ -24,6 +26,9 @@ cdef extern from 'flowfilter/gpu/propagation.h' namespace 'flowfilter::gpu':
         void setIterations(const int N)
         int getIterations() const
         float getDt() const
+
+        void setInvertInputFlow(const bool invert)
+        bool getInvertInputFlow() const
 
         # Pipeline stage inputs
         void setInputFlow(gimg.GPUImage_cpp inputFlow)

@@ -6,6 +6,8 @@
     :license: 3-clause BSD, see LICENSE for more details
 """
 
+from cpython cimport bool
+
 cimport flowfilter.gpu.image as gimg
 import flowfilter.gpu.image as gimg
 
@@ -70,6 +72,17 @@ cdef class FlowPropagator:
 
         def __set__(self, int dt):
             raise RuntimeError('dt cannot be set, use iterations property instead')
+
+        def __del__(self):
+            pass
+
+
+    property invertInputFlow:
+        def __get__(self):
+            return self.propagator.getInvertInputFlow()
+
+        def __set__(self, invert):
+            self.propagator.setInvertInputFlow(invert)
 
         def __del__(self):
             pass

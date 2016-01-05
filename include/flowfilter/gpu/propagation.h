@@ -49,6 +49,9 @@ public:
     int getIterations() const;
     float getDt() const;
 
+    void setInvertInputFlow(const bool invert);
+    bool getInvertInputFlow() const;
+
     //#########################
     // Stage inputs
     //#########################
@@ -70,6 +73,8 @@ private:
 
     /** tells if an input flow has been set */
     bool __inputFlowSet;
+
+    bool __invertInputFlow;
 
     // inputs
     flowfilter::gpu::GPUImage __inputFlow;

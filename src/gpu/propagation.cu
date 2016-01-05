@@ -12,6 +12,7 @@
 #include "flowfilter/gpu/error.h"
 #include "flowfilter/gpu/propagation.h"
 #include "flowfilter/gpu/device/propagation_k.h"
+#include "flowfilter/gpu/device/misc_k.h"
 
 namespace flowfilter {
 namespace gpu {
@@ -21,9 +22,11 @@ FlowPropagator::FlowPropagator() :
 
     __configured = false;
     __inputFlowSet = false;
+    __invertInputFlow = false;
     __iterations = 0;
     __dt = 0.0f;
 }
+
 
 FlowPropagator::FlowPropagator(GPUImage inputFlow,
     const int iterations) : 
@@ -31,15 +34,18 @@ FlowPropagator::FlowPropagator(GPUImage inputFlow,
 
     __configured = false;
     __inputFlowSet = false;
+    __invertInputFlow = false;
 
     setInputFlow(inputFlow);
     setIterations(iterations);
     configure();
 }
 
+
 FlowPropagator::~FlowPropagator() {
     // nothing to do...
 }
+
 
 void FlowPropagator::configure() {
 
@@ -68,6 +74,7 @@ void FlowPropagator::configure() {
     __configured = true;
 }
 
+
 void FlowPropagator::compute() {
 
     startTiming();
@@ -77,17 +84,38 @@ void FlowPropagator::compute() {
         exit(-1);
     }
 
-    // First iteration takes as input __inputFlow
-    flowPropagateX_k<<<__grid, __block, 0, __stream>>>(
-        __inputFlowTexture.getTextureObject(),
-        __propagatedFlow_X.wrap<float2>(), __dt, 1);
+    //#######################
+    // First Iteration
+    //#######################
+    if(__invertInputFlow) {
 
+        // invert __inputFlow and write it to __propagatedFlow_Y
+        scalarProductF2_k<<<__grid, __block, 0, __stream>>>(
+            __inputFlow.wrap<float2>(), -1.0f,
+            __propagatedFlow_Y.wrap<float2>());
+
+        // propagate in X using inverted flow written in __propagatedFlow_Y
+        flowPropagateX_k<<<__grid, __block, 0, __stream>>>(
+            __propagatedFlowTexture_Y.getTextureObject(),
+            __propagatedFlow_X.wrap<float2>(), __dt, 1);
+
+    } else {
+
+        // Iterate in X using __inputFlow directly
+        flowPropagateX_k<<<__grid, __block, 0, __stream>>>(
+            __inputFlowTexture.getTextureObject(),
+            __propagatedFlow_X.wrap<float2>(), __dt, 1);
+    }
+
+    // first iteration in Y
     flowPropagateY_k<<<__grid, __block, 0, __stream>>>(
         __propagatedFlowTexture_X.getTextureObject(),
         __propagatedFlow_Y.wrap<float2>(), __dt, 1);
 
 
+    //#######################
     // Rest of iterations
+    //#######################
     for(int n = 0; n < __iterations - 1; n ++) {
 
         // take as input __propagatedFlowY
@@ -103,6 +131,7 @@ void FlowPropagator::compute() {
     stopTiming();
 }
 
+
 void FlowPropagator::setIterations(const int N) {
 
     if(N <= 0) {
@@ -116,13 +145,16 @@ void FlowPropagator::setIterations(const int N) {
     __dt = 1.0f / float(__iterations);
 }
 
+
 int FlowPropagator::getIterations() const {
     return __iterations;
 }
 
+
 float FlowPropagator::getDt() const {
     return __dt;
 }
+
 
 void FlowPropagator::setInputFlow(flowfilter::gpu::GPUImage inputFlow) {
 
@@ -143,11 +175,21 @@ void FlowPropagator::setInputFlow(flowfilter::gpu::GPUImage inputFlow) {
 
 }
 
+
 GPUImage FlowPropagator::getPropagatedFlow() {
 
     return __propagatedFlow_Y;
 }
 
+
+void FlowPropagator::setInvertInputFlow(const bool invert) {
+    __invertInputFlow = invert;
+}
+
+
+bool FlowPropagator::getInvertInputFlow() const {
+    return __invertInputFlow;
+}
 
 
 //###############################################
