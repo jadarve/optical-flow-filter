@@ -65,6 +65,14 @@ int main(int argc, char** argv) {
     filter.setMaxFlow(maxflow);
     filter.setGamma(gamma);
     filter.setSmoothIterations(smoothIterations);
+
+    //#################################
+    // To access optical flow
+    // on the host
+    //#################################
+    Mat flowHost(height, width, CV_32FC2);
+    image_t flowHostWrapper;
+    wrapCVMat(flowHost, flowHostWrapper);
     
 
     // Color encoder connected to optical flow buffer in the GPU
@@ -84,6 +92,13 @@ int main(int argc, char** argv) {
         filter.compute();
 
         cout << "elapsed time: " << filter.elapsedTime() << " ms" << endl;
+
+        // transfer the optical flow from GPU to
+        // host memory allocated by flowHost cvMat.
+        // After this, optical flow values
+        // can be accessed using OpenCV pixel
+        // access methods.
+        filter.downloadFlow(flowHostWrapper);
 
         // computes color encoding (RGBA) and download it to host
         flowColor.compute();
