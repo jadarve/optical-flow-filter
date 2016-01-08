@@ -44,6 +44,16 @@ namespace gpu {
 
 
         //#########################
+        // Host load-download
+        //#########################
+
+        /**
+         * \brief download the RGBA color encoding of optical flow
+         */
+        void downloadColorFlow(flowfilter::image_t& colorFlow);
+
+
+        //#########################
         // Stage inputs
         //#########################
         void setInputFlow(flowfilter::gpu::GPUImage inputFlow);

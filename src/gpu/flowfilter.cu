@@ -271,7 +271,14 @@ float FlowFilter::getGamma() const {
 
 
 void FlowFilter::setGamma(const float gamma) {
-    __update.setGamma(gamma);
+
+    // scale gamma if input image is uint8
+    if(__inputImage.itemSize() == 1){
+        __update.setGamma(gamma / (255.0f*255.0f));
+    } else {
+        __update.setGamma(gamma);
+    }
+    
 }
 
 
@@ -537,7 +544,14 @@ float DeltaFlowFilter::getGamma() const {
 
 
 void DeltaFlowFilter::setGamma(const float gamma) {
-    __update.setGamma(gamma);
+
+    // scale gamma if input image is uint8
+    if(__inputImage.itemSize() == 1) {
+        __update.setGamma(gamma / (255.0f*255.0f));    
+    } else {
+        __update.setGamma(gamma);
+    }
+    
 }
 
 
@@ -743,6 +757,20 @@ void PyramidalFlowFilter::setGamma(const int level, const float gamma) {
     }
 }
 
+
+void PyramidalFlowFilter::setGamma(const std::vector<float>& gamma) {
+
+    if(gamma.size() != __levels) {
+        std::cerr << "ERROR: PyramidalFlowFilter::setGamma(): gamma vector should be size " << __levels << ", got: " << gamma.size();
+        throw std::exception();
+    }
+
+    for(int h = 0; h < __levels; h ++) {
+        setGamma(h, gamma[h]);
+    }
+}
+
+
 int PyramidalFlowFilter::getSmoothIterations(const int level) const {
 
     if(level < 0 || level >= __levels) {
@@ -769,6 +797,18 @@ void PyramidalFlowFilter::setSmoothIterations(const int level, const int N) {
         __topLevelFilter.setSmoothIterations(N);
     } else {
         __lowLevelFilters[level].setSmoothIterations(N);
+    }
+}
+
+void PyramidalFlowFilter::setSmoothIterations(const std::vector<int>& iterations) {
+
+    if(iterations.size() != __levels) {
+        std::cerr << "ERROR: PyramidalFlowFilter::setSmoothIterations(): iterations vector should be size " << __levels << ", got: " << iterations.size();
+        throw std::exception();
+    }
+
+    for(int h = 0; h < __levels; h ++) {
+        setSmoothIterations(h, iterations[h]);
     }
 }
 

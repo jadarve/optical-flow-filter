@@ -136,5 +136,11 @@ void FlowToColor::setMaxFlow(const float maxflow) {
     __maxflow = maxflow;
 }
 
+
+void FlowToColor::downloadColorFlow(flowfilter::image_t& colorFlow) {
+    __colorFlow.download(colorFlow);
+}
+
+
 }; // namespace gpu
 }; // namespace flowfilter

@@ -287,12 +287,14 @@ public:
 
     float getGamma(const int level) const;
     void setGamma(const int level, const float gamma);
+    void setGamma(const std::vector<float>& gamma);
 
     float getMaxFlow() const;
     void setMaxFlow(const float maxflow);
 
     int getSmoothIterations(const int level) const;
     void setSmoothIterations(const int level, const int N);
+    void setSmoothIterations(const std::vector<int>& iterations);
 
     // int getPropagationIterations() const;
 
