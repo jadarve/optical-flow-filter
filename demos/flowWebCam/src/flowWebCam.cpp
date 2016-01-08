@@ -88,6 +88,7 @@ int main(int argc, char** argv) {
         // computes color encoding (RGBA) and download it to host
         flowColor.compute();
         flowColor.downloadColorFlow(hostFlowColor);
+        cvtColor(fcolor, fcolor, CV_RGBA2BGRA);
 
         imshow("image", frameGray);
         imshow("optical flow", fcolor);
