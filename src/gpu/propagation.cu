@@ -24,6 +24,7 @@ FlowPropagator::FlowPropagator() :
     __inputFlowSet = false;
     __invertInputFlow = false;
     __iterations = 0;
+    __border = 3;
     __dt = 0.0f;
 }
 
@@ -35,6 +36,7 @@ FlowPropagator::FlowPropagator(GPUImage inputFlow,
     __configured = false;
     __inputFlowSet = false;
     __invertInputFlow = false;
+    __border = 3;
 
     setInputFlow(inputFlow);
     setIterations(iterations);
@@ -97,20 +99,20 @@ void FlowPropagator::compute() {
         // propagate in X using inverted flow written in __propagatedFlow_Y
         flowPropagateX_k<<<__grid, __block, 0, __stream>>>(
             __propagatedFlowTexture_Y.getTextureObject(),
-            __propagatedFlow_X.wrap<float2>(), __dt, 1);
+            __propagatedFlow_X.wrap<float2>(), __dt, __border);
 
     } else {
 
         // Iterate in X using __inputFlow directly
         flowPropagateX_k<<<__grid, __block, 0, __stream>>>(
             __inputFlowTexture.getTextureObject(),
-            __propagatedFlow_X.wrap<float2>(), __dt, 1);
+            __propagatedFlow_X.wrap<float2>(), __dt, __border);
     }
 
     // first iteration in Y
     flowPropagateY_k<<<__grid, __block, 0, __stream>>>(
         __propagatedFlowTexture_X.getTextureObject(),
-        __propagatedFlow_Y.wrap<float2>(), __dt, 1);
+        __propagatedFlow_Y.wrap<float2>(), __dt, __border);
 
 
     //#######################
@@ -121,11 +123,11 @@ void FlowPropagator::compute() {
         // take as input __propagatedFlowY
         flowPropagateX_k<<<__grid, __block, 0, __stream>>>(
             __propagatedFlowTexture_Y.getTextureObject(),
-            __propagatedFlow_X.wrap<float2>(), __dt, 1);
+            __propagatedFlow_X.wrap<float2>(), __dt, __border);
 
         flowPropagateY_k<<<__grid, __block, 0, __stream>>>(
             __propagatedFlowTexture_X.getTextureObject(),
-            __propagatedFlow_Y.wrap<float2>(), __dt, 1);
+            __propagatedFlow_Y.wrap<float2>(), __dt, __border);
     }
 
     stopTiming();
@@ -153,6 +155,23 @@ int FlowPropagator::getIterations() const {
 
 float FlowPropagator::getDt() const {
     return __dt;
+}
+
+void FlowPropagator::setBorder(const int border) {
+
+    if(border < 0) {
+        std::cerr << "ERROR: FlowPropagator::setBorder(): border should be greater of equal zero: "
+            << border << std::endl;
+
+        throw std::exception();
+    }
+
+    __border = border;
+}
+
+
+int FlowPropagator::getBorder() const {
+    return __border;
 }
 
 
@@ -200,6 +219,7 @@ FlowPropagatorPayload::FlowPropagatorPayload() :
 
     __iterations = 0;
     __dt = 0.0f;
+    __border = 3;
     __configured = false;
 
     __inputFlowSet = false;
@@ -217,6 +237,7 @@ FlowPropagatorPayload::FlowPropagatorPayload(GPUImage inputFlow,
 
     __iterations = 0;
     __dt = 0.0f;
+    __border = 3;
     __configured = false;
 
     __inputFlowSet = false;
@@ -316,7 +337,7 @@ void FlowPropagatorPayload::compute() {
         __inputScalarTexture.getTextureObject(),
         __propagatedScalar_X.wrap<float>(),
         __inputVectorTexture.getTextureObject(),
-        __propagatedVector_X.wrap<float2>(), __dt, 1);
+        __propagatedVector_X.wrap<float2>(), __dt, __border);
 
     flowPropagatePayloadY_k<<<__grid, __block, 0, __stream>>>(
         __propagatedFlowTexture_X.getTextureObject(),
@@ -324,7 +345,7 @@ void FlowPropagatorPayload::compute() {
         __propagatedScalarTexture_X.getTextureObject(),
         __propagatedScalar_Y.wrap<float>(),
         __propagatedVectorTexture_X.getTextureObject(),
-        __propagatedVector_Y.wrap<float2>(), __dt, 1);
+        __propagatedVector_Y.wrap<float2>(), __dt, __border);
 
 
     // Rest of iterations
@@ -337,7 +358,7 @@ void FlowPropagatorPayload::compute() {
             __propagatedScalarTexture_Y.getTextureObject(),
             __propagatedScalar_X.wrap<float>(),
             __propagatedVectorTexture_Y.getTextureObject(),
-            __propagatedVector_X.wrap<float2>(), __dt, 1);
+            __propagatedVector_X.wrap<float2>(), __dt, __border);
 
         flowPropagatePayloadY_k<<<__grid, __block, 0, __stream>>>(
             __propagatedFlowTexture_X.getTextureObject(),
@@ -345,7 +366,7 @@ void FlowPropagatorPayload::compute() {
             __propagatedScalarTexture_X.getTextureObject(),
             __propagatedScalar_Y.wrap<float>(),
             __propagatedVectorTexture_X.getTextureObject(),
-            __propagatedVector_Y.wrap<float2>(), __dt, 1);
+            __propagatedVector_Y.wrap<float2>(), __dt, __border);
     }
 
     stopTiming();
@@ -373,6 +394,23 @@ float FlowPropagatorPayload::getDt() const {
     return __dt;
 }
 
+
+void FlowPropagatorPayload::setBorder(const int border) {
+
+    if(border < 0) {
+        std::cerr << "ERROR: FlowPropagatorPayload::setBorder(): border should be greater of equal zero: "
+            << border << std::endl;
+
+        throw std::exception();
+    }
+
+    __border = border;
+}
+
+
+int FlowPropagatorPayload::getBorder() const {
+    return __border;
+}
 
 //#########################
 // Stage inputs

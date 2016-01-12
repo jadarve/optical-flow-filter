@@ -49,6 +49,9 @@ public:
     int getIterations() const;
     float getDt() const;
 
+    void setBorder(const int border);
+    int getBorder() const;
+
     void setInvertInputFlow(const bool invert);
     bool getInvertInputFlow() const;
 
@@ -67,6 +70,7 @@ private:
 
     int __iterations;
     float __dt;
+    int __border;
 
     /** tell if the stage has been configured */
     bool __configured;
@@ -135,6 +139,9 @@ public:
     int getIterations() const;
     float getDt() const;
 
+    void setBorder(const int border);
+    int getBorder() const;
+
     //#########################
     // Stage inputs
     //#########################
@@ -154,6 +161,7 @@ private:
 
     int __iterations;
     float __dt;
+    int __border;
 
     /** tell if the stage has been configured */
     bool __configured;
