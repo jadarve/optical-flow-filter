@@ -72,6 +72,16 @@ __global__ void flowUpdate_k(gpuimage_t<float> newImage,
 
 
     //#################################
+    // BORDER REMOVAL
+    //#################################
+    // const int border = 5;
+    // const unsigned int inRange = (pix.x >= border && pix.x < width - border) &&
+    //                              (pix.y >= border && pix.y < height - border);
+
+    // ofNew.x = inRange? ofNew.x : 0.0f;
+    // ofNew.y = inRange? ofNew.y : 0.0f;
+
+    //#################################
     // PACK RESULTS
     //#################################
     *coordPitch(flowUpdated, pix) = ofNew;
@@ -160,6 +170,17 @@ __global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
     // truncates flow to lie in its allowed interval
     flowNew.x = max(-maxflow, min(flowNew.x, maxflow));
     flowNew.y = max(-maxflow, min(flowNew.y, maxflow));
+
+    //#################################
+    // BORDER REMOVAL
+    //#################################
+    // const int border = 5;
+    // const unsigned int inRange = (pix.x >= border && pix.x < width - border) &&
+    //                              (pix.y >= border && pix.y < height - border);
+
+    // flowNew.x = inRange? flowNew.x : 0.0f;
+    // flowNew.y = inRange? flowNew.y : 0.0f;
+
 
     //#################################
     // PACK RESULTS
