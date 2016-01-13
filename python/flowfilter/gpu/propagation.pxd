@@ -27,6 +27,9 @@ cdef extern from 'flowfilter/gpu/propagation.h' namespace 'flowfilter::gpu':
         int getIterations() const
         float getDt() const
 
+        void setBorder(const int border)
+        int getBorder() const
+
         void setInvertInputFlow(const bool invert)
         bool getInvertInputFlow() const
 
@@ -52,6 +55,9 @@ cdef extern from 'flowfilter/gpu/propagation.h' namespace 'flowfilter::gpu':
         void setIterations(const int N)
         int getIterations() const
         float getDt() const
+
+        void setBorder(const int border)
+        int getBorder() const
 
         # Pipeline stage inputs
         void setInputFlow(gimg.GPUImage_cpp img)

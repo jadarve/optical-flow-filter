@@ -88,6 +88,17 @@ cdef class FlowPropagator:
             pass
 
 
+    property border:
+        def __get__(self):
+            return self.propagator.getBorder()
+
+        def __set__(self, border):
+            self.propagator.setBorder(border)
+
+        def __del__(self):
+            pass
+
+
 cdef class FlowPropagatorPayload:
     
     def __cinit__(self,
@@ -181,6 +192,17 @@ cdef class FlowPropagatorPayload:
 
         def __set__(self, int dt):
             raise RuntimeError('dt cannot be set, use iterations property instead')
+
+        def __del__(self):
+            pass
+
+
+    property border:
+        def __get__(self):
+            return self.propagator.getBorder()
+
+        def __set__(self, border):
+            self.propagator.setBorder(border)
 
         def __del__(self):
             pass

@@ -24,7 +24,7 @@ FlowPropagator::FlowPropagator() :
     __inputFlowSet = false;
     __invertInputFlow = false;
     __iterations = 0;
-    __border = 3;
+    __border = 1;
     __dt = 0.0f;
 }
 
@@ -36,7 +36,7 @@ FlowPropagator::FlowPropagator(GPUImage inputFlow,
     __configured = false;
     __inputFlowSet = false;
     __invertInputFlow = false;
-    __border = 3;
+    __border = 1;
 
     setInputFlow(inputFlow);
     setIterations(iterations);
