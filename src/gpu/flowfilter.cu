@@ -303,6 +303,16 @@ void FlowFilter::setSmoothIterations(const int N) {
 }
 
 
+void FlowFilter::setPropagationBorder(const int border) {
+    __propagator.setBorder(border);
+}
+
+
+int FlowFilter::getPropagationBorder() const {
+    return __propagator.getBorder();
+}
+
+
 int FlowFilter::getPropagationIterations() const {
     return __propagator.getIterations();
 }
@@ -576,6 +586,16 @@ void DeltaFlowFilter::setSmoothIterations(const int N) {
 }
 
 
+void DeltaFlowFilter::setPropagationBorder(const int border) {
+    __propagator.setBorder(border);
+}
+
+
+int DeltaFlowFilter::getPropagationBorder() const {
+    return __propagator.getBorder();
+}
+
+
 int DeltaFlowFilter::getPropagationIterations() const {
     return __propagator.getIterations();
 }
@@ -840,6 +860,22 @@ void PyramidalFlowFilter::setMaxFlow(const float maxflow) {
 
         __topLevelFilter.setMaxFlow(maxflowLevel);
     }
+}
+
+
+void PyramidalFlowFilter::setPropagationBorder(const int border) {
+    __topLevelFilter.setPropagationBorder(border);
+
+    if(__levels > 1) {
+        for(int h = 0; h < __levels; h ++) {
+            __lowLevelFilters[h].setPropagationBorder(border);
+        }
+    }
+}
+
+
+int PyramidalFlowFilter::getPropagationBorder() const {
+    return __topLevelFilter.getPropagationBorder();
 }
 
 

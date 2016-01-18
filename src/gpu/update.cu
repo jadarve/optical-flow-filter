@@ -308,7 +308,7 @@ void DeltaFlowUpdate::configure() {
     __inputFlowTexture = GPUTexture(__inputFlow,
         cudaChannelFormatKindFloat,
         cudaAddressModeClamp,
-        cudaFilterModeLinear,
+        cudaFilterModePoint,
         cudaReadModeElementType,
         true);
 

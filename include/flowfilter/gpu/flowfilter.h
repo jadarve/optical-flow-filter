@@ -117,6 +117,9 @@ public:
     int getSmoothIterations() const;
     void setSmoothIterations(const int N);
 
+    void setPropagationBorder(const int border);
+    int getPropagationBorder() const;
+
     int getPropagationIterations() const;
 
     int height() const;
@@ -198,6 +201,9 @@ public:
 
     int getSmoothIterations() const;
     void setSmoothIterations(const int N);
+
+    void setPropagationBorder(const int border);
+    int getPropagationBorder() const;
 
     int getPropagationIterations() const;
 
@@ -296,6 +302,9 @@ public:
     void setSmoothIterations(const int level, const int N);
     void setSmoothIterations(const std::vector<int>& iterations);
 
+    void setPropagationBorder(const int border);
+    int getPropagationBorder() const;
+    
     // int getPropagationIterations() const;
 
     int height() const;

@@ -53,6 +53,9 @@ cdef extern from 'flowfilter/gpu/flowfilter.h' namespace 'flowfilter::gpu':
         int getSmoothIterations() const
         void setSmoothIterations(const int N)
 
+        void setPropagationBorder(const int border)
+        int getPropagationBorder() const
+
         int getPropagationIterations() const
 
         int height() const
@@ -90,6 +93,9 @@ cdef extern from 'flowfilter/gpu/flowfilter.h' namespace 'flowfilter::gpu':
 
         int getSmoothIterations(const int level) const
         void setSmoothIterations(const int level, const int smoothIterations)
+
+        void setPropagationBorder(const int border)
+        int getPropagationBorder() const
 
         int height() const
         int width() const

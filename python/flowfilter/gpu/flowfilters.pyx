@@ -199,6 +199,16 @@ cdef class FlowFilter:
             pass
 
 
+    property propagationBorder:
+        def __get__(self):
+            return self.ffilter.getPropagationBorder();
+
+        def __set__(self, value):
+            self.ffilter.setPropagationBorder(value)
+
+        def __del__(self):
+            pass
+
 
 cdef class PyramidalFlowFilter:
     
@@ -413,6 +423,17 @@ cdef class PyramidalFlowFilter:
             pass
 
 
+    property propagationBorder:
+        def __get__(self):
+            return self.ffilter.getPropagationBorder();
+
+        def __set__(self, value):
+            self.ffilter.setPropagationBorder(value)
+
+        def __del__(self):
+            pass
+
+    
     #property propagationIterations:
     #    def __get__(self):
     #        return self.ffilter.getPropagationIterations()

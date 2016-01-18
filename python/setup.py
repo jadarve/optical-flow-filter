@@ -18,6 +18,7 @@ from Cython.Build import cythonize
 import numpy as np
 
 incDirs = ['/usr/local/include',
+           '/usr/local/cuda/include',
            np.get_include()]
 
 libDirs = ['/usr/local/lib']

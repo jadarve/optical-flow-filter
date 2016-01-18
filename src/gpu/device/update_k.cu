@@ -72,16 +72,6 @@ __global__ void flowUpdate_k(gpuimage_t<float> newImage,
 
 
     //#################################
-    // BORDER REMOVAL
-    //#################################
-    // const int border = 5;
-    // const unsigned int inRange = (pix.x >= border && pix.x < width - border) &&
-    //                              (pix.y >= border && pix.y < height - border);
-
-    // ofNew.x = inRange? ofNew.x : 0.0f;
-    // ofNew.y = inRange? ofNew.y : 0.0f;
-
-    //#################################
     // PACK RESULTS
     //#################################
     *coordPitch(flowUpdated, pix) = ofNew;
@@ -148,8 +138,9 @@ __global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
     dFlowNew.y = isinf(dFlowNew.y) + isnan(dFlowNew.y) > 0? 0.0f : dFlowNew.y;
 
     // truncates dflow to lie in its allowed interval
-    dFlowNew.x = max(-0.25f*maxflow, min(dFlowNew.x, 0.25f*maxflow));
-    dFlowNew.y = max(-0.25f*maxflow, min(dFlowNew.y, 0.25f*maxflow));
+    dFlowNew.x = max(-0.5f*maxflow, min(dFlowNew.x, 0.5f*maxflow));
+    dFlowNew.y = max(-0.5f*maxflow, min(dFlowNew.y, 0.5f*maxflow));
+
 
     //#################################
     // OPTICAL FLOW COMPUTATION
@@ -161,25 +152,16 @@ __global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
     float v = (float)pix.y / (float)(height -1);
 
     // linear interpolation of flow value
-    float2 flowUp = tex2D<float2>(oldFlowTexture, u, v);
+    float2 fup = tex2D<float2>(oldFlowTexture, u, v);
+    float2 flowUp = make_float2(2.0*fup.x, 2.0*fup.y);
 
     // update upsampled flow from top level
-    float2 flowNew = make_float2(dFlowNew.x + 2*flowUp.x,
-        dFlowNew.y + 2*flowUp.y);
+    float2 flowNew = make_float2(dFlowNew.x + flowUp.x,
+        dFlowNew.y + flowUp.y);
 
     // truncates flow to lie in its allowed interval
     flowNew.x = max(-maxflow, min(flowNew.x, maxflow));
     flowNew.y = max(-maxflow, min(flowNew.y, maxflow));
-
-    //#################################
-    // BORDER REMOVAL
-    //#################################
-    // const int border = 5;
-    // const unsigned int inRange = (pix.x >= border && pix.x < width - border) &&
-    //                              (pix.y >= border && pix.y < height - border);
-
-    // flowNew.x = inRange? flowNew.x : 0.0f;
-    // flowNew.y = inRange? flowNew.y : 0.0f;
 
 
     //#################################
