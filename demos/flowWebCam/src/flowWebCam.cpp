@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     //#################################
     // Filter parameters
     //#################################
-    float maxflow = 20.0f;
+    float maxflow = 40.0f;
     vector<float> gamma = {500.0f, 50.0f, 5.0f};
     vector<int> smoothIterations = {2, 8, 20};
 
