@@ -54,6 +54,11 @@ extensions = list()
 #################################################
 py_packages = ['flowfilter', 'flowfilter.gpu', 'flowfilter.rsc']
 
+# package data include Cython .pxd files
+package_data = {'flowfilter' : ['*.pxd'],
+                'flowfilter.gpu': ['*.pxd'],
+                'flowfilter.rsc' : ['colorWheel.png']}
+
 #################################################
 # CYTHON EXTENSIONS
 #################################################
@@ -86,4 +91,4 @@ setup(name='flowfilter',
     license='3-clause BSD',
     packages=py_packages,
     ext_modules=extensions,
-    package_data={'flowfilter': ['rsc/colorWheel.png']})
+    package_data=package_data)
