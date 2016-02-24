@@ -77,5 +77,10 @@ Other optional arguments are:
 
 # References
 
- Article under review on Robotics and Automation Letters (RA-L)
+    @Article{2016_Adarve_RAL,
+      Title = {A Filter Formulation for Computing Real Time Optical Flow},
+      Author = {{Juan David} Adarve and Robert Mahony},
+      Journal = {Robotics and Automation Letters},
+      Year = {2016}
+    }
 
