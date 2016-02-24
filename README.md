@@ -2,8 +2,18 @@
 
 A real time optical flow algorithm implemented on GPU.
 
+[![300 Hz Real Time Optical Flow ](http://img.youtube.com/vi/_oW1vMdBMuY/0.jpg)](http://www.youtube.com/watch?v=_oW1vMdBMuY)
+
+
 
 # Build and Installation
+
+## Dependencies
+
+  * CMake 2.8.11
+  * Cuda 7.5
+
+## Build
 
     git clone https://github.com/jadarve/optical-flow-filter.git
     cd optical-flow-filter
