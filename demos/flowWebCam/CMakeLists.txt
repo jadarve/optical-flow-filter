@@ -2,11 +2,13 @@ cmake_minimum_required(VERSION 2.8)
 project( flowWebCam )
 
 find_package( OpenCV REQUIRED )
+find_package( CUDA REQUIRED)
 
 # Required libraries
 # It assumes flowfilter_gpu is installed at /usr/local/lib
 set( LIBS flowfilter_gpu)
 
+include_directories(${CUDA_INCLUDE_DIRS})
 
 #################################################
 # COMPILER SETTINGS

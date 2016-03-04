@@ -29,10 +29,24 @@ void wrapCVMat(Mat& cvMat, image_t& img) {
     img.data = cvMat.ptr();
 }
 
-
+/**
+ * MODE OF USE
+ * ./flowWebCam <cameraIndex>
+ *
+ * where <cameraIndex> is an integer indicating the camera used
+ * to capture images. Defaults to 0;
+ *
+ */
 int main(int argc, char** argv) {
 
-    VideoCapture cap(0); // open the default camera
+    int cameraIndex = 0;
+
+    // if user provides camera index
+    if(argc > 1) {
+        cameraIndex = atoi(argv[1]);
+    }
+
+    VideoCapture cap(cameraIndex); // open the default camera
     if(!cap.isOpened()){
         return -1;
     }
