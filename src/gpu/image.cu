@@ -103,7 +103,11 @@ void GPUImage::upload(flowfilter::image_t& img) {
         // TODO: add support for asynchronous copy
 
     } else {
-        std::cerr << "ERROR: GPUImage::upload(): shapes do not match" << std::endl;
+
+        std::cerr << "ERROR: GPUImage::upload(): shapes do not match."
+            << "required: [" << __height << ", " << __width << ", " << __depth << "][" << __itemSize << "], passed: "
+            << "[" << img.height << ", " << img.width << ", " << img.depth << "][" << img.itemSize << "]" << std::endl;
+
         return; // TODO: throw exception
     }
 }
@@ -127,7 +131,9 @@ void GPUImage::download(flowfilter::image_t& img) const {
         // }
 
     } else {
-        std::cerr << "ERROR: GPUImage::download(): shapes do not match" << std::endl;
+        std::cerr << "ERROR: GPUImage::download(): shapes do not match."
+            << "required: [" << __height << ", " << __width << ", " << __depth << "][" << __itemSize << "], passed: "
+            << "[" << img.height << ", " << img.width << ", " << img.depth << "][" << img.itemSize << "]" << std::endl;
         return; // TODO: throw exception
     }
 }
@@ -142,7 +148,9 @@ void GPUImage::copyFrom(GPUImage& img) {
             __width*__depth*__itemSize, __height, cudaMemcpyDeviceToDevice));
 
     } else {
-        std::cerr << "ERROR: GPUImage::copyFrom(): image shapes do not match" << std::endl;
+        std::cerr << "ERROR: GPUImage::download(): shapes do not match."
+            << "required: [" << __height << ", " << __width << ", " << __depth << "][" << __itemSize << "], passed: "
+            << "[" << img.__height << ", " << img.__width << ", " << img.__depth << "][" << img.__itemSize << "]" << std::endl;
         throw std::exception();
     }
 }
