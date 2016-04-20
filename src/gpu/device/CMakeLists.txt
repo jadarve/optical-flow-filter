@@ -8,4 +8,5 @@ add_gpu_sources(
     pyramid_k.cu
     display_k.cu
     misc_k.cu
+    rotation_k.cu
 )

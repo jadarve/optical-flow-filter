@@ -12,6 +12,8 @@ add_gpu_sources(
     flowfilter.cu
     pyramid.cu
     display.cu
+    camera.cu
+    rotation.cu
 )
 
 # process CMakeLists.txt in device folder

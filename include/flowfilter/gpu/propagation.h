@@ -238,6 +238,9 @@ public:
      */
     void compute();
 
+    //#########################
+    // Parameters
+    //#########################
     void setIterations(const int N);
     int getIterations() const;
     float getDt() const;
