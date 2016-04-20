@@ -71,6 +71,10 @@ void* GPUImage::data() {
     return __ptr_dev.get();
 }
 
+std::shared_ptr<void> GPUImage::getDeviceBuffer() {
+    return __ptr_dev;
+}
+
 
 void GPUImage::upload(flowfilter::image_t& img) {
 

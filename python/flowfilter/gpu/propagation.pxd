@@ -71,10 +71,10 @@ cdef extern from 'flowfilter/gpu/propagation.h' namespace 'flowfilter::gpu':
 
 
 
-    cdef cppclass LaxWendroffPropagator_cpp 'flowfilter::gpu::LaxWendroffPropagator'
+    cdef cppclass LaxWendroffPropagator_cpp 'flowfilter::gpu::LaxWendroffPropagator':
 
         LaxWendroffPropagator_cpp()
-        LaxWendroffPropagator_cpp(img.GPUImage_cpp inputFlow,
+        LaxWendroffPropagator_cpp(gimg.GPUImage_cpp inputFlow,
             gimg.GPUImage_cpp inputImage)
 
         void configure()
