@@ -578,24 +578,11 @@ void LaxWendroffPropagator::compute() {
         throw std::exception();
     }
 
-    // first iteration
-    LaxWendroffY_k<float><<<__grid, __block, 0, __stream>>>(
-        __inputFlowTexture.getTextureObject(),
-        __inputImageTexture.getTextureObject(),
-        __propagatedImage_Y.wrap<float>(),
-        __dt);
-
-    LaxWendroffX_k<float><<<__grid, __block, 0, __stream>>>(
-        __inputFlowTexture.getTextureObject(),
-        __propagatedImageTexture_Y.getTextureObject(),
-        __propagatedImage_X.wrap<float>(),
-        __dt);
-
-    // remaining iterations
-    for(int k = 0; k < __iterations -1; k ++) {
+    if(__inputImage.depth() == 1) {
+        // first iteration
         LaxWendroffY_k<float><<<__grid, __block, 0, __stream>>>(
             __inputFlowTexture.getTextureObject(),
-            __propagatedImageTexture_X.getTextureObject(),
+            __inputImageTexture.getTextureObject(),
             __propagatedImage_Y.wrap<float>(),
             __dt);
 
@@ -604,7 +591,54 @@ void LaxWendroffPropagator::compute() {
             __propagatedImageTexture_Y.getTextureObject(),
             __propagatedImage_X.wrap<float>(),
             __dt);
+
+        // remaining iterations
+        for(int k = 0; k < __iterations -1; k ++) {
+            LaxWendroffY_k<float><<<__grid, __block, 0, __stream>>>(
+                __inputFlowTexture.getTextureObject(),
+                __propagatedImageTexture_X.getTextureObject(),
+                __propagatedImage_Y.wrap<float>(),
+                __dt);
+
+            LaxWendroffX_k<float><<<__grid, __block, 0, __stream>>>(
+                __inputFlowTexture.getTextureObject(),
+                __propagatedImageTexture_Y.getTextureObject(),
+                __propagatedImage_X.wrap<float>(),
+                __dt);
+        }
+
+    } else if(__inputImage.depth() == 4) {
+
+        // first iteration
+        LaxWendroffY_k<float4><<<__grid, __block, 0, __stream>>>(
+            __inputFlowTexture.getTextureObject(),
+            __inputImageTexture.getTextureObject(),
+            __propagatedImage_Y.wrap<float4>(),
+            __dt);
+
+        LaxWendroffX_k<float4><<<__grid, __block, 0, __stream>>>(
+            __inputFlowTexture.getTextureObject(),
+            __propagatedImageTexture_Y.getTextureObject(),
+            __propagatedImage_X.wrap<float4>(),
+            __dt);
+
+        // remaining iterations
+        for(int k = 0; k < __iterations -1; k ++) {
+            LaxWendroffY_k<float4><<<__grid, __block, 0, __stream>>>(
+                __inputFlowTexture.getTextureObject(),
+                __propagatedImageTexture_X.getTextureObject(),
+                __propagatedImage_Y.wrap<float4>(),
+                __dt);
+
+            LaxWendroffX_k<float4><<<__grid, __block, 0, __stream>>>(
+                __inputFlowTexture.getTextureObject(),
+                __propagatedImageTexture_Y.getTextureObject(),
+                __propagatedImage_X.wrap<float4>(),
+                __dt);
+        }
     }
+
+    
 
     stopTiming();
 }
@@ -655,8 +689,8 @@ void LaxWendroffPropagator::setInputFlow(GPUImage inputFlow) {
 
 void LaxWendroffPropagator::setInputImage(GPUImage img) {
 
-    if(img.depth() != 1) {
-        std::cerr << "ERROR: LaxWendroffPropagator::setInputImage(): input flow should have depth 1: "
+    if(img.depth() != 1 && img.depth() != 4) {
+        std::cerr << "ERROR: LaxWendroffPropagator::setInputImage(): input flow should have depth 1 or 4, got: "
             << img.depth() << std::endl;
         throw std::exception();
     }

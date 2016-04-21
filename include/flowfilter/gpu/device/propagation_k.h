@@ -12,6 +12,7 @@
 #include "flowfilter/gpu/image.h"
 
 #include "flowfilter/gpu/device/image_k.h"
+#include "flowfilter/gpu/device/math_k.h"
 
 
 namespace flowfilter {
@@ -117,7 +118,7 @@ __global__ void LaxWendroffY_k(cudaTextureObject_t inputFlow,
         T diff_0 = img_p - img_m;
 
         // second difference
-        T diff2 = img_m - 2*img_0 + img_p;
+        T diff2 = img_m - 2.0*img_0 + img_p;
 
         float R = dt*flow.y;
 
