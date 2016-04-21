@@ -8,6 +8,8 @@
 #include <iostream>
 #include <exception>
 
+#include "flowfilter/gpu/util.h"
+ 
 #include "flowfilter/gpu/rotation.h"
 
 #include "flowfilter/gpu/device/rotation_k.h"
@@ -57,6 +59,10 @@ void RotationalFlowImagePredictor::configure() {
 
     __opticalFlow = GPUImage(height, width, 2, sizeof(float));
     __propagator = LaxWendroffPropagator(__opticalFlow, __inputImage);
+
+    // configure block and grid sizes
+    __block = dim3(32, 32, 1);
+    configureKernelGrid(height, width, __block, __grid);
 
     __configured = true;
 }
@@ -118,6 +124,11 @@ void RotationalFlowImagePredictor::setAngularVelocity(const float wx, const floa
 void RotationalFlowImagePredictor::setIterations(const int iterations) {
 
     __propagator.setIterations(iterations);
+}
+
+int RotationalFlowImagePredictor::getIterations() const {
+
+    return __propagator.getIterations();
 }
 
 

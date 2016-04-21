@@ -71,7 +71,7 @@ __global__ void LaxWendroffX_k(cudaTextureObject_t inputFlow,
 
 
         // central difference
-        T diff_0 = img_p - img_0;
+        T diff_0 = img_p - img_m;
 
         // second difference
         T diff2 = img_m - 2*img_0 + img_p;
@@ -114,7 +114,7 @@ __global__ void LaxWendroffY_k(cudaTextureObject_t inputFlow,
 
 
         // central difference
-        T diff_0 = img_p - img_0;
+        T diff_0 = img_p - img_m;
 
         // second difference
         T diff2 = img_m - 2*img_0 + img_p;
