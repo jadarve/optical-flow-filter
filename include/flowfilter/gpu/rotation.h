@@ -65,6 +65,7 @@ public:
     void setCamera(perspectiveCamera cam);
     void setAngularVelocity(const float wx, const float wy, const float wz);
     void setIterations(const int iterations);
+    int getIterations() const;
 
 
 
