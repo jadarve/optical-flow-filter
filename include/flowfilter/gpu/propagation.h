@@ -213,6 +213,82 @@ private:
 };
 
 
+
+class LaxWendroffPropagator : public Stage {
+
+public:
+    LaxWendroffPropagator();
+    LaxWendroffPropagator(flowfilter::gpu::GPUImage inputFlow,
+        flowfilter::gpu::GPUImage inputImage);
+    ~LaxWendroffPropagator();
+
+public:
+    /**
+     * \brief configures the stage.
+     *
+     * After configuration, calls to compute()
+     * are valid.
+     * Input buffers should not change after
+     * this method has been called.
+     */
+    void configure();
+
+    /**
+     * \brief performs computation of brightness parameters
+     */
+    void compute();
+
+    //#########################
+    // Parameters
+    //#########################
+    void setIterations(const int N);
+    int getIterations() const;
+    float getDt() const;
+
+    //#########################
+    // Stage inputs
+    //#########################
+    void setInputFlow(flowfilter::gpu::GPUImage inputFlow);
+    void setInputImage(flowfilter::gpu::GPUImage img);
+
+    //#########################
+    // Stage outputs
+    //#########################
+    flowfilter::gpu::GPUImage getFlow();
+    flowfilter::gpu::GPUImage getPropagatedImage();
+
+
+private:
+    int __iterations;
+    float __dt;
+
+    /** tell if the stage has been configured */
+    bool __configured;
+
+    /** tells if an input flow has been set */
+    bool __inputFlowSet;
+    bool __inputImageSet;
+
+    // inputs
+    flowfilter::gpu::GPUImage __inputFlow;
+    flowfilter::gpu::GPUTexture __inputFlowTexture;
+
+    flowfilter::gpu::GPUImage __inputImage;
+    flowfilter::gpu::GPUTexture __inputImageTexture;
+
+    // outputs
+    flowfilter::gpu::GPUImage __propagatedImage_X;
+    flowfilter::gpu::GPUTexture __propagatedImageTexture_X;    
+
+    // intermediate
+    flowfilter::gpu::GPUImage __propagatedImage_Y;
+    flowfilter::gpu::GPUTexture __propagatedImageTexture_Y;
+
+    // block and grid size for kernel calls
+    dim3 __block;
+    dim3 __grid;
+};
+
 }; // namespace gpu
 }; // namespace flowfilter
 

@@ -502,6 +502,228 @@ GPUImage FlowPropagatorPayload::getPropagatedVector() {
 }
 
 
+//###############################################
+// LaxWendroffPropagator
+//###############################################
+
+LaxWendroffPropagator::LaxWendroffPropagator() {
+    __iterations = 0;
+    __dt = 0.0f;
+
+    __inputFlowSet = false;
+    __inputImageSet = false;
+    __configured = false;
+}
+
+LaxWendroffPropagator::LaxWendroffPropagator(GPUImage inputFlow,
+        GPUImage inputImage) :
+    LaxWendroffPropagator() {
+
+    setInputFlow(inputFlow);
+    setInputImage(inputImage);
+    configure();
+}
+
+
+LaxWendroffPropagator::~LaxWendroffPropagator() {
+    // nothing to do
+}
+
+
+void LaxWendroffPropagator::configure() {
+
+    if(!__inputFlowSet) {
+        std::cerr << "ERROR: LaxWendroffPropagator::configure(): input flow has not been set" << std::endl;
+        throw std::exception();
+    }
+
+    if(!__inputImageSet) {
+        std::cerr << "ERROR: LaxWendroffPropagator::configure(): input image has not been set" << std::endl;
+        throw std::exception();
+    }
+
+    int height = __inputFlow.height();
+    int width = __inputFlow.width();
+
+    //##################
+    // flow
+    //##################
+    __inputFlowTexture = GPUTexture(__inputFlow, cudaChannelFormatKindFloat);
+
+    //##################
+    // input image
+    //##################
+    __inputImageTexture = GPUTexture(__inputImage, cudaChannelFormatKindFloat);
+
+    __propagatedImage_X = GPUImage(height, width, __inputImage.depth(), sizeof(float));
+    __propagatedImageTexture_X = GPUTexture(__propagatedImage_X, cudaChannelFormatKindFloat);
+
+    __propagatedImage_Y = GPUImage(height, width, __inputImage.depth(), sizeof(float));
+    __propagatedImageTexture_Y = GPUTexture(__propagatedImage_Y, cudaChannelFormatKindFloat);
+
+    // configure block and grid sizes
+    __block = dim3(32, 32, 1);
+    configureKernelGrid(height, width, __block, __grid);
+
+    __configured = true;
+}
+
+
+void LaxWendroffPropagator::compute() {
+
+    startTiming();
+
+    if(!__configured) {
+        std::cerr << "ERROR: LaxWendroffPropagator::compute(): stage not configured" << std::endl;
+        throw std::exception();
+    }
+
+    if(__inputImage.depth() == 1) {
+        // first iteration
+        LaxWendroffY_k<float><<<__grid, __block, 0, __stream>>>(
+            __inputFlowTexture.getTextureObject(),
+            __inputImageTexture.getTextureObject(),
+            __propagatedImage_Y.wrap<float>(),
+            __dt);
+
+        LaxWendroffX_k<float><<<__grid, __block, 0, __stream>>>(
+            __inputFlowTexture.getTextureObject(),
+            __propagatedImageTexture_Y.getTextureObject(),
+            __propagatedImage_X.wrap<float>(),
+            __dt);
+
+        // remaining iterations
+        for(int k = 0; k < __iterations -1; k ++) {
+            LaxWendroffY_k<float><<<__grid, __block, 0, __stream>>>(
+                __inputFlowTexture.getTextureObject(),
+                __propagatedImageTexture_X.getTextureObject(),
+                __propagatedImage_Y.wrap<float>(),
+                __dt);
+
+            LaxWendroffX_k<float><<<__grid, __block, 0, __stream>>>(
+                __inputFlowTexture.getTextureObject(),
+                __propagatedImageTexture_Y.getTextureObject(),
+                __propagatedImage_X.wrap<float>(),
+                __dt);
+        }
+
+    } else if(__inputImage.depth() == 4) {
+
+        // first iteration
+        LaxWendroffY_k<float4><<<__grid, __block, 0, __stream>>>(
+            __inputFlowTexture.getTextureObject(),
+            __inputImageTexture.getTextureObject(),
+            __propagatedImage_Y.wrap<float4>(),
+            __dt);
+
+        LaxWendroffX_k<float4><<<__grid, __block, 0, __stream>>>(
+            __inputFlowTexture.getTextureObject(),
+            __propagatedImageTexture_Y.getTextureObject(),
+            __propagatedImage_X.wrap<float4>(),
+            __dt);
+
+        // remaining iterations
+        for(int k = 0; k < __iterations -1; k ++) {
+            LaxWendroffY_k<float4><<<__grid, __block, 0, __stream>>>(
+                __inputFlowTexture.getTextureObject(),
+                __propagatedImageTexture_X.getTextureObject(),
+                __propagatedImage_Y.wrap<float4>(),
+                __dt);
+
+            LaxWendroffX_k<float4><<<__grid, __block, 0, __stream>>>(
+                __inputFlowTexture.getTextureObject(),
+                __propagatedImageTexture_Y.getTextureObject(),
+                __propagatedImage_X.wrap<float4>(),
+                __dt);
+        }
+    }
+
+    
+
+    stopTiming();
+}
+
+
+void LaxWendroffPropagator::setIterations(const int N) {
+
+    if(N <= 0) {
+        std::cerr << "ERROR: LaxWendroffPropagator::setIterations(): iterations less than zero: "
+            << N << std::endl;
+        throw std::exception();
+    }
+
+    __iterations = N;
+    __dt = 1.0f / float(__iterations);
+}
+
+
+int LaxWendroffPropagator::getIterations() const {
+    return __iterations;
+}
+
+
+float LaxWendroffPropagator::getDt() const {
+    return __dt;
+}
+
+
+
+void LaxWendroffPropagator::setInputFlow(GPUImage inputFlow) {
+
+    if(inputFlow.depth() != 2) {
+        std::cerr << "ERROR: LaxWendroffPropagator::setInputFlow(): input flow should have depth 2: "
+            << inputFlow.depth() << std::endl;
+        throw std::exception();
+    }
+
+    if(inputFlow.itemSize() != 4) {
+        std::cerr << "ERROR: LaxWendroffPropagator::setInputFlow(): input flow should have item size 4: "
+            << inputFlow.itemSize() << std::endl;
+        throw std::exception();
+    }
+
+    __inputFlow = inputFlow;
+    __inputFlowSet = true;
+}
+
+
+void LaxWendroffPropagator::setInputImage(GPUImage img) {
+
+    if(img.depth() != 1 && img.depth() != 4) {
+        std::cerr << "ERROR: LaxWendroffPropagator::setInputImage(): input flow should have depth 1 or 4, got: "
+            << img.depth() << std::endl;
+        throw std::exception();
+    }
+
+    if(img.itemSize() != 4) {
+        std::cerr << "ERROR: LaxWendroffPropagator::setInputImage(): input image should have item size 4: "
+            << img.itemSize() << std::endl;
+        throw std::exception();
+    }
+
+    // check size with respect to __inputFlow
+    if(img.height() != __inputFlow.height() ||
+        img.width() != __inputFlow.width()) {
+        std::cerr << "ERROR: LaxWendroffPropagator::setInputImage(): image shape" <<
+            "does not match with input flow" << std::endl;
+        throw std::exception();
+    }
+
+    __inputImage = img;
+    __inputImageSet = true;
+}
+
+
+GPUImage LaxWendroffPropagator::getFlow() {
+    return __inputFlow;
+}
+
+
+GPUImage LaxWendroffPropagator::getPropagatedImage() {
+    return __propagatedImage_X;
+}
+
+
 
 }; // namespace gpu
 }; // namespace flowfilter

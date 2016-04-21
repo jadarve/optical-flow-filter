@@ -93,6 +93,11 @@ public:
      */
     void clear();
 
+    /**
+     * \brief returns a shared pointer with memory buffer in device memory space.
+     */
+    std::shared_ptr<void> getDeviceBuffer();
+
 
 private:
     std::size_t __width;

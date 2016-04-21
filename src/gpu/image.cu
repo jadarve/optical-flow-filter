@@ -71,6 +71,10 @@ void* GPUImage::data() {
     return __ptr_dev.get();
 }
 
+std::shared_ptr<void> GPUImage::getDeviceBuffer() {
+    return __ptr_dev;
+}
+
 
 void GPUImage::upload(flowfilter::image_t& img) {
 
@@ -148,7 +152,7 @@ void GPUImage::copyFrom(GPUImage& img) {
             __width*__depth*__itemSize, __height, cudaMemcpyDeviceToDevice));
 
     } else {
-        std::cerr << "ERROR: GPUImage::download(): shapes do not match."
+        std::cerr << "ERROR: GPUImage::copyFrom(): shapes do not match."
             << "required: [" << __height << ", " << __width << ", " << __depth << "][" << __itemSize << "], passed: "
             << "[" << img.__height << ", " << img.__width << ", " << img.__depth << "][" << img.__itemSize << "]" << std::endl;
         throw std::exception();

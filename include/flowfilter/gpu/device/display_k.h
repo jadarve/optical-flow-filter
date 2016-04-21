@@ -5,8 +5,8 @@
  * \license 3-clause BSD, see LICENSE for more details
  */
 
-#ifndef FLOWFILTER_DISPLAY_K_H_
-#define FLOWFILTER_DISPLAY_K_H_
+#ifndef FLOWFILTER_GPU_DISPLAY_K_H_
+#define FLOWFILTER_GPU_DISPLAY_K_H_
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -27,4 +27,4 @@ __global__ void flowToColor_k(gpuimage_t<float2> inputFlow,
 }; // namepsace gpu
 }; // namespace flowfilter
 
-#endif // FLOWFILTER_DISPLAY_K_H_
+#endif // FLOWFILTER_GPU_DISPLAY_K_H_
