@@ -13,6 +13,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "flowfilter/osconfig.h"
 #include "flowfilter/image.h"
 
 #include "flowfilter/gpu/image.h"
@@ -27,7 +28,7 @@
 namespace flowfilter {
 namespace gpu {
 
-class FlowFilter : public Stage {
+class FLOWFILTER_API FlowFilter : public Stage {
 
 public:
     FlowFilter();
@@ -144,7 +145,7 @@ private:
 };
 
 
-class DeltaFlowFilter : public Stage {
+class FLOWFILTER_API DeltaFlowFilter : public Stage {
 
 public:
     DeltaFlowFilter();
@@ -234,7 +235,7 @@ private:
 };
 
 
-class PyramidalFlowFilter : public Stage {
+class FLOWFILTER_API PyramidalFlowFilter : public Stage {
 
 public:
     PyramidalFlowFilter();

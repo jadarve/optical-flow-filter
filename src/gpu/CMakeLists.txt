@@ -1,10 +1,14 @@
 message(STATUS "entering src/gpu folder")
 
 add_gpu_sources(
+    # CORE MODULES
     error.cu
     image.cu
     util.cu
     pipeline.cu
+    camera.cu
+
+    # ALGORITHMS DEPENDING ON CORE MODULES
     imagemodel.cu
     propagation.cu
     update.cu
@@ -12,7 +16,6 @@ add_gpu_sources(
     flowfilter.cu
     pyramid.cu
     display.cu
-    camera.cu
     rotation.cu
 )
 

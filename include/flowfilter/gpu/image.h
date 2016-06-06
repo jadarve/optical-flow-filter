@@ -13,6 +13,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "flowfilter/osconfig.h"
 #include "flowfilter/image.h"
 
 namespace flowfilter {
@@ -43,10 +44,10 @@ struct gpuimage_t {
 
 /*! \brief GPU Image container.
  */
-class GPUImage {
+class FLOWFILTER_API GPUImage {
 
 public:
-    GPUImage();
+	GPUImage();
     GPUImage(const int height, const int width,
              const int depth = 1, const int itemSize = sizeof(char));
 
@@ -98,6 +99,16 @@ public:
      */
     std::shared_ptr<void> getDeviceBuffer();
 
+    /**
+     * \brief returns true if image parameter has same shape as this object.
+     */
+    bool compareShape(const flowfilter::image_t& img) const;
+
+    /**
+     * \brief returns true if image parameter has same shape as this object.
+     */
+    bool compareShapeGPU(const flowfilter::gpu::GPUImage& img) const;
+
 
 private:
     std::size_t __width;
@@ -109,13 +120,10 @@ private:
 
 private:
     void allocate();
-    bool compareShape(const flowfilter::image_t& img) const;
-    bool compareShapeGPU(const flowfilter::gpu::GPUImage& img) const;
-
 };
 
 
-class GPUTexture {
+class FLOWFILTER_API GPUTexture {
 
 public:
     GPUTexture();

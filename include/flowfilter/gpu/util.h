@@ -11,16 +11,19 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "flowfilter/osconfig.h"
+
 namespace flowfilter {
-    namespace gpu {
+namespace gpu {
 
-        /**
-         * \brief Configure kernel grid size according to image and block size.
-         */
-        void configureKernelGrid(const int height, const int width,
-            const dim3 block, dim3& grid);
+/**
+ * \brief Configure kernel grid size according to image and block size.
+ */
+FLOWFILTER_API void configureKernelGrid(const int height, const int width,
+    const dim3 block, dim3& grid);
 
-    }; // namespace gpu
+
+}; // namespace gpu
 }; // namespace flowfilter
 
 #endif // FLOWFILTER_GPU_UTIL_H_

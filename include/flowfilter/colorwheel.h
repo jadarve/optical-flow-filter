@@ -8,6 +8,7 @@
 #ifndef FLOWFILTER_COLORWHEEL_H_
 #define FLOWFILTER_COLORWHEEL_H_
 
+#include "flowfilter/osconfig.h"
 #include "flowfilter/image.h"
 
 namespace flowfilter {
@@ -16,14 +17,14 @@ namespace flowfilter {
      *
      * The color wheel texture contains RGB values for each
      */
-    extern unsigned char COLOR_WHEEL_D[];
+    FLOWFILTER_API extern unsigned char COLOR_WHEEL_D[];
 
-    const int COLOR_WHEEL_HEIGHT = 256;
-    const int COLOR_WHEEL_WIDTH = 256;
-    const int COLOR_WHEEL_DEPTH = 4;
+    FLOWFILTER_API const int COLOR_WHEEL_HEIGHT = 256;
+    FLOWFILTER_API const int COLOR_WHEEL_WIDTH = 256;
+    FLOWFILTER_API const int COLOR_WHEEL_DEPTH = 4;
 
 
-    image_t getColorWheelRGBA();
+    FLOWFILTER_API image_t getColorWheelRGBA();
 
 }; // namespace flowfilter
 

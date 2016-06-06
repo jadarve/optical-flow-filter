@@ -11,6 +11,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "flowfilter/osconfig.h"
 #include "flowfilter/gpu/pipeline.h"
 #include "flowfilter/gpu/image.h"
 
@@ -21,7 +22,7 @@ namespace gpu {
 /**
  * \brief Optical flow propagator.
  */
-class FlowPropagator : public Stage {
+class FLOWFILTER_API FlowPropagator : public Stage {
 
 public:
     FlowPropagator();
@@ -107,7 +108,7 @@ private:
 /**
  * \brief Optical flow propagator with scalar and vector payloads.
  */
-class FlowPropagatorPayload : public Stage {
+class FLOWFILTER_API FlowPropagatorPayload : public Stage {
 
 public:
     FlowPropagatorPayload();
@@ -214,7 +215,7 @@ private:
 
 
 
-class LaxWendroffPropagator : public Stage {
+class FLOWFILTER_API LaxWendroffPropagator : public Stage {
 
 public:
     LaxWendroffPropagator();

@@ -11,6 +11,7 @@
 namespace flowfilter {
 namespace gpu {
 
+#include "flowfilter/osconfig.h"
 
 /**
  * \brief Perspective camera intrinsic parameters.
@@ -32,7 +33,7 @@ typedef struct {
  * \param sensorHeight sensor height in millimiters
  * \param sensorWidth sensor width in millimiters
  */
-perspectiveCamera createPerspectiveCamera(
+FLOWFILTER_API perspectiveCamera createPerspectiveCamera(
     const float focalLength, const int height, const int width,
     const float sensorHeight, const float sensorWidth);
 

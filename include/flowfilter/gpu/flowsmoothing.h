@@ -11,6 +11,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "flowfilter/osconfig.h"
 #include "flowfilter/gpu/pipeline.h"
 #include "flowfilter/gpu/image.h"
 
@@ -18,7 +19,7 @@ namespace flowfilter {
 namespace gpu {
 
 
-class FlowSmoother : public Stage {
+class FLOWFILTER_API FlowSmoother : public Stage {
 
 public:
     FlowSmoother();
