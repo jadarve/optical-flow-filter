@@ -6,8 +6,10 @@
  */
 
 #include <cstring>
+#include <string>
 #include <iostream>
 #include <exception>
+#include <stdexcept>
 
 #include "flowfilter/gpu/image.h"
 #include "flowfilter/gpu/gpu_deleter.h"
@@ -112,7 +114,9 @@ void GPUImage::upload(flowfilter::image_t& img) {
             << "required: [" << __height << ", " << __width << ", " << __depth << "][" << __itemSize << "], passed: "
             << "[" << img.height << ", " << img.width << ", " << img.depth << "][" << img.itemSize << "]" << std::endl;
 
-        return; // TODO: throw exception
+        throw std::invalid_argument("GPUImage::upload(): shapes do not match. Required: [" +
+            std::to_string(__height) + ", " + std::to_string(__width) + ", " + std::to_string(__depth) + "][" + std::to_string(__itemSize) + "], passed: [" +
+            std::to_string(img.height) + ", " + std::to_string(img.width) + ", " + std::to_string(img.depth) + "][" + std::to_string(img.itemSize) + "]");
     }
 }
 
@@ -138,7 +142,10 @@ void GPUImage::download(flowfilter::image_t& img) const {
         std::cerr << "ERROR: GPUImage::download(): shapes do not match."
             << "required: [" << __height << ", " << __width << ", " << __depth << "][" << __itemSize << "], passed: "
             << "[" << img.height << ", " << img.width << ", " << img.depth << "][" << img.itemSize << "]" << std::endl;
-        return; // TODO: throw exception
+
+        throw std::invalid_argument("GPUImage::download(): shapes do not match. Required: [" +
+            std::to_string(__height) + ", " + std::to_string(__width) + ", " + std::to_string(__depth) + "][" + std::to_string(__itemSize) + "], passed: [" +
+            std::to_string(img.height) + ", " + std::to_string(img.width) + ", " + std::to_string(img.depth) + "][" + std::to_string(img.itemSize) + "]");
     }
 }
 
@@ -155,7 +162,10 @@ void GPUImage::copyFrom(GPUImage& img) {
         std::cerr << "ERROR: GPUImage::copyFrom(): shapes do not match."
             << "required: [" << __height << ", " << __width << ", " << __depth << "][" << __itemSize << "], passed: "
             << "[" << img.__height << ", " << img.__width << ", " << img.__depth << "][" << img.__itemSize << "]" << std::endl;
-        throw std::exception();
+
+        throw std::invalid_argument("GPUImage::copyFrom(): shapes do not match. Required: [" +
+            std::to_string(__height) + ", " + std::to_string(__width) + ", " + std::to_string(__depth) + "][" + std::to_string(__itemSize) + "], passed: [" +
+            std::to_string(img.__height) + ", " + std::to_string(img.__width) + ", " + std::to_string(img.__depth) + "][" + std::to_string(img.__itemSize) + "]");
     }
 }
 
@@ -180,9 +190,9 @@ void GPUImage::allocate() {
     // std::cout << "\tpitch: " << __pitch << std::endl;
 
     // if(err != cudaSuccess) {
-    //     std::cerr << "ERROR: GPUImage device memory allocation: "
-    //         << cudaGetErrorString(err) << std::endl;
+    //     std::cerr << "ERROR: GPUImage device memory allocation: " << cudaGetErrorString(err) << std::endl;
     //     // TODO: throw exception?
+    //     throw std::bad_alloc("GPUImage::allocate(): device memory allocation error: " + cudaGetErrorString(err));
     // }
 }
 
@@ -290,7 +300,7 @@ void GPUTexture::configure( cudaChannelFormatKind format,
     int channels = __image.depth();
     if(channels > 4) {
         std::cerr << "ERROR: GPUTexture::configure(): image channels greater than 4: " << channels << std::endl;
-        return;
+        throw std::invalid_argument("GPUTexture::configure(): image channels greater than 4, got: " + std::to_string(channels));
     }
 
     // bit width of element
