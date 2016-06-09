@@ -1,0 +1,11 @@
+# Generated MEX files
+*.mexw64
+*.mexa64
+*.mexmaci64
+
+*.exp
+
+# Included libraries
+*.dll
+*.lib
+*.def
