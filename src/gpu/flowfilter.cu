@@ -7,7 +7,9 @@
 
 
 #include <iostream>
+#include <string>
 #include <exception>
+#include <stdexcept>
 #include <cmath>
 
 #include "flowfilter/gpu/util.h"
@@ -47,21 +49,26 @@ FlowFilter::FlowFilter(const int height, const int width,
     Stage() {
 
     if(height <= 0) {
-        std::cerr << "ERROR: FlowFilter::FlowFilter(): height should be greater than zero: "
-            << height << std::endl;
-        throw std::exception();
+        std::cerr << "ERROR: FlowFilter::FlowFilter(): height should be greater than zero: " << height << std::endl;
+        throw std::invalid_argument("FlowFilter::FlowFilter(): height should be greater than zero, got: " + std::to_string(height));
     }
 
     if(width <= 0) {
-        std::cerr << "ERROR: FlowFilter::FlowFilter(): width should be greater than zero: "
-            << width << std::endl;
-        throw std::exception();
+        std::cerr << "ERROR: FlowFilter::FlowFilter(): width should be greater than zero: " << width << std::endl;
+        throw std::invalid_argument("FlowFilter::FlowFilter(): width should be greater than zero, got: " + std::to_string(width));
     }
 
-    __height = height;
-    __width = width;
+    // __height = height;
+    // __width = width;
+    __height = 0;
+    __width = 0;
     __configured = false;
+    __inputImageSet = false;
 
+    // creates a GPUImage for storing input image internally
+    GPUImage inputImage = GPUImage(height, width, 1, sizeof(unsigned char));
+
+    setInputImage(inputImage);
     configure();
     setGamma(gamma);
     setMaxFlow(maxflow);
@@ -76,10 +83,9 @@ FlowFilter::~FlowFilter() {
 
 void FlowFilter::configure() {
 
-    // creates an input image buffer if it has not
-    // been set externally
     if(!__inputImageSet) {
-        __inputImage = GPUImage(__height, __width, 1, sizeof(unsigned char));
+        std::cerr << "ERROR: FlowFilter::configure(): input image has not been set" << std::endl;
+        throw std::logic_error("FlowFilter::configure(): input image has not been set");
     }
 
     // connect the blocks
@@ -194,16 +200,13 @@ void FlowFilter::computeUpdate() {
 void FlowFilter::setInputImage(GPUImage inputImage) {
 
     if(inputImage.depth() != 1) {
-        std::cerr << "ERROR: FlowFilter::setInputImage(): input image should have depth 1: "
-            << inputImage.depth() << std::endl;
-        throw std::exception();
+        std::cerr << "ERROR: FlowFilter::setInputImage(): input image should have depth 1: " << inputImage.depth() << std::endl;
+        throw std::invalid_argument("FlowFilter::setInputImage(): input image should have depth 1, got: " + std::to_string(inputImage.depth()));
     }
 
-    if(inputImage.itemSize() != sizeof(unsigned char) &&
-        inputImage.itemSize() != sizeof(float)) {
-
+    if(inputImage.itemSize() != sizeof(unsigned char) && inputImage.itemSize() != sizeof(float)) {
         std::cerr << "ERROR: FlowFilter::setInputImage(): item size should be 1 or 4: " << inputImage.itemSize() << std::endl;
-        throw std::exception();
+        throw std::invalid_argument("FlowFilter::setInputImage(): item size should be 1 or 4: " + std::to_string(inputImage.itemSize()));
     }
 
     __inputImage = inputImage;

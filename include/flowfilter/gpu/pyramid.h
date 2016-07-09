@@ -13,6 +13,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "flowfilter/osconfig.h"
 #include "flowfilter/gpu/image.h"
 #include "flowfilter/gpu/pipeline.h"
 
@@ -23,7 +24,7 @@ namespace gpu {
 /**
  * \brief Objects of this class compute image pyramids
  */
-class ImagePyramid : public Stage {
+class FLOWFILTER_API ImagePyramid : public Stage {
 
 public:
     ImagePyramid();

@@ -8,7 +8,11 @@
 #ifndef FLOWFILTER_IMAGE_H_
 #define FLOWFILTER_IMAGE_H_
 
- #include <cstddef>
+#include <cstddef>
+
+#include "flowfilter/osconfig.h"
+
+// #pragma message ("MESSAGE FROM image.h: " XSTR(FLOWFILTER_API))
 
 /**
  * \brief The namespace of this library.
@@ -52,7 +56,7 @@ typedef struct {
  * \param[in] width image width in pixels.
  * \param[in] pixelSize pixel size in bytes.
  */
-image_t createImage(const int height, const int width, const size_t pixelSize);
+FLOWFILTER_API image_t createImage(const int height, const int width, const size_t pixelSize);
 
 /**
  * \brief Creates a new image. Allocates memory for storing pixel data.
@@ -62,7 +66,7 @@ image_t createImage(const int height, const int width, const size_t pixelSize);
  * \param[in] depth image depth in pixels
  * \param[in] pixelSize pixel size in bytes.
  */
-image_t createImage(const int height, const int width, const int depth, const size_t pixelSize);
+FLOWFILTER_API image_t createImage(const int height, const int width, const int depth, const size_t pixelSize);
 
 /**
  * \brief Destroys an image. Deallocates image memory buffer.
@@ -71,7 +75,7 @@ image_t createImage(const int height, const int width, const int depth, const si
  * containing image data. image.data is set to std::nullptr
  * after deallocation.
  */
-void destroyImage(image_t& image);
+FLOWFILTER_API void destroyImage(image_t& image);
 
 
 }; // namespace flowfilter

@@ -11,21 +11,27 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "flowfilter/osconfig.h"
+
+// #pragma message ("MESSAGE FROM error.h: " XSTR(FLOWFILTER_API))
+
 namespace flowfilter {
-    namespace gpu {
+namespace gpu {
 
-        /**
-         * \biref check the execution of a cuda call is successful.
-         */
-        #define checkError(ans) { assertError(ans, __FILE__, __LINE__);}
 
-        /**
-         * \brief assert if errorCode is successful.
-         */
-        void assertError(cudaError_t errorCode, const char* file,
-            int line, bool abort = true);
+/**
+ * \biref check the execution of a cuda call is successful.
+ */
+#define checkError(ans) { assertError(ans, __FILE__, __LINE__);}
+
+/**
+ * \brief assert if errorCode is successful.
+ */
+FLOWFILTER_API void assertError(cudaError_t errorCode, const char* file,
+    int line, bool abort = true);
+
         
-    }; // namespace gpu
+}; // namespace gpu
 }; // namespace flowfilter
 
 #endif  // FLOWFILTER_GPU_ERROR_H_

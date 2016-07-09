@@ -11,6 +11,8 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "flowfilter/osconfig.h"
+
 #include "flowfilter/gpu/pipeline.h"
 #include "flowfilter/gpu/image.h"
 
@@ -18,77 +20,77 @@
 namespace flowfilter {
 namespace gpu {
 
-    class FlowToColor : public Stage {
+class FLOWFILTER_API FlowToColor : public Stage {
 
-    public:
-        FlowToColor();
-        FlowToColor(flowfilter::gpu::GPUImage inputFlow, const float maxflow);
-        ~FlowToColor();
+public:
+    FlowToColor();
+    FlowToColor(flowfilter::gpu::GPUImage inputFlow, const float maxflow);
+    ~FlowToColor();
 
-    public:
+public:
 
-        /**
-         * \brief configures the stage.
-         *
-         * After configuration, calls to compute()
-         * are valid.
-         * Input buffers should not change after
-         * this method has been called.
-         */
-        void configure();
+    /**
+     * \brief configures the stage.
+     *
+     * After configuration, calls to compute()
+     * are valid.
+     * Input buffers should not change after
+     * this method has been called.
+     */
+    void configure();
 
-        /**
-         * \brief performs computation of brightness parameters
-         */
-        void compute();
-
-
-        //#########################
-        // Host load-download
-        //#########################
-
-        /**
-         * \brief download the RGBA color encoding of optical flow
-         */
-        void downloadColorFlow(flowfilter::image_t& colorFlow);
+    /**
+     * \brief performs computation of brightness parameters
+     */
+    void compute();
 
 
-        //#########################
-        // Stage inputs
-        //#########################
-        void setInputFlow(flowfilter::gpu::GPUImage inputFlow);
+    //#########################
+    // Host load-download
+    //#########################
+
+    /**
+     * \brief download the RGBA color encoding of optical flow
+     */
+    void downloadColorFlow(flowfilter::image_t& colorFlow);
 
 
-        //#########################
-        // Stage outputs
-        //#########################
-        flowfilter::gpu::GPUImage getColorFlow();
+    //#########################
+    // Stage inputs
+    //#########################
+    void setInputFlow(flowfilter::gpu::GPUImage inputFlow);
 
 
-        //#########################
-        // Parameters
-        //#########################
-        float getMaxFlow() const;
-        void setMaxFlow(const float maxflow);
+    //#########################
+    // Stage outputs
+    //#########################
+    flowfilter::gpu::GPUImage getColorFlow();
 
-    private:
-        bool __configured;
-        bool __inputFlowSet;
 
-        float __maxflow;
+    //#########################
+    // Parameters
+    //#########################
+    float getMaxFlow() const;
+    void setMaxFlow(const float maxflow);
 
-        flowfilter::gpu::GPUImage __colorWheel;
-        flowfilter::gpu::GPUTexture __colorWheelTexture;
+private:
+    bool __configured;
+    bool __inputFlowSet;
 
-        // inputs
-        flowfilter::gpu::GPUImage __inputFlow;
+    float __maxflow;
 
-        // outputs
-        flowfilter::gpu::GPUImage __colorFlow;
+    flowfilter::gpu::GPUImage __colorWheel;
+    flowfilter::gpu::GPUTexture __colorWheelTexture;
 
-        dim3 __block;
-        dim3 __grid;
-    };
+    // inputs
+    flowfilter::gpu::GPUImage __inputFlow;
+
+    // outputs
+    flowfilter::gpu::GPUImage __colorFlow;
+
+    dim3 __block;
+    dim3 __grid;
+};
 
 }; // namepsace gpu
 }; // namespace flowfilter

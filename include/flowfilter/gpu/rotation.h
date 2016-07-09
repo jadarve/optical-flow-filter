@@ -9,6 +9,9 @@
 #ifndef FLOWFILTER_GPU_ROTATION_H_
 #define FLOWFILTER_GPU_ROTATION_H_
 
+
+#include "flowfilter/osconfig.h"
+
 #include "flowfilter/gpu/camera.h"
 #include "flowfilter/gpu/image.h"
 #include "flowfilter/gpu/pipeline.h"
@@ -18,7 +21,7 @@ namespace flowfilter {
 namespace gpu {
 
 
-class RotationalFlowImagePredictor : public Stage {
+class FLOWFILTER_API RotationalFlowImagePredictor : public Stage {
 
 
 public:
@@ -66,7 +69,6 @@ public:
     void setAngularVelocity(const float wx, const float wy, const float wz);
     void setIterations(const int iterations);
     int getIterations() const;
-
 
 
 private:

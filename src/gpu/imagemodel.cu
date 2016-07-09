@@ -5,8 +5,10 @@
  * \license 3-clause BSD, see LICENSE for more details
  */
 
-#include <exception>
 #include <iostream>
+#include <string>
+#include <exception>
+#include <stdexcept>
 
 #include "flowfilter/gpu/imagemodel.h"
 #include "flowfilter/gpu/util.h"
@@ -52,7 +54,7 @@ void ImageModel::configure() {
 
     if(!__inputImageSet) {
         std::cerr << "ERROR: ImageModel::configure(): input image has not been set" << std::endl;
-        throw std::exception();
+        throw std::logic_error("ImageModel::configure(): input image has not been set");
     }
 
     int height = __inputImage.height();
@@ -94,7 +96,7 @@ void ImageModel::compute() {
 
     if(!__configured) {
         std::cerr << "ERROR: ImageModel::compute() stage not configured." << std::endl;
-        exit(-1);
+        throw std::logic_error("ImageModel::compute() stage not configured.");
     }
 
     // prefilter
@@ -119,14 +121,12 @@ void ImageModel::setInputImage(flowfilter::gpu::GPUImage img) {
     // check if image is a gray scale image with pixels 1 byte long
     if(img.depth() != 1) {
         std::cerr << "ERROR: ImageModel::setInputImage(): image depth should be 1: " << img.depth() << std::endl;
-        throw std::exception();
+        throw std::invalid_argument("ImageModel::setInputImage(): image depth should be 1, got: " + std::to_string(img.depth()));
     }
 
-    if(img.itemSize() != sizeof(unsigned char) &&
-        img.itemSize() != sizeof(float)) {
-
+    if(img.itemSize() != sizeof(unsigned char) && img.itemSize() != sizeof(float)) {
         std::cerr << "ERROR: ImageModel::setInputImage(): item size should be 1 or 4: " << img.itemSize() << std::endl;
-        throw std::exception();
+        throw std::invalid_argument("ImageModel::setInputImage(): item size should be 1 or 4, got: " + std::to_string(img.itemSize()));
     }
 
     __inputImage = img;
@@ -137,13 +137,11 @@ void ImageModel::setInputImage(flowfilter::gpu::GPUImage img) {
 // Pipeline stage outputs
 //#########################
 flowfilter::gpu::GPUImage ImageModel::getImageConstant() {
-    
     return __imageConstant;
 }
 
 
 flowfilter::gpu::GPUImage ImageModel::getImageGradient() {
-
     return __imageGradient;
 }
 

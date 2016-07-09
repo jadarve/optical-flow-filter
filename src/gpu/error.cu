@@ -10,17 +10,18 @@
 #include "flowfilter/gpu/error.h"
 
 namespace flowfilter {
-    namespace gpu {
+namespace gpu {
 
-        void assertError(cudaError_t errorCode, const char* file,
-            int line, bool abort) {
+void assertError(cudaError_t errorCode, const char* file,
+    int line, bool abort) {
 
-            if(errorCode != cudaSuccess) {
-                std::cerr << "ERROR: " << cudaGetErrorString(errorCode) <<
-                    " at " << file << " : " << line << std::endl;
+    if(errorCode != cudaSuccess) {
+        std::cerr << "ERROR: " << cudaGetErrorString(errorCode) <<
+            " at " << file << " : " << line << std::endl;
 
-                if(abort) exit(errorCode);
-            }
-        }
-    };
-};
+        if(abort) exit(errorCode);
+    }
+}
+
+}; // namespace gpu
+}; // namespace flowfilter
