@@ -185,7 +185,7 @@ void GPUImage::allocate() {
         __width*__depth*__itemSize, __height));
 
     // create a new shared pointer
-    __ptr_dev = std::shared_ptr<void> {buffer_dev, gpu_deleter<void>()};
+    __ptr_dev = std::shared_ptr<void> (buffer_dev, gpu_deleter<void>());
 
     // std::cout << "\tpitch: " << __pitch << std::endl;
 
