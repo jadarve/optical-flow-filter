@@ -73,7 +73,7 @@ inline T *convertMat2Ptr(const mxArray *in) {
 
 template<class T>
 inline void destroyObject(const mxArray *in) {
-   d elete convertMat2HandlePtr<T>(in);
+   delete convertMat2HandlePtr<T>(in);
 }
 
 
