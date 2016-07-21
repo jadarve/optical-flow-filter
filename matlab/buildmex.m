@@ -23,7 +23,8 @@ srcs = {'src/imgutil.cpp'};
 
 modules = {'GPUImage_mex.cpp' ...
 		   'FlowFilter_mex.cpp' ...
-		   'PyramidalFlowFilter_mex.cpp'};
+		   'PyramidalFlowFilter_mex.cpp' ...
+		   'ImageModel_mex.cpp'};
 
 
 for n = 1 : length(modules)

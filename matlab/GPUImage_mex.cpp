@@ -56,7 +56,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         plhs[0] = convertPtr2Mat<GPUImage>(img);
 
 
-        // lock the mex file each time a new object is created.
+        // upon successful creation of object, lock the mex file until the
+        // object is destroyed
         mexLock();
 
         return;
@@ -76,7 +77,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             mexWarnMsgTxt("Delete: Unexpected arguments ignored.");
         }
 
-        // unlock the mex file each time an object is deleted
+        // unlock the mex file. This does not check for errors while destroying the object.
         mexUnlock();
         return;
     }
@@ -98,6 +99,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     // * download()                                                   //
     // * copyFrom()    TODO                                           //
     // * clear()                                                      //
+    //                         OTHER OPERATIONS                       //
+    // * testTextureCreation()                                        //
     // ************************************************************** //
     
     // mexPrintf("[nlhs, nrhs]: [%d, %d]", nlhs, nrhs);
@@ -198,6 +201,25 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         if(nrhs != 2) mexErrMsgTxt("GPUImage.clear(): expecting 2 input parameters.");
 
         instance->clear();
+        return;
+    }
+
+    if(cmd == "testTextureCreation") {
+
+        GPUImage img = *instance;
+        cudaChannelFormatKind channelFormat = cudaChannelFormatKindNone;
+        if(img.itemSize() == 4) {
+            mexPrintf("channel Format: float\n");
+            channelFormat = cudaChannelFormatKindFloat;
+        } else {
+            mexPrintf("channel Format: unsigned\n");
+            channelFormat = cudaChannelFormatKindUnsigned;
+        }
+
+        mexPrintf("creating GPU texture object\n");
+        GPUTexture* tex = new GPUTexture(img, channelFormat);
+        mexPrintf("deleting GPU texture object\n");
+
         return;
     }
 

@@ -53,6 +53,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         // Return a handle to a new C++ instance
         PyramidalFlowFilter* filter = new PyramidalFlowFilter(height, width, levels);
         plhs[0] = convertPtr2Mat<PyramidalFlowFilter>(filter);
+
+        // upon successful creation of object, lock the mex file until the
+        // object is destroyed
+        mexLock();
+
         return;
     }
 
@@ -69,6 +74,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         if (nlhs != 0 || nrhs != 2) {
             mexWarnMsgTxt("Delete: Unexpected arguments ignored.");
         }
+
+        // unlock the mex file. This does not check for errors while destroying the object.
+        mexUnlock();
+        
         return;
     }
 
