@@ -241,6 +241,16 @@ cdef class PyramidalFlowFilter:
         return flow
 
 
+    def getFlowDevice(self):
+        """Returns GPU buffer with the optical flow.
+        """
+
+        cdef gimg.GPUImage flow = gimg.GPUImage()
+        flow.img = self.ffilter.getFlow()
+
+        return flow
+
+
     def getImage(self, np.ndarray image = None):
 
         if image == None:
