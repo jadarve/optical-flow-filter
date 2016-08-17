@@ -52,6 +52,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         // Return a handle to a new C++ instance
         FlowFilter* filter = new FlowFilter(height, width);
         plhs[0] = convertPtr2Mat<FlowFilter>(filter);
+
+        // upon successful creation of object, lock the mex file until the
+        // object is destroyed
+        mexLock();
+        
         return;
     }
 
@@ -62,12 +67,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     // DESTRUCTOR
     if(cmd == "delete") {
+
+        mexPrintf("FlowFilter.~FlowFilter()\n");
         // Destroy the C++ object
         destroyObject<FlowFilter>(prhs[1]);
         // Warn if other commands were ignored
         if (nlhs != 0 || nrhs != 2) {
             mexWarnMsgTxt("Delete: Unexpected arguments ignored.");
         }
+
+        // unlock the mex file. This does not check for errors while destroying the object.
+        mexUnlock();
         return;
     }
 

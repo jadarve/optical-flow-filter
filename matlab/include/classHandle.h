@@ -1,7 +1,7 @@
 /*
  * This file was based on the work by Oliver Woodford for creating C++ wrappers for
- * Matlab mex functions
-. * http://au.mathworks.com/matlabcentral/fileexchange/38964-example-matlab-class-wrapper-for-a-c++-class
+ * Matlab mex functions.
+ * http://au.mathworks.com/matlabcentral/fileexchange/38964-example-matlab-class-wrapper-for-a-c++-class
  */
 
 #ifndef CLASSHANDLE_H_
@@ -34,6 +34,10 @@ public:
         return __ptr;
     }
 
+    std::string typeName() {
+        return __name;
+    }
+
 private:
     std::string __name;
     T* __ptr;
@@ -58,7 +62,8 @@ inline ClassHandle<T> *convertMat2HandlePtr(const mxArray *in) {
 
     ClassHandle<T> *ptr = reinterpret_cast<ClassHandle<T> *>(*((uint64_t *)mxGetData(in)));
     if (!ptr->isValid()) {
-        mexErrMsgTxt("Handle not valid.");
+        mexPrintf("Handle not valid. Expecting \"%s\", got \"%s\"\n", typeid(T).name(), ptr->typeName().c_str());
+        mexErrMsgTxt("Handle not valid");
     }
 
     return ptr;
@@ -73,7 +78,7 @@ inline T *convertMat2Ptr(const mxArray *in) {
 
 template<class T>
 inline void destroyObject(const mxArray *in) {
-   d elete convertMat2HandlePtr<T>(in);
+   delete convertMat2HandlePtr<T>(in);
 }
 
 

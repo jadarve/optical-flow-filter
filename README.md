@@ -2,6 +2,13 @@
 
 A real time optical flow algorithm implemented on GPU.
 
+    @Article{2016_Adarve_RAL,
+      Title = {A Filter Formulation for Computing Real Time Optical Flow},
+      Author = {{Juan David} Adarve and Robert Mahony},
+      Journal = {Robotics and Automation Letters},
+      Year = {2016}
+    }
+
 [![300 Hz Real Time Optical Flow ](http://img.youtube.com/vi/_oW1vMdBMuY/0.jpg)](http://www.youtube.com/watch?v=_oW1vMdBMuY)
 
 
@@ -10,10 +17,11 @@ A real time optical flow algorithm implemented on GPU.
 
 ## Dependencies
 
-  * CMake 2.8.11
+  * CMake 2.8.11 or higher
   * Cuda 7.5
+  * Visual Studio 2013 (Windows only)
 
-## Build
+## Build (Linux)
 
     git clone https://github.com/jadarve/optical-flow-filter.git
     cd optical-flow-filter
@@ -24,6 +32,21 @@ A real time optical flow algorithm implemented on GPU.
     sudo make install 
     
 The library and header files will be installed at **/usr/local/lib** and **/usr/local/include** respectively.
+
+## Build (Windows)
+
+### For x86_64
+ 
+    mkdir build64 & cd build64
+    cmake -G "Visual Studio 12 2013 Win64" ..
+    cmake --build . --config Release
+
+### For x86
+
+    mkdir build & cd build
+    cmake -G "Visual Studio 12 2013"
+    cmake --build . --config Release
+    
 
 ##Python Wrappers
 
@@ -73,14 +96,4 @@ Other optional arguments are:
     -l, --levels <int>     Flow filter pyramid levels (default 2).
     -r, --rate <int>       Camera frame rate (default 300).
     -m, --maxflow <float>  Maximum optical flow (default 4.0).
-
-
-# References
-
-    @Article{2016_Adarve_RAL,
-      Title = {A Filter Formulation for Computing Real Time Optical Flow},
-      Author = {{Juan David} Adarve and Robert Mahony},
-      Journal = {Robotics and Automation Letters},
-      Year = {2016}
-    }
 

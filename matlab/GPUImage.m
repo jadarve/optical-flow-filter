@@ -70,5 +70,9 @@ classdef GPUImage < handle
             end
         end
 
+        function testTextureCreation(this)
+            GPUImage_mex('testTextureCreation', this.objHandle)
+        end
+
     end % methods
 end % classdef

@@ -15,3 +15,9 @@ B = img.download();
 
 A
 B
+
+display('Test texture creation');
+
+img.testTextureCreation();
+
+display('completed...');
