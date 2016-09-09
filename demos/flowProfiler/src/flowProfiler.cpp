@@ -39,8 +39,8 @@ void wrapCVMat(Mat& cvMat, image_t& img) {
  */
 int main(int argc, char** argv) {
 
-    if(argc < 5) {
-        cerr << "ERROR: expecting 4 arguments: height, width, pyrLevels, maxFlow" << endl;
+    if(argc < 6) {
+        cerr << "ERROR: expecting 4 arguments: height, width, pyrLevels, maxFlow, iterations" << endl;
         return -1;
     }
     
@@ -49,6 +49,7 @@ int main(int argc, char** argv) {
     int width = atoi(argv[2]);
     int pyrLevels = atoi(argv[3]);
     int maxFlow_i = atoi(argv[4]);
+    int N = atoi(argv[5]);
     
 
     cout << "image shape: [" << height << ", " << width << "]" << endl;
@@ -86,14 +87,15 @@ int main(int argc, char** argv) {
     wrapCVMat(hostImage, hostImageWrapped);
     
     // Capture loop
-    for(;;) {
+    for(int i = 0; i < N; i ++) {
 
         
         // transfer image to flow filter and compute
         filter.loadImage(hostImageWrapped);
         filter.compute();
 
-        cout << "elapsed time: " << filter.elapsedTime() << " ms" << endl;
+        // cout << "elapsed time: " << filter.elapsedTime() << " ms" << endl;
+        cout << filter.elapsedTime() << endl;
 
         // transfer the optical flow from GPU to
         // host memory allocated by flowHost cvMat.
