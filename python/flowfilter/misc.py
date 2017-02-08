@@ -9,7 +9,6 @@
 """
 
 import numpy as np
-import numpy.linalg as la
 import scipy.ndimage as nd
 
 __all__ = ['imagePyramid', 'imageDown', 'imageUp']
@@ -141,51 +140,3 @@ def imageUp(img, order=1):
 
         # recombine channels and return
         return np.concatenate([p[...,np.newaxis] for p in zoomList], axis=2)
-
-
-def endpointError(flow1, flow2):
-    """returns Endpoint Error between two flow fields
-
-    Parameters
-    ----------
-    flow1 : ndarray.
-        First optical flow field.
-
-    flow2 : ndarray.
-        Second optical flow field.
-
-    Returns
-    -------
-    EE : endpoint error field.
-        Scalar field with the endpoint error.
-    """
-
-    return la.norm(flow1 - flow2, axis=2)
-
-
-def angularError(flow1, flow2):
-    """returns the angular error between two flow fields.
-
-    Parameters
-    ----------
-    flow1 : ndarray.
-        First optical flow field.
-
-    flow2 : ndarray.
-        Second optical flow field.
-
-    Returns
-    -------
-    AE : angular error field.
-        Scalar field with the angular error field in degrees.
-    """
-    
-    f1_x = flow1[...,0]
-    f1_y = flow1[...,1]
-    
-    f2_x = flow2[...,0]
-    f2_y = flow2[...,1]
-    
-    top = 1.0 + f1_x*f2_x + f1_y*f2_y
-    bottom = np.sqrt(1.0 + f1_x*f1_x + f1_y*f1_y)*np.sqrt(1.0 + f2_x*f2_x + f2_y*f2_y)
-    return np.rad2deg(np.arccos(top / bottom))

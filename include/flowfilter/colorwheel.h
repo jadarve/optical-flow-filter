@@ -18,6 +18,7 @@ namespace flowfilter {
      * The color wheel texture contains RGB values for each
      */
     FLOWFILTER_API extern unsigned char COLOR_WHEEL_D[];
+    FLOWFILTER_API extern unsigned char COLOR_WHEEL_DARK_D[];
 
     FLOWFILTER_API const int COLOR_WHEEL_HEIGHT = 256;
     FLOWFILTER_API const int COLOR_WHEEL_WIDTH = 256;
@@ -25,6 +26,7 @@ namespace flowfilter {
 
 
     FLOWFILTER_API image_t getColorWheelRGBA();
+    FLOWFILTER_API image_t getColorWheelDarkRGBA();
 
 }; // namespace flowfilter
 

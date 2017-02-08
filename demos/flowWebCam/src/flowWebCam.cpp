@@ -50,9 +50,8 @@ int main(int argc, char** argv) {
     if(!cap.isOpened()){
         return -1;
     }
-    
+
     Mat frame;
-    
 
     //  captura a frame to get image width and height
     cap >> frame;
@@ -69,20 +68,19 @@ int main(int argc, char** argv) {
 
     wrapCVMat(frameGray, hostImageGray);
     wrapCVMat(fcolor, hostFlowColor);
-    
 
     //#################################
     // Filter parameters
     //#################################
-    float maxflow = 40.0f;
-    vector<float> gamma = {500.0f, 50.0f, 5.0f};
-    vector<int> smoothIterations = {2, 8, 20};
+    float maxflow = 4.0f;
+    vector<float> gamma = {10, 50};
+    vector<int> smoothIterations = {2, 2};
 
     //#################################
     // Filter creation with
     // 3 pyramid levels
     //#################################
-    PyramidalFlowFilter filter(height, width, 3);
+    PyramidalFlowFilter filter(height, width, 2);
     filter.setMaxFlow(maxflow);
     filter.setGamma(gamma);
     filter.setSmoothIterations(smoothIterations);
@@ -94,10 +92,9 @@ int main(int argc, char** argv) {
     Mat flowHost(height, width, CV_32FC2);
     image_t flowHostWrapper;
     wrapCVMat(flowHost, flowHostWrapper);
-    
 
     // Color encoder connected to optical flow buffer in the GPU
-    FlowToColor flowColor(filter.getFlow(), maxflow);
+    FlowToColor flowColor(filter.getFlow(), maxflow, 1);
 
 
     // Capture loop
@@ -107,7 +104,7 @@ int main(int argc, char** argv) {
         // and convert it to gray scale (uint8)
         cap >> frame;
         cvtColor(frame, frameGray, CV_BGR2GRAY);
-        
+
         // transfer image to flow filter and compute
         filter.loadImage(hostImageGray);
         filter.compute();
