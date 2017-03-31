@@ -17,9 +17,10 @@ A real time optical flow algorithm implemented on GPU.
 
 ## Dependencies
 
-  * CMake 2.8.11 or higher
-  * Cuda 7.5
-  * Visual Studio 2013 (Windows only)
+  * CMake 2.8.11 or higher.
+  * Cuda 7.5 or higher.
+  * GCC 4.8.
+  * Visual Studio 2013 (Windows only).
 
 ## Build (Linux)
 
