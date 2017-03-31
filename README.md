@@ -48,7 +48,7 @@ The library and header files will be installed at **/usr/local/lib** and **/usr/
     cmake --build . --config Release
     
 
-##Python Wrappers
+# Python Wrappers
 
 A python package with wrappers to the C++ library is available at **optical-flow-filter/python/** folder. The wrappers have been developed and build using Cython 0.23.4.
 
