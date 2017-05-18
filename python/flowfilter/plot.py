@@ -19,14 +19,21 @@ __all__ = ['flowToColor', 'colorWheel']
 
 # load color wheel image
 colorWheel = misc.imread(pkg_resources.resource_filename('flowfilter.rsc', 'colorWheel.png'), flatten=False)
+colorWheelDark = misc.imread(pkg_resources.resource_filename('flowfilter.rsc', 'colorWheelDark.png'), flatten=False)
 
 # RGB components of colorwheel
-_colorWheel_R = np.copy(colorWheel[...,0])
+#_colorWheel_R = np.copy(colorWheel[...,0])
+#_colorWheel_G = np.copy(colorWheel[...,1])
+#_colorWheel_B = np.copy(colorWheel[...,2])
+_colorWheel_R = np.copy(colorWheel[...,2])
 _colorWheel_G = np.copy(colorWheel[...,1])
-_colorWheel_B = np.copy(colorWheel[...,2])
+_colorWheel_B = np.copy(colorWheel[...,0])
+_colorWheelDark_R = np.copy(colorWheelDark[...,2])
+_colorWheelDark_G = np.copy(colorWheelDark[...,1])
+_colorWheelDark_B = np.copy(colorWheelDark[...,0])
 
 
-def flowToColor(flow, maxflow=1.0):
+def flowToColor(flow, maxflow=1.0, colorWheelReq=0):
     """Returns the color wheel encoded version of the flow field.
 
     Parameters
@@ -36,6 +43,9 @@ def flowToColor(flow, maxflow=1.0):
 
     maxflow : float, optional
         Maximum flow magnitude. Defaults to 1.0.
+
+    colorWheelReq : int, optional
+        ColorWheel assignment. Defaults to light wheel.
 
     Returns
     -------
@@ -48,10 +58,17 @@ def flowToColor(flow, maxflow=1.0):
     """
 
     if maxflow <= 0.0: raise ValueError('maxflow should be greater than zero')
-    
+
     # height and width of color wheel texture
-    h, w = colorWheel.shape[0:2]
-    
+
+    if colorWheelReq == 0:
+        h, w = colorWheel.shape[0:2]
+    elif colorWheelReq == 1:
+        h, w = colorWheelDark.shape[0:2]
+    else:
+        print "Error: flowToColor (3rd var) call wrong colorWheel value"
+        return 0
+
     # scale optical flow to lie in range [0, 1]
     flow_scaled = (flow + maxflow) / float(2*maxflow)
 
@@ -73,15 +90,19 @@ def flowToColor(flow, maxflow=1.0):
     color_B = np.zeros_like(color_R)
 
     # interpolate flow coordinates into RGB textures
-    interp.map_coordinates(_colorWheel_R, flow_swapped, color_R, order=0, mode='nearest', cval=0)
-    interp.map_coordinates(_colorWheel_G, flow_swapped, color_G, order=0, mode='nearest', cval=0)
-    interp.map_coordinates(_colorWheel_B, flow_swapped, color_B, order=0, mode='nearest', cval=0)
-    
+    if colorWheelReq == 0:
+        interp.map_coordinates(_colorWheel_R, flow_swapped, color_R, order=0, mode='nearest', cval=0)
+        interp.map_coordinates(_colorWheel_G, flow_swapped, color_G, order=0, mode='nearest', cval=0)
+        interp.map_coordinates(_colorWheel_B, flow_swapped, color_B, order=0, mode='nearest', cval=0)
+    elif colorWheelReq == 1:
+        interp.map_coordinates(_colorWheelDark_R, flow_swapped, color_R, order=0, mode='nearest', cval=0)
+        interp.map_coordinates(_colorWheelDark_G, flow_swapped, color_G, order=0, mode='nearest', cval=0)
+        interp.map_coordinates(_colorWheelDark_B, flow_swapped, color_B, order=0, mode='nearest', cval=0)
+
     # creates output image
     flowColor = np.zeros((flow.shape[0], flow.shape[1], 3), dtype=np.uint8)
     flowColor[:,:,0] = color_R.reshape(flow.shape[0:2])
     flowColor[:,:,1] = color_G.reshape(flow.shape[0:2])
     flowColor[:,:,2] = color_B.reshape(flow.shape[0:2])
-    
-    return flowColor
 
+    return flowColor

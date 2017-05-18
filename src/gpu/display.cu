@@ -27,7 +27,7 @@ FlowToColor::FlowToColor() :
     __maxflow = 1.0f;
 }
 
-FlowToColor::FlowToColor(flowfilter::gpu::GPUImage inputFlow, 
+FlowToColor::FlowToColor(flowfilter::gpu::GPUImage inputFlow,
     const float maxflow) :
     Stage() {
 
@@ -36,6 +36,20 @@ FlowToColor::FlowToColor(flowfilter::gpu::GPUImage inputFlow,
 
     setInputFlow(inputFlow);
     setMaxFlow(maxflow);
+    __colorWheelSelect = 0;
+    configure();
+}
+
+FlowToColor::FlowToColor(flowfilter::gpu::GPUImage inputFlow,
+    const float maxflow, const int colorwheelselected) :
+    Stage() {
+
+    __configured = false;
+    __inputFlowSet = false;
+
+    setInputFlow(inputFlow);
+    setMaxFlow(maxflow);
+    __colorWheelSelect = colorwheelselected;
     configure();
 }
 
@@ -53,7 +67,16 @@ void FlowToColor::configure() {
     }
 
     // creates an RGBA images from the RGB color wheel
-    image_t wheelRGBA = getColorWheelRGBA();
+    image_t wheelRGBA;
+    if (__colorWheelSelect == 0)
+    { wheelRGBA = getColorWheelRGBA(); }
+    else if (__colorWheelSelect == 1)
+    { wheelRGBA = getColorWheelDarkRGBA(); }
+    else
+    {
+      std::cout << "Wrong color wheel selected, defaulted main colow wheel!" << std::endl;
+      wheelRGBA = getColorWheelRGBA();
+    }
 
     __colorWheel = GPUImage(wheelRGBA.height,
         wheelRGBA.width, wheelRGBA.depth, sizeof(unsigned char));
@@ -79,7 +102,7 @@ void FlowToColor::configure() {
 
 
 void FlowToColor::compute() {
-    
+
     startTiming();
 
     if(!__configured) {

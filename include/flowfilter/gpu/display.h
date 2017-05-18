@@ -25,6 +25,7 @@ class FLOWFILTER_API FlowToColor : public Stage {
 public:
     FlowToColor();
     FlowToColor(flowfilter::gpu::GPUImage inputFlow, const float maxflow);
+    FlowToColor(flowfilter::gpu::GPUImage inputFlow, const float maxflow, const int colorwheelselected);
     ~FlowToColor();
 
 public:
@@ -78,6 +79,7 @@ private:
     bool __inputFlowSet;
 
     float __maxflow;
+    int __colorWheelSelect;
 
     flowfilter::gpu::GPUImage __colorWheel;
     flowfilter::gpu::GPUTexture __colorWheelTexture;

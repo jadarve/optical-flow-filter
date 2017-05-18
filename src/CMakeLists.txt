@@ -3,6 +3,7 @@ message(STATUS "entering src folder")
 add_gpu_sources (
     image.cpp
     colorwheel.cpp
+    colorwheeldark.cpp
 )
 
 # process CMakeLists.txt in gpu folder

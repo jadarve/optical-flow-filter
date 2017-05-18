@@ -103,6 +103,7 @@ void FlowUpdate::compute() {
         exit(-1);
     }
 
+    // std::cout << "update" << std::endl;
     flowUpdate_k<<<__grid, __block, 0, __stream>>>(
         __inputImage.wrap<float>(),
         __inputImageGradient.wrap<float2>(),
@@ -333,7 +334,7 @@ void DeltaFlowUpdate::compute() {
         std::cerr << "ERROR: DeltaFlowUpdate::compute() stage not configured." << std::endl;
         exit(-1);
     }
-
+    // std::cout << "delta_update" << std::endl;
     deltaFlowUpdate_k<<<__grid, __block, 0, __stream>>> (
         __inputImage.wrap<float>(),
         __inputImageGradient.wrap<float2>(),

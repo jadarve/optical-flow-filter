@@ -57,7 +57,7 @@ py_packages = ['flowfilter', 'flowfilter.gpu', 'flowfilter.rsc']
 # package data include Cython .pxd files
 package_data = {'flowfilter' : ['*.pxd'],
                 'flowfilter.gpu': ['*.pxd'],
-                'flowfilter.rsc' : ['colorWheel.png']}
+                'flowfilter.rsc' : ['colorWheel.png','colorWheelDark.png',]}
 
 #################################################
 # CYTHON EXTENSIONS
