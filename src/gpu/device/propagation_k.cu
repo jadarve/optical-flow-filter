@@ -208,6 +208,20 @@ __global__ void flowPropagatePayloadX_k(cudaTextureObject_t inputFlow,
 
 
     //#################################
+    // LOW TEXTURE PROPAGATION STOP
+    //#################################
+    // if ( ((lx1_p*lx1_p)<0.0001) && ((lx1_m*lx1_m)<0.0001) )
+    // {
+    //     loadProp1 =     0;
+    //     loadProp2.x =   0;
+    //     loadProp2.y =   0;
+    //     flowPropU.x =   0;//flow_0.x;
+    //     flowPropU.y =   0;//flow_0.y;
+    // }
+
+
+
+    //#################################
     // BORDER REMOVAL
     //#################################
     const unsigned int inRange = (pix.x >= border && pix.x < width - border) &&
@@ -223,7 +237,9 @@ __global__ void flowPropagatePayloadX_k(cudaTextureObject_t inputFlow,
     loadProp2.x = inRange? loadProp2.x : load2_0.x;
     loadProp2.y = inRange? loadProp2.y : load2_0.y;
 
-    //#################################
+
+
+  //#################################
     // PACK RESULTS
     //#################################
     *coordPitch(flowPropagated, pix) = flowPropU;
@@ -287,6 +303,9 @@ __global__ void flowPropagatePayloadY_k(cudaTextureObject_t inputFlow,
     // forward and backward differences
     const float ly1_p = load1_p - load1_0;
     const float ly1_m = load1_0 - load1_m;
+    // if (pix.x==160 && pix.y==120)
+    // { printf("%0.10f\n", ly1_p); }
+    
 
     float loadProp1 = load1_0;
     loadProp1 -= dt*Vd* (Vd >= 0.0f? ly1_m : ly1_p);
@@ -306,6 +325,20 @@ __global__ void flowPropagatePayloadY_k(cudaTextureObject_t inputFlow,
     float2 loadProp2 = load2_0;
     loadProp2.x -= dt*Vd* (Vd >= 0.0f? ly2_m.x : ly2_p.x);
     loadProp2.y -= dt*Vd* (Vd >= 0.0f? ly2_m.y : ly2_p.y);
+
+
+    //#################################
+    // LOW TEXTURE PROPAGATION STOP
+    //#################################
+    // if ( (ly1_p*ly1_p)<0.0001 && (ly1_m*ly1_m)<0.0001 )
+    // {
+    //     loadProp1 =     0;
+    //     loadProp2.x =   0;
+    //     loadProp2.y =   0;
+    //     flowPropV.x =   0;//flow_0.x;
+    //     flowPropV.y =   0;//flow_0.y;
+    // }
+
 
 
     //#################################

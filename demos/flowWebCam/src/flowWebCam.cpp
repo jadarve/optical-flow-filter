@@ -8,6 +8,10 @@
 #include <iostream>
 #include <vector>
 
+#include <ctime>
+#include <unistd.h>
+#include <sys/time.h>
+
 #include <opencv2/opencv.hpp>
 
 #include <flowfilter/gpu/flowfilter.h>
@@ -40,6 +44,7 @@ void wrapCVMat(Mat& cvMat, image_t& img) {
 int main(int argc, char** argv) {
 
     int cameraIndex = 0;
+    timeval start, end;
 
     // if user provides camera index
     if(argc > 1) {
@@ -51,10 +56,11 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    Mat frame;
+    Mat frame, frameTrue;
 
     //  captura a frame to get image width and height
-    cap >> frame;
+    cap >> frameTrue;
+    cv::flip(frameTrue, frame, 1);
     int width = frame.cols;
     int height = frame.rows;
     cout << "frame shape: [" << height << ", " << width << "]" << endl;
@@ -73,14 +79,14 @@ int main(int argc, char** argv) {
     // Filter parameters
     //#################################
     float maxflow = 4.0f;
-    vector<float> gamma = {10, 50};
-    vector<int> smoothIterations = {2, 2};
+    vector<float> gamma = {10, 50,10};
+    vector<int> smoothIterations = {3, 3,3};
 
     //#################################
     // Filter creation with
     // 3 pyramid levels
     //#################################
-    PyramidalFlowFilter filter(height, width, 2);
+    PyramidalFlowFilter filter(height, width, 3);
     filter.setMaxFlow(maxflow);
     filter.setGamma(gamma);
     filter.setSmoothIterations(smoothIterations);
@@ -99,13 +105,19 @@ int main(int argc, char** argv) {
 
     // Capture loop
     for(;;) {
+        
 
         // capture a new frame from the camera
         // and convert it to gray scale (uint8)
-        cap >> frame;
+        gettimeofday(&start, 0);
+        cap >> frameTrue;
+        
+        cv::flip(frameTrue, frame, 1);
+        
         cvtColor(frame, frameGray, CV_BGR2GRAY);
 
         // transfer image to flow filter and compute
+        
         filter.loadImage(hostImageGray);
         filter.compute();
 
@@ -125,8 +137,11 @@ int main(int argc, char** argv) {
 
         imshow("image", frameGray);
         imshow("optical flow", fcolor);
-
-        if(waitKey(1) >= 0) break;
+	    waitKey(5);
+        //if(waitKey(5) >= 0) break;
+        gettimeofday(&end, 0);
+        //cout << "difference: " << (end.tv_usec/1000.0 - start.tv_usec/1000.0) << endl << endl;
+        cout << "fps: " <<  1000.0/(end.tv_usec/1000.0 - start.tv_usec/1000.0) << endl << endl;
     }
 
     // the camera will be deinitialized automatically in VideoCapture destructor

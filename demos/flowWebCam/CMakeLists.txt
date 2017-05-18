@@ -17,5 +17,6 @@ set (CMAKE_CXX_COMPILER         "g++")
 set (CMAKE_CXX_FLAGS            "-std=c++11 -flto -O2 -Wall")
 
 
+
 add_executable( flowWebCam src/flowWebCam.cpp )
 target_link_libraries( flowWebCam ${OpenCV_LIBS} ${LIBS})

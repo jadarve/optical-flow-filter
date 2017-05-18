@@ -89,6 +89,7 @@ void FlowPropagator::compute() {
     //#######################
     // First Iteration
     //#######################
+    // std::cout << "propagate" << std::endl;
     if(__invertInputFlow) {
 
         // invert __inputFlow and write it to __propagatedFlow_Y
@@ -97,6 +98,7 @@ void FlowPropagator::compute() {
             __propagatedFlow_Y.wrap<float2>());
 
         // propagate in X using inverted flow written in __propagatedFlow_Y
+        
         flowPropagateX_k<<<__grid, __block, 0, __stream>>>(
             __propagatedFlowTexture_Y.getTextureObject(),
             __propagatedFlow_X.wrap<float2>(), __dt, __border);
@@ -121,6 +123,7 @@ void FlowPropagator::compute() {
     for(int n = 0; n < __iterations - 1; n ++) {
 
         // take as input __propagatedFlowY
+        // std::cout << "propagate2" << std::endl;
         flowPropagateX_k<<<__grid, __block, 0, __stream>>>(
             __propagatedFlowTexture_Y.getTextureObject(),
             __propagatedFlow_X.wrap<float2>(), __dt, __border);
@@ -331,6 +334,7 @@ void FlowPropagatorPayload::compute() {
     }
 
     // First iteration takes as input __inputFlow
+    // std::cout << "prop_payload" << std::endl;
     flowPropagatePayloadX_k<<<__grid, __block, 0, __stream>>>(
         __inputFlowTexture.getTextureObject(),
         __propagatedFlow_X.wrap<float2>(),
@@ -338,6 +342,7 @@ void FlowPropagatorPayload::compute() {
         __propagatedScalar_X.wrap<float>(),
         __inputVectorTexture.getTextureObject(),
         __propagatedVector_X.wrap<float2>(), __dt, __border);
+
 
     flowPropagatePayloadY_k<<<__grid, __block, 0, __stream>>>(
         __propagatedFlowTexture_X.getTextureObject(),
@@ -351,7 +356,8 @@ void FlowPropagatorPayload::compute() {
     // Rest of iterations
     for(int n = 0; n < __iterations - 1; n ++) {
 
-        // take as input __propagatedFlowY
+        // take as input 
+        // std::cout << "prop_payload" << std::endl;
         flowPropagatePayloadX_k<<<__grid, __block, 0, __stream>>>(
             __propagatedFlowTexture_Y.getTextureObject(),
             __propagatedFlow_X.wrap<float2>(),

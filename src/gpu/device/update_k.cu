@@ -71,6 +71,16 @@ __global__ void flowUpdate_k(gpuimage_t<float> newImage,
     ofNew.y = isinf(ofNew.y) + isnan(ofNew.y) > 0? 0.0f : ofNew.y;
 
 
+
+    //#################################
+    // LOW TEXTURE RESULTS
+    //#################################
+    // if ((a1.x*a1.x)<0.0001 && (a1.y*a1.y)<0.0001)
+    // {
+    //     ofNew.x =   0;
+    //     ofNew.y =   0;
+    // }
+
     //#################################
     // PACK RESULTS
     //#################################
@@ -163,6 +173,14 @@ __global__ void deltaFlowUpdate_k(gpuimage_t<float> newImage,
     flowNew.x = max(-maxflow, min(flowNew.x, maxflow));
     flowNew.y = max(-maxflow, min(flowNew.y, maxflow));
 
+
+    if ((a1.x*a1.x)<0.00005 && (a1.y*a1.y)<0.00005)
+    {
+        // dFlowNew.x =   0;
+        // dFlowNew.y =   0;
+        flowNew.x =   0;
+        flowNew.y =   0;
+    }
 
     //#################################
     // PACK RESULTS
