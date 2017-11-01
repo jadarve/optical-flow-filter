@@ -17,9 +17,10 @@ A real time optical flow algorithm implemented on GPU.
 
 ## Dependencies
 
-  * CMake 2.8.11 or higher
-  * Cuda 7.5
-  * Visual Studio 2013 (Windows only)
+  * CMake 2.8.11 or higher.
+  * Cuda 7.5 or higher.
+  * GCC 4.8.
+  * Visual Studio 2013 (Windows only).
 
 ## Build (Linux)
 
@@ -48,7 +49,7 @@ The library and header files will be installed at **/usr/local/lib** and **/usr/
     cmake --build . --config Release
     
 
-##Python Wrappers
+# Python Wrappers
 
 A python package with wrappers to the C++ library is available at **optical-flow-filter/python/** folder. The wrappers have been developed and build using Cython 0.23.4.
 
