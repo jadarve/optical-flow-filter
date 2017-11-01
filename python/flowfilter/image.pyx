@@ -17,7 +17,7 @@ cdef class Image:
 
     def __cinit__(self, np.ndarray arr = None):
 
-        if arr == None:
+        if arr is None:
             self.numpyArray = None
             return
 

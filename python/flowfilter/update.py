@@ -71,8 +71,8 @@ def imageModel(img, support=5):
         gradient1D = np.reshape(gradient1D[::-1], (1, gradient1D.shape[0]))
 
     # renormalize masks
-    gradient1D /= np.sum(gradient1D*gradient1D)
     blur1D /= np.sum(blur1D)
+    gradient1D *= blur1D
 
     # Gaussian blurring in X and Y
     imgBlurX = nd.convolve(img, blur1D)

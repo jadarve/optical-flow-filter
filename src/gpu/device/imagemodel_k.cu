@@ -19,7 +19,7 @@ namespace gpu {
 #define IMS_W 5
 
 __constant__ float smooth_mask[] = {0.0625,  0.25,    0.375,   0.25,    0.0625};
-__constant__ float diff_mask[] = {-0.2, -0.1, 0.0, 0.1, 0.2};
+__constant__ float diff_mask[] = {-0.125, -0.25, 0, 0.25, 0.125};
 
 
 /**

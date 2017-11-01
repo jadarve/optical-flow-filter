@@ -25,7 +25,6 @@ _colorWheel_R = np.copy(colorWheel[...,0])
 _colorWheel_G = np.copy(colorWheel[...,1])
 _colorWheel_B = np.copy(colorWheel[...,2])
 
-
 def flowToColor(flow, maxflow=1.0):
     """Returns the color wheel encoded version of the flow field.
 
@@ -51,7 +50,7 @@ def flowToColor(flow, maxflow=1.0):
     
     # height and width of color wheel texture
     h, w = colorWheel.shape[0:2]
-    
+
     # scale optical flow to lie in range [0, 1]
     flow_scaled = (flow + maxflow) / float(2*maxflow)
 
@@ -76,7 +75,7 @@ def flowToColor(flow, maxflow=1.0):
     interp.map_coordinates(_colorWheel_R, flow_swapped, color_R, order=0, mode='nearest', cval=0)
     interp.map_coordinates(_colorWheel_G, flow_swapped, color_G, order=0, mode='nearest', cval=0)
     interp.map_coordinates(_colorWheel_B, flow_swapped, color_B, order=0, mode='nearest', cval=0)
-    
+
     # creates output image
     flowColor = np.zeros((flow.shape[0], flow.shape[1], 3), dtype=np.uint8)
     flowColor[:,:,0] = color_R.reshape(flow.shape[0:2])
