@@ -18,7 +18,7 @@ import scipy.ndimage as nd
 __all__ = ['imageModel', 'update', 'smoothFlow']
 
 
-def imageModel(img, support=3):
+def imageModel(img, support=5):
     """Computes brightness model parameters.
 
     Parameters
@@ -67,7 +67,8 @@ def imageModel(img, support=3):
             blur1D = np.convolve(blur1D, b, mode='full')
 
         blur1D = np.reshape(blur1D, (1, blur1D.shape[0]))
-        gradient1D = np.arange(-support/2 + 1, support/2 + 1, dtype=np.float)
+        halfSupport = np.floor(support/2)
+        gradient1D = np.arange(-halfSupport, halfSupport + 1, dtype=np.float)
         gradient1D = np.reshape(gradient1D[::-1], (1, gradient1D.shape[0]))
 
     # renormalize masks
@@ -86,7 +87,7 @@ def imageModel(img, support=3):
     return A0, Ax, Ay
 
 
-def update(img, imgOld, flowPredicted, support=3, gamma=1.0):
+def update(img, imgOld, flowPredicted, support=5, gamma=1.0):
     """Update the optical flow field provided new image data.
 
     Parameters
