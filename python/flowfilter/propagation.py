@@ -316,7 +316,7 @@ def propagationStep(flow, dt=1.0, dx=1.0, payload=None, border=3):
         payloadPropagated = list()
         
         # for each scalar field in the payload
-        for i in xrange(len(payloadPropX)):
+        for i in range(len(payloadPropX)):
             
             field = payloadPropX[i]
             fieldPropY = np.copy(field)
