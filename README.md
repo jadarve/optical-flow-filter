@@ -1,3 +1,7 @@
+# IMPORTANT:
+
+Please consider using https://github.com/jadarve/lluvia instead of this repo. Lluvia includes an implementation of this algorithm running using the Vulkan API instead of CUDA. Checkout this demo: https://www.youtube.com/watch?v=mRZ6YdWb8fE.
+
 # Optical-flow-filter
 
 A real time optical flow algorithm implemented on GPU.
@@ -10,8 +14,6 @@ A real time optical flow algorithm implemented on GPU.
     }
 
 [![300 Hz Real Time Optical Flow ](http://img.youtube.com/vi/_oW1vMdBMuY/0.jpg)](http://www.youtube.com/watch?v=_oW1vMdBMuY)
-
-
 
 # Build and Installation
 
